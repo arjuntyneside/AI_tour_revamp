@@ -1,0 +1,6 @@
+body { background: #f8f9fa; }
+.sidebar { background: #222; color: #fff; }
+.sidebar a { color: #fff; }
+.sidebar a:hover { background: #444; }
+.main-content { padding: 40px; }
+h1 { color: #222; } 

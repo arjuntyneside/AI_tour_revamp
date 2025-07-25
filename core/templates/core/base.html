@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+    <div class="sidebar">
+        <a href="/">Dashboard</a>
+        <a href="/tours/">Tours</a>
+        <a href="/customers/">Customers</a>
+        <a href="/settings/">Settings</a>
+        <a href="/logout/">Logout</a>
+    </div>
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+    <script src="{% static 'js/dashboard.js' %}"></script>
+</body>
+</html> 
