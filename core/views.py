@@ -3,10 +3,18 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django import forms
+from .models import Departure
+
+class DepartureForm(forms.ModelForm):
+    class Meta:
+        model = Departure
+        fields = ['title', 'country', 'duration_days', 'departure_date', 'group_size_current', 'group_size_max', 'price_gbp']
 
 @login_required
 def dashboard(request):
-    return render(request, 'core/dashboard.html')
+    departures = Departure.objects.all().order_by('departure_date')
+    return render(request, 'core/dashboard.html', {'departures': departures})
 
 @login_required
 def tours(request):
@@ -19,6 +27,18 @@ def customers(request):
 @login_required
 def settings(request):
     return render(request, 'core/settings.html')
+
+@login_required
+def departures(request):
+    if request.method == 'POST':
+        form = DepartureForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('departures')
+    else:
+        form = DepartureForm()
+    all_departures = Departure.objects.all().order_by('departure_date')
+    return render(request, 'core/departures.html', {'form': form, 'departures': all_departures})
 
 def login(request):
     if request.method == 'POST':

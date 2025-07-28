@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Departures{% endblock %}
+
+{% block content %}
+<h1>Manage Departures</h1>
+<div class="departures-form-section">
+    <h2>Add New Departure</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Add Departure</button>
+    </form>
+</div>
+<hr>
+<div class="departures-list-section">
+    <h2>All Departures</h2>
+    <ul class="departures-list">
+        {% for dep in departures %}
+        <li>
+            <strong>{{ dep.title }}</strong> ({{ dep.country }}) - {{ dep.duration_days }} days, {{ dep.departure_date }} | Group: {{ dep.group_size_current }}/{{ dep.group_size_max }} | £{{ dep.price_gbp }}
+        </li>
+        {% empty %}
+        <li>No departures yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %} 
