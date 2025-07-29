@@ -3,10 +3,15 @@
 <head>
     <title>{% block title %}Dashboard{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
+    {% block extra_head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'core/css/dashboard.css' %}">
+    {% endblock %}
 </head>
 <body>
-    <div class="sidebar">
+    <div id="sidebar" class="sidebar">
+        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">
+            <span class="chevron chevron-left"></span>
+        </button>
         <div class="nav-links">
             <a href="/">Dashboard</a>
             <a href="/tours/">Tours</a>
@@ -21,6 +26,8 @@
     <div class="main-content">
         {% block content %}{% endblock %}
     </div>
-    <script src="{% static 'js/dashboard.js' %}"></script>
+    {% block extra_js %}
+    <script src="{% static 'core/js/dashboard.js' %}"></script>
+    {% endblock %}
 </body>
 </html> 

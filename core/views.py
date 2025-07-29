@@ -74,8 +74,61 @@ def process_customer_import(uploaded_file):
 
 @login_required
 def dashboard(request):
+    # Get all departures for upcoming departures
     departures = Departure.objects.all().order_by('departure_date')
-    return render(request, 'core/dashboard.html', {'departures': departures})
+    
+    # Calculate profitability metrics
+    total_revenue = sum(dep.effective_price_per_person * dep.group_size_current for dep in departures)
+    total_customers = Customer.objects.count()
+    total_tours = Tour.objects.count()
+    
+    # Calculate most profitable tours (mock data for now - will be enhanced when we add cost data)
+    profitable_tours = Tour.objects.all()[:5]  # Top 5 tours by creation date
+    
+    # Calculate loss-making tours (tours with low occupancy or high costs)
+    # For now, using tours with no departures or low booking rates as proxy
+    loss_making_tours = []
+    for tour in Tour.objects.all():
+        # Check if tour has any departures
+        tour_departures = Departure.objects.filter(title__icontains=tour.title)
+        if not tour_departures.exists():
+            # Tour with no departures = potential loss maker
+            loss_making_tours.append(tour)
+        else:
+            # Check occupancy rate for this tour's departures
+            total_capacity = sum(dep.group_size_max for dep in tour_departures)
+            total_booked = sum(dep.group_size_current for dep in tour_departures)
+            if total_capacity > 0:
+                occupancy = (total_booked / total_capacity) * 100
+                if occupancy < 30:  # Less than 30% occupancy = loss maker
+                    loss_making_tours.append(tour)
+    
+    # Limit to top 5 loss-making tours
+    loss_making_tours = loss_making_tours[:5]
+    
+    # Calculate tour occupancy rates
+    total_capacity = sum(departure.group_size_max for departure in departures)
+    total_booked = sum(departure.group_size_current for departure in departures)
+    occupancy_rate = (total_booked / total_capacity * 100) if total_capacity > 0 else 0
+    
+    # Calculate customer metrics
+    customers_with_bookings = Customer.objects.filter(bookings_count__gt=0).count()
+    customer_engagement_rate = (customers_with_bookings / total_customers * 100) if total_customers > 0 else 0
+    
+    dashboard_data = {
+        'departures': departures,
+        'total_revenue': total_revenue,
+        'total_customers': total_customers,
+        'total_tours': total_tours,
+        'profitable_tours': profitable_tours,
+        'loss_making_tours': loss_making_tours,
+        'occupancy_rate': round(occupancy_rate, 1),
+        'customer_engagement_rate': round(customer_engagement_rate, 1),
+        'total_booked': total_booked,
+        'total_capacity': total_capacity,
+    }
+    
+    return render(request, 'core/dashboard.html', dashboard_data)
 
 @login_required
 def tours(request):
@@ -100,8 +153,52 @@ def tours(request):
 def tour_detail(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
     
+    # Calculate profitability analysis
+    tour_departures = Departure.objects.filter(title__icontains=tour.title)
+    
+    # Total revenue calculation
+    total_revenue = sum(dep.effective_price_per_person * dep.group_size_current for dep in tour_departures)
+    
+    # Total travelers booked
+    total_travelers = sum(dep.group_size_current for dep in tour_departures)
+    
+    # Tour costs calculation
+    total_tour_cost = (tour.cost_per_person * total_travelers) + tour.operational_costs
+    
+    # Net profit calculation
+    net_profit = total_revenue - total_tour_cost
+    
+    # Profit margin calculation
+    profit_margin = (net_profit / total_revenue * 100) if total_revenue > 0 else 0
+    
+    # Break-even point calculation
+    if tour.cost_per_person > 0:
+        break_even_travelers = (tour.operational_costs / (tour.effective_price_per_person - tour.cost_per_person))
+        break_even_travelers = max(1, round(break_even_travelers))
+    else:
+        break_even_travelers = 1
+    
+    # Additional metrics
+    total_capacity = sum(dep.group_size_max for dep in tour_departures)
+    occupancy_rate = (total_travelers / total_capacity * 100) if total_capacity > 0 else 0
+    
+    profitability_data = {
+        'total_revenue': total_revenue,
+        'total_travelers': total_travelers,
+        'total_tour_cost': total_tour_cost,
+        'operational_costs': tour.operational_costs,
+        'net_profit': net_profit,
+        'profit_margin': round(profit_margin, 1),
+        'break_even_travelers': break_even_travelers,
+        'occupancy_rate': round(occupancy_rate, 1),
+        'total_capacity': total_capacity,
+        'cost_per_person': tour.cost_per_person,
+        'price_per_person': tour.effective_price_per_person,
+    }
+    
     return render(request, 'core/tour_detail.html', {
-        'tour': tour
+        'tour': tour,
+        'profitability': profitability_data
     })
 
 @login_required

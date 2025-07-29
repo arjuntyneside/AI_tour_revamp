@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-
+{% load static %}
 {% block title %}Departures{% endblock %}
 
 {% block content %}
@@ -18,8 +18,13 @@
     <ul class="departures-list">
         {% for dep in departures %}
         <li>
-            <strong>{{ dep.title }}</strong> ({{ dep.country }}) - {{ dep.duration_days }} days, {{ dep.departure_date }} | Group: {{ dep.group_size_current }}/{{ dep.group_size_max }} | £{{ dep.price_gbp }}
-        </li>
+            <strong>{{ dep.title }}</strong> ({{ dep.country }}) - {{ dep.duration_days }} days, {{ dep.departure_date }} | Group: {{ dep.group_size_current }}/{{ dep.group_size_max }} | 
+    {% if dep.pricing_type == 'per_person' %}
+        £{{ dep.price_per_person|floatformat:0 }} PPP
+    {% else %}
+        £{{ dep.price_per_group|floatformat:0 }} Group
+    {% endif %}
+</li>
         {% empty %}
         <li>No departures yet.</li>
         {% endfor %}

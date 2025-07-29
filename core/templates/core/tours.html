@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}Tours{% endblock %}
 
@@ -49,7 +50,13 @@
                     <p class="tour-destination">{{ tour.destination }}</p>
                     <div class="tour-details">
                         <span class="tour-duration">{{ tour.duration_days }} days</span>
-                        <span class="tour-price">£{{ tour.price_gbp }}</span>
+                        <span class="tour-price">
+                            {% if tour.pricing_type == 'per_person' %}
+                                £{{ tour.price_per_person|floatformat:0 }} PPP
+                            {% else %}
+                                £{{ tour.price_per_group|floatformat:0 }} Group
+                            {% endif %}
+                        </span>
                         <span class="tour-difficulty {{ tour.difficulty_level }}">{{ tour.get_difficulty_level_display }}</span>
                     </div>
                     <p class="tour-description">{{ tour.description|truncatewords:20 }}</p>
