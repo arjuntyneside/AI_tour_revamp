@@ -3,14 +3,62 @@
 {% block title %}Tours{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Tours</title>
-</head>
-<body>
-    <h1>Tour Directory</h1>
-    <p>This is the tours page.</p>
-</body>
-</html>
+<h1>Manage Tours</h1>
+
+<!-- Django Messages -->
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Add Tour Form -->
+<div class="tour-form-section">
+    <h2>Create New Tour</h2>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Create Tour</button>
+    </form>
+</div>
+
+<hr>
+
+<!-- Tours List -->
+<div class="tours-list-section">
+    <h2>All Tours</h2>
+    <div class="tours-grid">
+        {% for tour in tours %}
+        <a href="{% url 'tour_detail' tour.id %}" class="tour-card-link">
+            <div class="tour-card">
+                {% if tour.image %}
+                    <div class="tour-image">
+                        <img src="{{ tour.image.url }}" alt="{{ tour.title }}">
+                    </div>
+                {% elif tour.image_url %}
+                    <div class="tour-image">
+                        <img src="{{ tour.image_url }}" alt="{{ tour.title }}">
+                    </div>
+                {% endif %}
+                <div class="tour-content">
+                    <h3 class="tour-title">{{ tour.title }}</h3>
+                    <p class="tour-destination">{{ tour.destination }}</p>
+                    <div class="tour-details">
+                        <span class="tour-duration">{{ tour.duration_days }} days</span>
+                        <span class="tour-price">£{{ tour.price_gbp }}</span>
+                        <span class="tour-difficulty {{ tour.difficulty_level }}">{{ tour.get_difficulty_level_display }}</span>
+                    </div>
+                    <p class="tour-description">{{ tour.description|truncatewords:20 }}</p>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="no-tours">No tours created yet.</div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

@@ -3,11 +3,93 @@
 {% block title %}Customers{% endblock %}
 
 {% block content %}
-<html>
-<head><title>Customers</title></head>
-<body>
-    <h1>Customers Page</h1>
-    <p>Welcome to the Customers page!</p>
-</body>
-</html> 
+<h1>Manage Customers</h1>
+
+<!-- Django Messages -->
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Search Form -->
+<div class="search-section">
+    <form method="get" class="search-form">
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Search by name, email, or initials...">
+        <button type="submit">Search</button>
+        {% if search_query %}
+            <a href="{% url 'customers' %}" class="clear-search">Clear Search</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Import Section -->
+<div class="import-section">
+    <h2>Import Customers from File</h2>
+    <div class="import-info">
+        <p>Upload a CSV or Excel file with the following columns:</p>
+        <ul>
+            <li><strong>initials</strong> - Customer initials (e.g., "CH")</li>
+            <li><strong>full_name</strong> - Full name (e.g., "Chris Holmes")</li>
+            <li><strong>email</strong> - Email address (required)</li>
+            <li><strong>phone_number</strong> - Phone number (optional)</li>
+            <li><strong>location</strong> - Location (optional)</li>
+            <li><strong>bookings_count</strong> - Number of bookings (default: 0)</li>
+            <li><strong>last_interaction_date</strong> - Date in YYYY-MM-DD format (optional)</li>
+        </ul>
+        <p><strong>Note:</strong> The first row should contain column headers.</p>
+    </div>
+    <form method="post" enctype="multipart/form-data" class="import-form">
+        {% csrf_token %}
+        <input type="file" name="import_file" accept=".csv,.xlsx,.xls" required>
+        <button type="submit" class="btn btn-secondary">Import Customers</button>
+    </form>
+</div>
+
+<!-- Add Customer Form -->
+<div class="customer-form-section">
+    <h2>Add New Customer</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Add Customer</button>
+    </form>
+</div>
+
+<hr>
+
+<!-- Customers List -->
+<div class="customers-list-section">
+    <h2>All Customers</h2>
+    <div class="customers-list">
+        {% for customer in customers %}
+        <a href="{% url 'customer_detail' customer.id %}" class="customer-item-link">
+            <div class="customer-item">
+                <div class="customer-header">
+                    <span class="customer-initials">{{ customer.initials }}</span>
+                    <span class="customer-name">{{ customer.full_name }}</span>
+                </div>
+                <div class="customer-email">{{ customer.email }}</div>
+                {% if customer.location %}
+                    <div class="customer-location">{{ customer.location }}</div>
+                {% endif %}
+                <div class="customer-stats">
+                    {{ customer.bookings_count }} bookings
+                    {% if customer.last_interaction_date %}
+                        Last interaction: {{ customer.last_interaction_date }}
+                    {% else %}
+                        Last interaction: Never
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="no-customers">No customers found.</div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

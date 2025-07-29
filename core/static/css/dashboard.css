@@ -143,4 +143,669 @@ h1 {
     .dashboard-cards {
         max-width: 100%;
     }
+}
+
+/* Customer Page Styles */
+.search-section {
+    margin-bottom: 24px;
+}
+
+.search-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-form input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    flex: 1;
+    max-width: 300px;
+}
+
+.search-form button {
+    padding: 8px 16px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.clear-search {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.customer-form-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.customer-form-section h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.customers-list {
+    display: grid;
+    gap: 16px;
+}
+
+.customer-item {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.customer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.customer-initials {
+    background: #1a73e8;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.customer-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.customer-email {
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.customer-location {
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.customer-stats {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.no-customers {
+    text-align: center;
+    color: #666;
+    padding: 40px;
+    font-style: italic;
+}
+
+/* Form styling */
+form p {
+    margin-bottom: 12px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+form input, form select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: #1a73e8;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1557b0;
+}
+
+/* Messages */
+.messages {
+    margin-bottom: 20px;
+}
+
+.message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Import Section */
+.import-section {
+    background: #f0f8ff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    border: 1px solid #d1ecf1;
+}
+
+.import-section h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #0c5460;
+}
+
+.import-info {
+    margin-bottom: 16px;
+}
+
+.import-info p {
+    margin-bottom: 8px;
+    color: #0c5460;
+}
+
+.import-info ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.import-info li {
+    margin-bottom: 4px;
+    color: #0c5460;
+}
+
+.import-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.import-form input[type="file"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+} 
+
+/* Customer Detail Page Styles */
+.customer-item-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.customer-item-link:hover .customer-item {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+.customer-detail-header {
+    margin-bottom: 24px;
+}
+
+.back-link {
+    color: #1a73e8;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    display: inline-block;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.customer-detail-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.customer-profile-section,
+.customer-notes-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.profile-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.profile-initials {
+    background: #1a73e8;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.profile-info h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.3rem;
+}
+
+.profile-email {
+    color: #666;
+    margin: 0 0 4px 0;
+}
+
+.profile-phone {
+    color: #666;
+    margin: 0 0 4px 0;
+}
+
+.profile-location {
+    color: #888;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.profile-stats {
+    display: grid;
+    gap: 12px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-weight: bold;
+    color: #555;
+}
+
+.stat-value {
+    color: #1a73e8;
+}
+
+.add-note-section {
+    background: #f0f8ff;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    border: 1px solid #d1ecf1;
+}
+
+.add-note-section h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #0c5460;
+}
+
+.note-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.note-item {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.note-date {
+    font-weight: bold;
+}
+
+.note-author {
+    color: #1a73e8;
+}
+
+.note-text {
+    color: #333;
+    line-height: 1.5;
+}
+
+.no-notes {
+    text-align: center;
+    color: #666;
+    padding: 40px;
+    font-style: italic;
+}
+
+/* Responsive design for customer detail */
+@media (max-width: 768px) {
+    .customer-detail-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .note-header {
+        flex-direction: column;
+        gap: 4px;
+    }
+} 
+
+/* Tour Page Styles */
+.tour-form-section {
+    background: #f8f9fa;
+    padding: 24px;
+    border-radius: 8px;
+    margin-bottom: 32px;
+    border: 1px solid #e0e0e0;
+}
+
+.tour-form-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.tours-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.tour-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.tour-card-link:hover .tour-card {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    transition: all 0.3s ease;
+}
+
+.tour-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.tour-image {
+    height: 200px;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.tour-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tour-content {
+    padding: 20px;
+}
+
+.tour-title {
+    margin: 0 0 8px 0;
+    font-size: 1.3rem;
+    color: #333;
+}
+
+.tour-destination {
+    color: #666;
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+}
+
+.tour-details {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.tour-duration,
+.tour-price,
+.tour-difficulty {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.tour-duration {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.tour-price {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.tour-difficulty {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.tour-difficulty.easy {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.tour-difficulty.moderate {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.tour-difficulty.challenging {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.tour-difficulty.expert {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.tour-description {
+    color: #666;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.no-tours {
+    text-align: center;
+    color: #666;
+    padding: 60px;
+    font-style: italic;
+    grid-column: 1 / -1;
+}
+
+/* Tour Detail Page Styles */
+.tour-detail-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.tour-overview {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tour-hero-image {
+    width: 100%;
+    height: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: #f0f0f0;
+}
+
+.tour-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tour-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.tour-meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.meta-label {
+    font-weight: bold;
+    color: #555;
+}
+
+.meta-value {
+    color: #333;
+}
+
+.meta-value.price {
+    color: #2e7d32;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.meta-value.difficulty {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.tour-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tour-section h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #333;
+    border-bottom: 2px solid #1a73e8;
+    padding-bottom: 8px;
+}
+
+.tour-description-full,
+.tour-highlights,
+.tour-included,
+.tour-excluded,
+.tour-additional {
+    line-height: 1.6;
+    color: #444;
+}
+
+.tour-additional p {
+    margin: 8px 0;
+}
+
+/* Responsive design for tours */
+@media (max-width: 768px) {
+    .tours-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .tour-meta {
+        grid-template-columns: 1fr;
+    }
+    
+    .tour-details {
+        flex-direction: column;
+        gap: 8px;
+    }
 } 

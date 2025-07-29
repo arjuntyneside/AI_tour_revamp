@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ tour.title }} - Tour Details{% endblock %}
+
+{% block content %}
+<div class="tour-detail-header">
+    <a href="{% url 'tours' %}" class="back-link">← Back to Tours</a>
+    <h1>{{ tour.title }}</h1>
+</div>
+
+<div class="tour-detail-container">
+    <!-- Tour Overview -->
+    <div class="tour-overview">
+        {% if tour.image %}
+            <div class="tour-hero-image">
+                <img src="{{ tour.image.url }}" alt="{{ tour.title }}">
+            </div>
+        {% elif tour.image_url %}
+            <div class="tour-hero-image">
+                <img src="{{ tour.image_url }}" alt="{{ tour.title }}">
+            </div>
+        {% endif %}
+        
+        <div class="tour-meta">
+            <div class="tour-meta-item">
+                <span class="meta-label">Destination:</span>
+                <span class="meta-value">{{ tour.destination }}</span>
+            </div>
+            <div class="tour-meta-item">
+                <span class="meta-label">Duration:</span>
+                <span class="meta-value">{{ tour.duration_days }} days</span>
+            </div>
+            <div class="tour-meta-item">
+                <span class="meta-label">Price:</span>
+                <span class="meta-value price">£{{ tour.price_gbp }}</span>
+            </div>
+            <div class="tour-meta-item">
+                <span class="meta-label">Difficulty:</span>
+                <span class="meta-value difficulty {{ tour.difficulty_level }}">{{ tour.get_difficulty_level_display }}</span>
+            </div>
+            <div class="tour-meta-item">
+                <span class="meta-label">Max Group Size:</span>
+                <span class="meta-value">{{ tour.max_group_size }} people</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tour Description -->
+    <div class="tour-section">
+        <h2>Tour Description</h2>
+        <div class="tour-description-full">
+            {{ tour.description|linebreaks }}
+        </div>
+    </div>
+
+    <!-- Tour Highlights -->
+    <div class="tour-section">
+        <h2>Highlights</h2>
+        <div class="tour-highlights">
+            {{ tour.highlights|linebreaks }}
+        </div>
+    </div>
+
+    <!-- What's Included -->
+    <div class="tour-section">
+        <h2>What's Included</h2>
+        <div class="tour-included">
+            {{ tour.included_services|linebreaks }}
+        </div>
+    </div>
+
+    <!-- What's Not Included -->
+    {% if tour.excluded_services %}
+    <div class="tour-section">
+        <h2>What's Not Included</h2>
+        <div class="tour-excluded">
+            {{ tour.excluded_services|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tour Details -->
+    <div class="tour-section">
+        <h2>Additional Information</h2>
+        <div class="tour-additional">
+            <p><strong>Created:</strong> {{ tour.created_date|date:"F d, Y" }}</p>
+            <p><strong>Tour ID:</strong> {{ tour.id }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

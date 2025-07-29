@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ customer.full_name }} - Customer Details{% endblock %}
+
+{% block content %}
+<div class="customer-detail-header">
+    <a href="{% url 'customers' %}" class="back-link">← Back to Customers</a>
+    <h1>{{ customer.full_name }}</h1>
+</div>
+
+<!-- Django Messages -->
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="customer-detail-container">
+    <!-- Section 1: Customer Profile -->
+    <div class="customer-profile-section">
+        <h2>Customer Profile</h2>
+        <div class="profile-card">
+            <div class="profile-header">
+                <span class="profile-initials">{{ customer.initials }}</span>
+                <div class="profile-info">
+                    <h3>{{ customer.full_name }}</h3>
+                    <p class="profile-email">{{ customer.email }}</p>
+                    {% if customer.phone_number %}
+                        <p class="profile-phone">{{ customer.phone_number }}</p>
+                    {% endif %}
+                    {% if customer.location %}
+                        <p class="profile-location">{{ customer.location }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Bookings:</span>
+                    <span class="stat-value">{{ customer.bookings_count }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Last Interaction:</span>
+                    <span class="stat-value">
+                        {% if customer.last_interaction_date %}
+                            {{ customer.last_interaction_date }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Customer ID:</span>
+                    <span class="stat-value">{{ customer.id }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Customer History and Notes -->
+    <div class="customer-notes-section">
+        <h2>Customer History and Notes</h2>
+        
+        <!-- Add Note Form -->
+        <div class="add-note-section">
+            <h3>Add Note</h3>
+            <form method="post" class="note-form">
+                {% csrf_token %}
+                {{ note_form.note_text }}
+                <button type="submit" class="btn btn-primary">Add Note</button>
+            </form>
+        </div>
+
+        <!-- Notes List -->
+        <div class="notes-list">
+            {% for note in notes %}
+            <div class="note-item">
+                <div class="note-header">
+                    <span class="note-date">{{ note.created_date|date:"M d, Y H:i" }}</span>
+                    <span class="note-author">by {{ note.created_by.username }}</span>
+                </div>
+                <div class="note-text">{{ note.note_text|linebreaks }}</div>
+            </div>
+            {% empty %}
+            <div class="no-notes">No notes yet for this customer.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
