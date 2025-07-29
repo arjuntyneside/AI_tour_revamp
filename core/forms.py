@@ -1,18 +1,5 @@
 from django import forms
-from .models import Departure, Customer, CustomerNote, Tour
-
-class DepartureForm(forms.ModelForm):
-    class Meta:
-        model = Departure
-        fields = [
-            'title', 'country', 'duration_days', 'departure_date', 
-            'group_size_current', 'group_size_max', 'pricing_type', 
-            'price_per_person', 'price_per_group'
-        ]
-        widgets = {
-            'price_per_person': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
-            'price_per_group': forms.NumberInput(attrs={'step': '0.01', 'min': '0', 'title': 'Total price for the entire group'}),
-        }
+from .models import Customer, CustomerNote, Tour, TourDeparture
 
 class CustomerForm(forms.ModelForm):
     class Meta:
@@ -55,4 +42,12 @@ class TourForm(forms.ModelForm):
             'cost_per_person': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
             'operational_costs': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
             'profit_margin_percentage': forms.NumberInput(attrs={'step': '0.01', 'min': '0', 'max': '100'}),
+        }
+
+class TourDepartureForm(forms.ModelForm):
+    class Meta:
+        model = TourDeparture
+        fields = ['tour', 'departure_date']
+        widgets = {
+            'departure_date': forms.DateInput(attrs={'type': 'date'}),
         } 

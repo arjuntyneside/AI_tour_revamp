@@ -4,6 +4,28 @@
 {% block title %}Settings{% endblock %}
 
 {% block content %}
-<h1>Settings Page</h1>
-<p>Welcome to the Settings page!</p>
+<h1>Settings</h1>
+<div class="settings-container">
+    <div class="settings-tabs">
+        <button class="settings-tab active" data-tab="profile">Profile</button>
+    </div>
+    <div class="settings-content">
+        <div class="settings-section" id="settings-profile" style="display:block;">
+            <h2>Profile</h2>
+            <form method="post" class="settings-form">
+                {% csrf_token %}
+                <label for="id_name">Display Name</label>
+                <input type="text" id="id_name" name="name" value="{{ user.get_full_name }}" required>
+                <label for="id_email">Email</label>
+                <input type="email" id="id_email" name="email" value="{{ user.email }}" required>
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+            <div class="profile-meta">
+                <p>Status: {% if user.is_active %}<span style="color:green; font-weight:600;">Active</span>{% else %}<span style="color:red; font-weight:600;">Inactive</span>{% endif %}</p>
+                <p>Date Joined: {{ user.date_joined|date:"F d, Y H:i" }}</p>
+                <p>Last Login: {% if user.last_login %}{{ user.last_login|date:"F d, Y H:i" }}{% else %}Never{% endif %}</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

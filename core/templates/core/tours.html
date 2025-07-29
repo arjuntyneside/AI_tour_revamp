@@ -48,6 +48,14 @@
                 <div class="tour-content">
                     <h3 class="tour-title">{{ tour.title }}</h3>
                     <p class="tour-destination">{{ tour.destination }}</p>
+                    <div class="tour-departure-summary">
+                        <span class="departures-count">{{ tour.departures_count }} departure{{ tour.departures_count|pluralize }}</span>
+                        {% if tour.next_departure %}
+                            <span class="next-departure">Next: {{ tour.next_departure|date:"M d, Y" }}</span>
+                        {% else %}
+                            <span class="next-departure">No departures</span>
+                        {% endif %}
+                    </div>
                     <div class="tour-details">
                         <span class="tour-duration">{{ tour.duration_days }} days</span>
                         <span class="tour-price">

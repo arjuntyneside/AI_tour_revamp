@@ -3,35 +3,12 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-class Departure(models.Model):
-    PRICING_TYPE_CHOICES = [
-        ('per_person', 'Price Per Person (PPP)'),
-        ('per_group', 'Price Per Group'),
-    ]
-    
-    title = models.CharField(max_length=200)
-    country = models.CharField(max_length=100)
-    duration_days = models.PositiveIntegerField()
+class TourDeparture(models.Model):
+    tour = models.ForeignKey('Tour', on_delete=models.CASCADE, related_name='departures')
     departure_date = models.DateField()
-    group_size_current = models.PositiveIntegerField()
-    group_size_max = models.PositiveIntegerField()
-    
-    # Pricing fields - clarified
-    pricing_type = models.CharField(max_length=20, choices=PRICING_TYPE_CHOICES, default='per_person', help_text="How is this departure priced?")
-    price_per_person = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Price per person (PPP)")
-    price_per_group = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Total price for the entire group")
 
     def __str__(self):
-        return f"{self.title} ({self.country}) on {self.departure_date}"
-    
-    @property
-    def effective_price_per_person(self):
-        """Get the effective price per person regardless of pricing type"""
-        if self.pricing_type == 'per_person':
-            return self.price_per_person
-        elif self.pricing_type == 'per_group' and self.group_size_max > 0:
-            return self.price_per_group / self.group_size_max
-        return 0
+        return f"{self.tour.title} on {self.departure_date}"
 
 class Customer(models.Model):
     CUSTOMER_SEGMENT_CHOICES = [

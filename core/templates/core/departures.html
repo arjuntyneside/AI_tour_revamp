@@ -1,32 +1,25 @@
 {% extends 'core/base.html' %}
 {% load static %}
+
 {% block title %}Departures{% endblock %}
 
 {% block content %}
-<h1>Manage Departures</h1>
-<div class="departures-form-section">
-    <h2>Add New Departure</h2>
-    <form method="post" novalidate>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Add Departure</button>
-    </form>
-</div>
-<hr>
+<h1>All Departures</h1>
 <div class="departures-list-section">
-    <h2>All Departures</h2>
     <ul class="departures-list">
         {% for dep in departures %}
         <li>
-            <strong>{{ dep.title }}</strong> ({{ dep.country }}) - {{ dep.duration_days }} days, {{ dep.departure_date }} | Group: {{ dep.group_size_current }}/{{ dep.group_size_max }} | 
-    {% if dep.pricing_type == 'per_person' %}
-        £{{ dep.price_per_person|floatformat:0 }} PPP
-    {% else %}
-        £{{ dep.price_per_group|floatformat:0 }} Group
-    {% endif %}
-</li>
+            <strong>{{ dep.tour.title }}</strong> — {{ dep.departure_date|date:"F d, Y" }}
+            {% if dep.days_left > 0 %}
+                <span class="days-left">(in {{ dep.days_left }} day{{ dep.days_left|pluralize }})</span>
+            {% elif dep.days_left == 0 %}
+                <span class="days-left">(today)</span>
+            {% else %}
+                <span class="days-left">(past)</span>
+            {% endif %}
+        </li>
         {% empty %}
-        <li>No departures yet.</li>
+        <li>No departures scheduled.</li>
         {% endfor %}
     </ul>
 </div>

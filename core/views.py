@@ -4,8 +4,8 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Departure, Customer, CustomerNote, Tour
-from .forms import DepartureForm, CustomerForm, CustomerNoteForm, TourForm
+from .models import Customer, CustomerNote, Tour, TourDeparture
+from .forms import CustomerForm, CustomerNoteForm, TourForm
 import pandas as pd
 import io
 from django.shortcuts import get_object_or_404
@@ -74,60 +74,31 @@ def process_customer_import(uploaded_file):
 
 @login_required
 def dashboard(request):
-    # Get all departures for upcoming departures
-    departures = Departure.objects.all().order_by('departure_date')
-    
-    # Calculate profitability metrics
-    total_revenue = sum(dep.effective_price_per_person * dep.group_size_current for dep in departures)
+    departures = TourDeparture.objects.all().order_by('departure_date')
     total_customers = Customer.objects.count()
     total_tours = Tour.objects.count()
-    
-    # Calculate most profitable tours (mock data for now - will be enhanced when we add cost data)
-    profitable_tours = Tour.objects.all()[:5]  # Top 5 tours by creation date
-    
-    # Calculate loss-making tours (tours with low occupancy or high costs)
-    # For now, using tours with no departures or low booking rates as proxy
+    profitable_tours = Tour.objects.all()[:5]
     loss_making_tours = []
     for tour in Tour.objects.all():
-        # Check if tour has any departures
-        tour_departures = Departure.objects.filter(title__icontains=tour.title)
+        tour_departures = TourDeparture.objects.filter(tour=tour)
         if not tour_departures.exists():
-            # Tour with no departures = potential loss maker
             loss_making_tours.append(tour)
-        else:
-            # Check occupancy rate for this tour's departures
-            total_capacity = sum(dep.group_size_max for dep in tour_departures)
-            total_booked = sum(dep.group_size_current for dep in tour_departures)
-            if total_capacity > 0:
-                occupancy = (total_booked / total_capacity) * 100
-                if occupancy < 30:  # Less than 30% occupancy = loss maker
-                    loss_making_tours.append(tour)
-    
-    # Limit to top 5 loss-making tours
+        # No occupancy logic since group size is not tracked
     loss_making_tours = loss_making_tours[:5]
-    
-    # Calculate tour occupancy rates
-    total_capacity = sum(departure.group_size_max for departure in departures)
-    total_booked = sum(departure.group_size_current for departure in departures)
-    occupancy_rate = (total_booked / total_capacity * 100) if total_capacity > 0 else 0
-    
-    # Calculate customer metrics
-    customers_with_bookings = Customer.objects.filter(bookings_count__gt=0).count()
-    customer_engagement_rate = (customers_with_bookings / total_customers * 100) if total_customers > 0 else 0
-    
+    # No occupancy or revenue logic since group size is not tracked
     dashboard_data = {
         'departures': departures,
-        'total_revenue': total_revenue,
+        'total_revenue': 0,
         'total_customers': total_customers,
         'total_tours': total_tours,
         'profitable_tours': profitable_tours,
         'loss_making_tours': loss_making_tours,
-        'occupancy_rate': round(occupancy_rate, 1),
-        'customer_engagement_rate': round(customer_engagement_rate, 1),
-        'total_booked': total_booked,
-        'total_capacity': total_capacity,
+        'occupancy_rate': 0,
+        'customer_engagement_rate': 0,
+        'total_booked': 0,
+        'total_capacity': 0,
+        'display_name': request.user.get_full_name(),
     }
-    
     return render(request, 'core/dashboard.html', dashboard_data)
 
 @login_required
@@ -140,10 +111,17 @@ def tours(request):
             return redirect('tours')
     else:
         form = TourForm()
-    
-    # Get all tours
-    tours_list = Tour.objects.all()
-    
+
+    # Get all tours and annotate with departures info
+    tours_list = []
+    for tour in Tour.objects.all():
+        departures = tour.departures.order_by('departure_date')
+        departures_count = departures.count()
+        next_departure = departures.first().departure_date if departures.exists() else None
+        tour.departures_count = departures_count
+        tour.next_departure = next_departure
+        tours_list.append(tour)
+
     return render(request, 'core/tours.html', {
         'form': form,
         'tours': tours_list
@@ -152,53 +130,44 @@ def tours(request):
 @login_required
 def tour_detail(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
-    
-    # Calculate profitability analysis
-    tour_departures = Departure.objects.filter(title__icontains=tour.title)
-    
-    # Total revenue calculation
-    total_revenue = sum(dep.effective_price_per_person * dep.group_size_current for dep in tour_departures)
-    
-    # Total travelers booked
-    total_travelers = sum(dep.group_size_current for dep in tour_departures)
-    
-    # Tour costs calculation
-    total_tour_cost = (tour.cost_per_person * total_travelers) + tour.operational_costs
-    
-    # Net profit calculation
-    net_profit = total_revenue - total_tour_cost
-    
-    # Profit margin calculation
-    profit_margin = (net_profit / total_revenue * 100) if total_revenue > 0 else 0
-    
-    # Break-even point calculation
-    if tour.cost_per_person > 0:
-        break_even_travelers = (tour.operational_costs / (tour.effective_price_per_person - tour.cost_per_person))
-        break_even_travelers = max(1, round(break_even_travelers))
-    else:
-        break_even_travelers = 1
-    
-    # Additional metrics
-    total_capacity = sum(dep.group_size_max for dep in tour_departures)
-    occupancy_rate = (total_travelers / total_capacity * 100) if total_capacity > 0 else 0
-    
+    tour_departures = TourDeparture.objects.filter(tour=tour).order_by('departure_date')
+
+    # Handle add/delete departure date
+    if request.method == 'POST':
+        if 'add_departure' in request.POST:
+            date_str = request.POST.get('departure_date')
+            if date_str:
+                try:
+                    from datetime import datetime
+                    dep_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    TourDeparture.objects.create(tour=tour, departure_date=dep_date)
+                    messages.success(request, 'Departure date added!')
+                except Exception as e:
+                    messages.error(request, f'Invalid date: {e}')
+            return redirect('tour_detail', tour_id=tour.id)
+        elif 'delete_departure' in request.POST:
+            dep_id = request.POST.get('delete_departure')
+            TourDeparture.objects.filter(id=dep_id, tour=tour).delete()
+            messages.success(request, 'Departure date deleted!')
+            return redirect('tour_detail', tour_id=tour.id)
+
     profitability_data = {
-        'total_revenue': total_revenue,
-        'total_travelers': total_travelers,
-        'total_tour_cost': total_tour_cost,
+        'total_revenue': 0,
+        'total_travelers': 0,
+        'total_tour_cost': 0,
         'operational_costs': tour.operational_costs,
-        'net_profit': net_profit,
-        'profit_margin': round(profit_margin, 1),
-        'break_even_travelers': break_even_travelers,
-        'occupancy_rate': round(occupancy_rate, 1),
-        'total_capacity': total_capacity,
+        'net_profit': 0,
+        'profit_margin': 0,
+        'break_even_travelers': 0,
+        'occupancy_rate': 0,
+        'total_capacity': 0,
         'cost_per_person': tour.cost_per_person,
         'price_per_person': tour.effective_price_per_person,
     }
-    
     return render(request, 'core/tour_detail.html', {
         'tour': tour,
-        'profitability': profitability_data
+        'profitability': profitability_data,
+        'departures': tour_departures,
     })
 
 @login_required
@@ -280,20 +249,37 @@ def customer_detail(request, customer_id):
     })
 
 @login_required
-def settings(request):
-    return render(request, 'core/settings.html')
+def departures(request):
+    from datetime import date
+    departures = TourDeparture.objects.select_related('tour').order_by('departure_date')
+    today = date.today()
+    for dep in departures:
+        dep.days_left = (dep.departure_date - today).days
+    return render(request, 'core/departures.html', {'departures': departures})
 
 @login_required
-def departures(request):
+def settings(request):
+    user = request.user
     if request.method == 'POST':
-        form = DepartureForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('departures')
-    else:
-        form = DepartureForm()
-    all_departures = Departure.objects.all().order_by('departure_date')
-    return render(request, 'core/departures.html', {'form': form, 'departures': all_departures})
+        new_name = request.POST.get('name', '').strip()
+        new_email = request.POST.get('email', '').strip()
+        changed = False
+        if new_name and (new_name != user.get_full_name()):
+            # Split name into first and last (simple logic)
+            name_parts = new_name.split(' ', 1)
+            user.first_name = name_parts[0]
+            user.last_name = name_parts[1] if len(name_parts) > 1 else ''
+            changed = True
+        if new_email and (new_email != user.email):
+            user.email = new_email
+            changed = True
+        if changed:
+            user.save()
+            messages.success(request, 'Profile updated successfully!')
+        else:
+            messages.info(request, 'No changes made.')
+        return redirect('settings')
+    return render(request, 'core/settings.html', {'user': user})
 
 def login(request):
     if request.method == 'POST':

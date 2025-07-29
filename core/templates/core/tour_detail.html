@@ -9,6 +9,30 @@
     <h1>{{ tour.title }}</h1>
 </div>
 
+<!-- Departure Dates Management -->
+<div class="tour-departures-section">
+    <h2>Departure Dates</h2>
+    <form method="post" class="add-departure-form" style="margin-bottom: 1em;">
+        {% csrf_token %}
+        <input type="date" name="departure_date" required>
+        <button type="submit" name="add_departure" class="btn btn-primary">Add Departure</button>
+    </form>
+    <ul class="departure-dates-list">
+        {% for dep in departures %}
+        <li>
+            {{ dep.departure_date|date:"F d, Y" }}
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="delete_departure" value="{{ dep.id }}">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this departure date?');">Delete</button>
+            </form>
+        </li>
+        {% empty %}
+        <li>No departures yet for this tour.</li>
+        {% endfor %}
+    </ul>
+</div>
+
 <div class="tour-detail-container">
     <!-- Tour Overview -->
     <div class="tour-overview">
@@ -21,7 +45,6 @@
                 <img src="{{ tour.image_url }}" alt="{{ tour.title }}">
             </div>
         {% endif %}
-        
         <div class="tour-meta">
             <div class="tour-meta-item">
                 <span class="meta-label">Destination:</span>
@@ -92,283 +115,6 @@
         <div class="tour-additional">
             <p><strong>Created:</strong> {{ tour.created_date|date:"F d, Y" }}</p>
             <p><strong>Tour ID:</strong> {{ tour.id }}</p>
-        </div>
-    </div>
-
-    <!-- Profitability Analysis Section -->
-    <div class="profitability-analysis-section">
-        <h2>Overall Profitability Analysis</h2>
-        <p class="analysis-subtitle">All-time financial performance overview</p>
-        
-        <div class="profitability-grid">
-            <!-- Revenue Metrics -->
-            <div class="profitability-card revenue">
-                <div class="metric-header">
-                    <h3>Total Revenue</h3>
-                    <div class="metric-icon">💰</div>
-                </div>
-                <div class="metric-value">£{{ profitability.total_revenue|floatformat:2 }}</div>
-                <div class="metric-subtitle">{{ profitability.total_travelers }} travelers booked</div>
-            </div>
-
-            <!-- Cost Metrics -->
-            <div class="profitability-card cost">
-                <div class="metric-header">
-                    <h3>Tour Cost</h3>
-                    <div class="metric-icon">💸</div>
-                </div>
-                <div class="metric-value">£{{ profitability.total_tour_cost|floatformat:2 }}</div>
-                <div class="metric-subtitle">Operating cost</div>
-            </div>
-
-            <!-- Profit Metrics -->
-            <div class="profitability-card profit">
-                <div class="metric-header">
-                    <h3>Net Profit</h3>
-                    <div class="metric-icon">📈</div>
-                </div>
-                <div class="metric-value {% if profitability.net_profit < 0 %}negative{% endif %}">
-                    £{{ profitability.net_profit|floatformat:2 }}
-                </div>
-                <div class="metric-subtitle">{{ profitability.profit_margin }}% margin</div>
-            </div>
-
-            <!-- Break-even Metrics -->
-            <div class="profitability-card break-even">
-                <div class="metric-header">
-                    <h3>Break-even Point</h3>
-                    <div class="metric-icon">⚖️</div>
-                </div>
-                <div class="metric-value">{{ profitability.break_even_travelers }}</div>
-                <div class="metric-subtitle">travelers needed</div>
-            </div>
-        </div>
-
-        <!-- Detailed Cost Breakdown -->
-        <div class="cost-breakdown">
-            <h3>Cost Breakdown</h3>
-            <div class="breakdown-grid">
-                <div class="breakdown-item">
-                    <span class="breakdown-label">Cost per Person:</span>
-                    <span class="breakdown-value">£{{ profitability.cost_per_person|floatformat:2 }}</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="breakdown-label">Price per Group:</span>
-                    <span class="breakdown-value">£{{ tour.price_per_group|floatformat:2 }}</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="breakdown-label">Operational Costs:</span>
-                    <span class="breakdown-value">£{{ profitability.operational_costs|floatformat:2 }}</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="breakdown-label">Occupancy Rate:</span>
-                    <span class="breakdown-value">{{ profitability.occupancy_rate }}%</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sensitivity Analysis Section -->
-    <div class="sensitivity-analysis-section">
-        <h2>Sensitivity Analysis & Revenue Scenarios</h2>
-        <p class="analysis-subtitle">Financial impact of different group sizes and pricing strategies</p>
-
-        <!-- Revenue Scenarios -->
-        <div class="scenarios-grid">
-            <div class="scenario-card">
-                <h3>Current Situation</h3>
-                <div class="scenario-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Group Size:</span>
-                        <span class="metric-value">{{ profitability.total_travelers }}/{{ profitability.total_capacity }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Revenue:</span>
-                        <span class="metric-value">£{{ profitability.total_revenue|floatformat:2 }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Profit:</span>
-                        <span class="metric-value {% if profitability.net_profit < 0 %}negative{% endif %}">£{{ profitability.net_profit|floatformat:2 }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Profit Margin:</span>
-                        <span class="metric-value">{{ profitability.profit_margin }}%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="scenario-card">
-                <h3>Minimum Viable (1 Person)</h3>
-                <div class="scenario-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Revenue:</span>
-                        <span class="metric-value">£{{ profitability.price_per_person|floatformat:2 }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Cost:</span>
-                        <span class="metric-value">£{{ profitability.cost_per_person|add:profitability.operational_costs|floatformat:2 }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Profit:</span>
-                        <span class="metric-value {% if profitability.price_per_person < profitability.cost_per_person|add:profitability.operational_costs %}negative{% endif %}">
-                            £{{ profitability.price_per_person|sub:profitability.cost_per_person|sub:profitability.operational_costs|floatformat:2 }}
-                        </span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Viable:</span>
-                        <span class="metric-value {% if profitability.price_per_person >= profitability.cost_per_person|add:profitability.operational_costs %}viable{% else %}not-viable{% endif %}">
-                            {% if profitability.price_per_person >= profitability.cost_per_person|add:profitability.operational_costs %}Yes{% else %}No{% endif %}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="scenario-card">
-                <h3>Break-even Point</h3>
-                <div class="scenario-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Travelers Needed:</span>
-                        <span class="metric-value">{{ profitability.break_even_travelers }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Revenue:</span>
-                        <span class="metric-value">£{{ profitability.break_even_travelers|mul:profitability.price_per_person|floatformat:2 }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Profit:</span>
-                        <span class="metric-value">£0.00</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Margin:</span>
-                        <span class="metric-value">0%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="scenario-card">
-                <h3>Full Capacity</h3>
-                <div class="scenario-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Revenue:</span>
-                        <span class="metric-value">£{{ profitability.total_capacity|mul:profitability.price_per_person|floatformat:2 }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Cost:</span>
-                        <span class="metric-value">£{{ profitability.total_capacity|mul:profitability.cost_per_person|add:profitability.operational_costs|floatformat:2 }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Profit:</span>
-                        <span class="metric-value">£{{ profitability.total_capacity|mul:profitability.price_per_person|sub:profitability.total_capacity|mul:profitability.cost_per_person|sub:profitability.operational_costs|floatformat:2 }}</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Margin:</span>
-                        <span class="metric-value">
-                            {% widthratio profitability.total_capacity|mul:profitability.price_per_person|sub:profitability.total_capacity|mul:profitability.cost_per_person|sub:profitability.operational_costs profitability.total_capacity|mul:profitability.price_per_person 100 %}%
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Discount Analysis -->
-        <div class="discount-analysis">
-            <h3>Discount Analysis for Full Capacity</h3>
-            <div class="discount-grid">
-                <div class="discount-scenario">
-                    <h4>No Discount (Current Price)</h4>
-                    <div class="discount-metrics">
-                        <div class="metric">
-                            <span class="metric-label">Revenue:</span>
-                            <span class="metric-value">£{{ profitability.total_capacity|mul:profitability.price_per_person|floatformat:2 }}</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Profit:</span>
-                            <span class="metric-value">£{{ profitability.total_capacity|mul:profitability.price_per_person|sub:profitability.total_capacity|mul:profitability.cost_per_person|sub:profitability.operational_costs|floatformat:2 }}</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Risk Level:</span>
-                            <span class="metric-value high-risk">High (Hard to fill)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="discount-scenario">
-                    <h4>10% Discount</h4>
-                    <div class="discount-metrics">
-                        <div class="metric">
-                            <span class="metric-label">Revenue:</span>
-                            <span class="metric-value">£{{ profitability.total_capacity|mul:profitability.price_per_person|mul:0.9|floatformat:2 }}</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Profit:</span>
-                            <span class="metric-value">£{{ profitability.total_capacity|mul:profitability.price_per_person|mul:0.9|sub:profitability.total_capacity|mul:profitability.cost_per_person|sub:profitability.operational_costs|floatformat:2 }}</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Risk Level:</span>
-                            <span class="metric-value medium-risk">Medium</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="discount-scenario">
-                    <h4>20% Discount</h4>
-                    <div class="discount-metrics">
-                        <div class="metric">
-                            <span class="metric-label">Revenue:</span>
-                            <span class="metric-value">£{{ profitability.total_capacity|mul:profitability.price_per_person|mul:0.8|floatformat:2 }}</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Profit:</span>
-                            <span class="metric-value">£{{ profitability.total_capacity|mul:profitability.price_per_person|mul:0.8|sub:profitability.total_capacity|mul:profitability.cost_per_person|sub:profitability.operational_costs|floatformat:2 }}</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Risk Level:</span>
-                            <span class="metric-value low-risk">Low (Easy to fill)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Satisfaction Score Analysis -->
-        <div class="satisfaction-analysis">
-            <h3>Customer Satisfaction Score Analysis</h3>
-            <div class="satisfaction-grid">
-                <div class="satisfaction-metric">
-                    <h4>Occupancy Impact</h4>
-                    <div class="score-item">
-                        <span class="score-label">Current Occupancy:</span>
-                        <span class="score-value">{{ profitability.occupancy_rate }}%</span>
-                        <span class="score-rating {% if profitability.occupancy_rate >= 80 %}excellent{% elif profitability.occupancy_rate >= 60 %}good{% elif profitability.occupancy_rate >= 40 %}fair{% else %}poor{% endif %}">
-                            {% if profitability.occupancy_rate >= 80 %}Excellent{% elif profitability.occupancy_rate >= 60 %}Good{% elif profitability.occupancy_rate >= 40 %}Fair{% else %}Poor{% endif %}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="satisfaction-metric">
-                    <h4>Profitability Score</h4>
-                    <div class="score-item">
-                        <span class="score-label">Profit Margin:</span>
-                        <span class="score-value">{{ profitability.profit_margin }}%</span>
-                        <span class="score-rating {% if profitability.profit_margin >= 30 %}excellent{% elif profitability.profit_margin >= 20 %}good{% elif profitability.profit_margin >= 10 %}fair{% else %}poor{% endif %}">
-                            {% if profitability.profit_margin >= 30 %}Excellent{% elif profitability.profit_margin >= 20 %}Good{% elif profitability.profit_margin >= 10 %}Fair{% else %}Poor{% endif %}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="satisfaction-metric">
-                    <h4>Overall Tour Score</h4>
-                    <div class="score-item">
-                        <span class="score-label">Combined Score:</span>
-                        <span class="score-value">
-                            {% widthratio profitability.occupancy_rate|add:profitability.profit_margin 2 1 %}/100
-                        </span>
-                        <span class="score-rating {% if profitability.occupancy_rate|add:profitability.profit_margin|div:2 >= 50 %}excellent{% elif profitability.occupancy_rate|add:profitability.profit_margin|div:2 >= 35 %}good{% elif profitability.occupancy_rate|add:profitability.profit_margin|div:2 >= 20 %}fair{% else %}poor{% endif %}">
-                            {% if profitability.occupancy_rate|add:profitability.profit_margin|div:2 >= 50 %}Excellent{% elif profitability.occupancy_rate|add:profitability.profit_margin|div:2 >= 35 %}Good{% elif profitability.occupancy_rate|add:profitability.profit_margin|div:2 >= 20 %}Fair{% else %}Poor{% endif %}
-                        </span>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>

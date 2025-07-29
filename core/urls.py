@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
-from .views import departures, customer_detail, tour_detail
+from .views import customer_detail, tour_detail, departures
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
