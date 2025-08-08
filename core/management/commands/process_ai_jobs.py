@@ -146,7 +146,7 @@ class Command(BaseCommand):
                 return {
                     "extraction_confidence": 0.0,
                     "extracted_tours": [],
-                    "processing_notes": [f"File not found: {document.file_path}"]
+                    "processing_notes": [f"File not found: {document.file_path}"] #adding a comment for commit
                 }
             
             # Process with Gemini AI
