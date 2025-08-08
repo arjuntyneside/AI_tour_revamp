@@ -1,0 +1,484 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Document Results - {{ document.file_name }}{% endblock %}
+
+{% block content %}
+<div class="document-results">
+    <div class="page-header">
+        <h1>Document Processing Results</h1>
+        <a href="{% url 'document_processing' %}" class="btn btn-outline">← Back to Processing</a>
+    </div>
+
+    <!-- Document Information -->
+    <div class="document-info">
+        <div class="info-card">
+            <h3>Document Details</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>File Name:</label>
+                    <span>{{ document.file_name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>File Type:</label>
+                    <span>{{ document.file_type }}</span>
+                </div>
+                <div class="info-item">
+                    <label>File Size:</label>
+                    <span>{{ document.file_size|filesizeformat }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Uploaded:</label>
+                    <span>{{ document.uploaded_date|date:"M d, Y H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Status:</label>
+                    <span class="status-badge status-{{ document.processing_status }}">
+                        {{ document.get_processing_status_display }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Confidence Score:</label>
+                    <span>
+                        {% if document.confidence_score %}
+                            {{ document.confidence_score }}%
+                        {% else %}
+                            Not available
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Extracted Data -->
+    {% if document.extracted_data %}
+    <div class="extracted-data">
+        <div class="section-header">
+            <h2>AI Extracted Information</h2>
+            <a href="{% url 'create_tour_from_document' document.id %}" class="btn btn-primary">Create Tour from Data</a>
+        </div>
+
+        {% if document.extracted_data.extracted_tours %}
+            {% if document.extracted_data.extracted_tours|length > 1 %}
+                <div class="alert alert-info">
+                    <strong>Note:</strong> {{ document.extracted_data.extracted_tours|length }} tours were found in this document. 
+                    Only the main tour will be created. Upload separate documents for extensions or additional tours.
+                </div>
+            {% endif %}
+            
+            {% for tour_data in document.extracted_data.extracted_tours %}
+            <div class="tour-data-card">
+                <h3>{% if forloop.first %}Main Tour{% else %}Additional Tour {{ forloop.counter }}{% endif %}</h3>
+                <div class="tour-data-grid">
+                    <div class="data-item">
+                        <label>Title:</label>
+                        <span>{{ tour_data.title|default:"Not extracted" }}</span>
+                    </div>
+                    <div class="data-item">
+                        <label>Destination:</label>
+                        <span>{{ tour_data.destination|default:"Not extracted" }}</span>
+                    </div>
+                    <div class="data-item">
+                        <label>Duration:</label>
+                        <span>{{ tour_data.duration_days|default:"Not extracted" }} days</span>
+                    </div>
+                    <div class="data-item">
+                        <label>Max Group Size:</label>
+                        <span>{{ tour_data.max_group_size|default:"Not extracted" }}</span>
+                    </div>
+                    <div class="data-item">
+                        <label>Pricing Type:</label>
+                        <span>{{ tour_data.pricing_type|default:"Not extracted" }}</span>
+                    </div>
+                    <div class="data-item">
+                        <label>Price per Person:</label>
+                        <span>${{ tour_data.price_per_person|default:"Not extracted" }}</span>
+                    </div>
+                    <div class="data-item full-width">
+                        <label>Description:</label>
+                        <span>{{ tour_data.description|default:"Not extracted" }}</span>
+                    </div>
+                    <div class="data-item full-width">
+                        <label>Highlights:</label>
+                        <span>{{ tour_data.highlights|default:"Not extracted" }}</span>
+                    </div>
+                    <div class="data-item full-width">
+                        <label>Included Services:</label>
+                        <span>{{ tour_data.included_services|default:"Not extracted" }}</span>
+                    </div>
+                    <div class="data-item full-width">
+                        <label>Excluded Services:</label>
+                        <span>{{ tour_data.excluded_services|default:"Not extracted" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-data">
+                <p>No tour data was extracted from this document.</p>
+            </div>
+        {% endif %}
+
+        <!-- Processing Notes -->
+        {% if document.extracted_data.processing_notes %}
+        <div class="processing-notes">
+            <h3>AI Processing Notes</h3>
+            <ul>
+                {% for note in document.extracted_data.processing_notes %}
+                <li>{{ note }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Created Tours -->
+    {% if extracted_tours %}
+    <div class="created-tours">
+        <h2>Tours Created from This Document</h2>
+        <div class="tours-grid">
+            {% for tour in extracted_tours %}
+            <div class="tour-card">
+                <h4>{{ tour.title }}</h4>
+                <p><strong>Destination:</strong> {{ tour.destination }}</p>
+                <p><strong>Duration:</strong> {{ tour.duration_days }} days</p>
+                <p><strong>Price:</strong> ${{ tour.price_per_person }}</p>
+                <a href="{% url 'tour_detail' tour.id %}" class="btn btn-sm btn-outline">View Tour</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AI Processing Jobs -->
+    {% if ai_jobs %}
+    <div class="ai-jobs">
+        <h2>AI Processing Jobs</h2>
+        <div class="jobs-list">
+            {% for job in ai_jobs %}
+            <div class="job-item status-{{ job.status }}">
+                <div class="job-info">
+                    <h4>{{ job.get_job_type_display }}</h4>
+                    <small>Created: {{ job.created_date|date:"M d, Y H:i" }}</small>
+                    {% if job.completed_date %}
+                        <small>Completed: {{ job.completed_date|date:"M d, Y H:i" }}</small>
+                    {% endif %}
+                </div>
+                <div class="job-status">
+                    <span class="status-badge status-{{ job.status }}">
+                        {{ job.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Error Information -->
+    {% if document.processing_errors %}
+    <div class="error-info">
+        <h2>Processing Errors</h2>
+        <div class="error-content">
+            <pre>{{ document.processing_errors }}</pre>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.document-results {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    margin: 0;
+    color: #333;
+}
+
+.document-info {
+    margin-bottom: 2rem;
+}
+
+.info-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.info-card h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-item label {
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.info-item span {
+    color: #333;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.tour-data-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.tour-data-card h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.tour-data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.data-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.data-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.data-item label {
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.data-item span {
+    color: #333;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-processing {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.processing-notes {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+}
+
+.processing-notes h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.processing-notes ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.processing-notes li {
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.created-tours {
+    margin-top: 2rem;
+}
+
+.created-tours h2 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.tours-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.tour-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tour-card h4 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.tour-card p {
+    margin: 0 0 0.5rem 0;
+    color: #666;
+}
+
+.ai-jobs {
+    margin-top: 2rem;
+}
+
+.ai-jobs h2 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.job-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.job-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.job-info small {
+    display: block;
+    color: #666;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.error-info {
+    margin-top: 2rem;
+}
+
+.error-info h2 {
+    margin-bottom: 1rem;
+    color: #721c24;
+}
+
+.error-content {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.error-content pre {
+    margin: 0;
+    color: #721c24;
+    white-space: pre-wrap;
+    font-family: monospace;
+}
+
+.no-data {
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #666;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .job-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .job-status {
+        align-self: flex-end;
+    }
+}
+</style>
+{% endblock %}

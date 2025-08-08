@@ -1,0 +1,6 @@
+# Django Settings
+SECRET_KEY=your-django-secret-key-here
+DEBUG=True
+
+# Gemini AI Settings
+GEMINI_API_KEY=your-gemini-api-key-here

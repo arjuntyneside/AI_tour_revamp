@@ -1,16 +1,40 @@
 from django.urls import path
 from . import views
-from django.contrib.auth import views as auth_views
-from .views import customer_detail, tour_detail, departures
 
 urlpatterns = [
+    # Main dashboard and navigation
     path('', views.dashboard, name='dashboard'),
-    path('tours/', views.tours, name='tours'),
-    path('tours/<int:tour_id>/', tour_detail, name='tour_detail'),
-    path('departures/', departures, name='departures'),
-    path('customers/', views.customers, name='customers'),
-    path('customers/<int:customer_id>/', customer_detail, name='customer_detail'),
-    path('settings/', views.settings, name='settings'),
-    path('login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
+    path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
+    
+    # AI Document Processing
+    path('documents/upload/', views.document_upload, name='document_upload'),
+    path('documents/processing/', views.document_processing, name='document_processing'),
+    path('documents/<uuid:document_id>/results/', views.document_results, name='document_results'),
+    path('documents/<uuid:document_id>/create-tour/', views.create_tour_from_document, name='create_tour_from_document'),
+    path('documents/<uuid:document_id>/retry/', views.retry_document_processing, name='retry_document_processing'),
+    path('documents/<uuid:document_id>/process/', views.process_document, name='process_document'),
+    path('documents/<uuid:document_id>/delete/', views.delete_document, name='delete_document'),
+    path('documents/<uuid:document_id>/stop/', views.stop_processing, name='stop_processing'),
+    path('documents/<uuid:document_id>/status/', views.processing_status, name='processing_status'),
+    
+    # Tour Management
+    path('tours/', views.tours, name='tours'),
+    path('tours/<uuid:tour_id>/', views.tour_detail, name='tour_detail'),
+    
+    # Customer Management
+    path('customers/', views.customers, name='customers'),
+    path('customers/<uuid:customer_id>/', views.customer_detail, name='customer_detail'),
+    
+    # Booking Management
+    path('bookings/', views.bookings, name='bookings'),
+    
+    # Analytics and AI Insights
+    path('analytics/', views.analytics, name='analytics'),
+    
+    # Settings
+    path('settings/', views.settings, name='settings'),
+    
+    # AI Processing Webhook
+    path('api/ai-webhook/', views.ai_processing_webhook, name='ai_processing_webhook'),
 ]

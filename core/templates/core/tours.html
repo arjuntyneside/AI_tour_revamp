@@ -17,34 +17,62 @@
 </div>
 {% endif %}
 
-<!-- Add Tour Form -->
-<div class="tour-form-section">
-    <h2>Create New Tour</h2>
-    <form method="post" enctype="multipart/form-data" novalidate>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Create Tour</button>
-    </form>
+<!-- AI Document Processing Section -->
+<div class="ai-processing-section">
+    <h2>Create Tours with AI</h2>
+    <div class="ai-workflow">
+        <div class="workflow-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Upload Tour Documents</h3>
+                <p>Upload brochures, PDFs, or Excel files containing tour information</p>
+                <a href="{% url 'document_upload' %}" class="btn btn-primary">Upload Documents</a>
+            </div>
+        </div>
+        
+        <div class="workflow-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>AI Processing</h3>
+                <p>Our AI extracts tour details, pricing, and schedules automatically</p>
+                <a href="{% url 'document_processing' %}" class="btn btn-secondary">View Processing Status</a>
+            </div>
+        </div>
+        
+        <div class="workflow-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Review & Publish</h3>
+                <p>Review AI-extracted data and publish tours to your catalog</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <hr>
 
 <!-- Tours List -->
 <div class="tours-list-section">
-    <h2>All Tours</h2>
+    <h2>Your Tours</h2>
+    
+    <!-- Filter by Status -->
+    <div class="filter-section">
+        <form method="get" class="filter-form">
+            <label for="status">Filter by Status:</label>
+            <select name="status" id="status" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>Draft</option>
+                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                <option value="archived" {% if status_filter == 'archived' %}selected{% endif %}>Archived</option>
+            </select>
+        </form>
+    </div>
+    
     <div class="tours-grid">
         {% for tour in tours %}
         <a href="{% url 'tour_detail' tour.id %}" class="tour-card-link">
             <div class="tour-card">
-                {% if tour.image %}
-                    <div class="tour-image">
-                        <img src="{{ tour.image.url }}" alt="{{ tour.title }}">
-                    </div>
-                {% elif tour.image_url %}
-                    <div class="tour-image">
-                        <img src="{{ tour.image_url }}" alt="{{ tour.title }}">
-                    </div>
-                {% endif %}
                 <div class="tour-content">
                     <h3 class="tour-title">{{ tour.title }}</h3>
                     <p class="tour-destination">{{ tour.destination }}</p>
@@ -66,14 +94,99 @@
                             {% endif %}
                         </span>
                         <span class="tour-difficulty {{ tour.difficulty_level }}">{{ tour.get_difficulty_level_display }}</span>
+                        <span class="tour-status {{ tour.status }}">{{ tour.get_status_display }}</span>
                     </div>
                     <p class="tour-description">{{ tour.description|truncatewords:20 }}</p>
+                    
+                    <!-- AI Insights -->
+                    {% if tour.ai_extraction_confidence %}
+                    <div class="ai-insights">
+                        <span class="ai-confidence">AI Confidence: {{ tour.ai_extraction_confidence }}%</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Source Document -->
+                    {% if tour.source_document %}
+                    <div class="source-document">
+                        <small>Created from: {{ tour.source_document.file_name }}</small>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </a>
         {% empty %}
-        <div class="no-tours">No tours created yet.</div>
+        <div class="no-tours">
+            <div class="empty-state">
+                <h3>No tours yet</h3>
+                <p>Start by uploading your tour documents for AI processing</p>
+                <a href="{% url 'document_upload' %}" class="btn btn-primary">Upload First Document</a>
+            </div>
+        </div>
         {% endfor %}
     </div>
 </div>
+
+<style>
+.ai-processing-section {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.ai-workflow {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.workflow-step {
+    flex: 1;
+    text-align: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+}
+
+.step-content h3 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.step-content p {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.empty-state h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 2rem;
+}
+</style>
 {% endblock %}

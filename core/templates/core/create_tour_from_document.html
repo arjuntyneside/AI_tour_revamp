@@ -1,0 +1,449 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Create Tour from Document{% endblock %}
+
+{% block content %}
+<div class="create-tour">
+    <div class="page-header">
+        <h1>Create Tour from Document</h1>
+        <a href="{% url 'document_results' document.id %}" class="btn btn-outline">← Back to Results</a>
+    </div>
+
+    <!-- Document Information -->
+    <div class="document-info">
+        <div class="info-card">
+            <h3>Source Document</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>File Name:</label>
+                    <span>{{ document.file_name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Processing Status:</label>
+                    <span class="status-badge status-{{ document.processing_status }}">
+                        {{ document.get_processing_status_display }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Confidence Score:</label>
+                    <span>
+                        {% if document.confidence_score %}
+                            {{ document.confidence_score }}%
+                        {% else %}
+                            Not available
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Extracted Data Preview -->
+    {% if extracted_data and extracted_data.extracted_tours %}
+    <div class="extracted-preview">
+        <h2>AI Extracted Data (Preview)</h2>
+        {% for tour_data in extracted_data.extracted_tours %}
+        <div class="preview-card">
+            <h3>Tour {{ forloop.counter }}</h3>
+            <div class="preview-grid">
+                <div class="preview-item">
+                    <label>Title:</label>
+                    <span>{{ tour_data.title|default:"Not extracted" }}</span>
+                </div>
+                <div class="preview-item">
+                    <label>Destination:</label>
+                    <span>{{ tour_data.destination|default:"Not extracted" }}</span>
+                </div>
+                <div class="preview-item">
+                    <label>Duration:</label>
+                    <span>{{ tour_data.duration_days|default:"Not extracted" }} days</span>
+                </div>
+                <div class="preview-item">
+                    <label>Price per Person:</label>
+                    <span>${{ tour_data.price_per_person|default:"Not extracted" }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Tour Creation Form -->
+    <div class="tour-form-section">
+        <h2>Create New Tour</h2>
+        <form method="post" class="tour-form">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}">Tour Title *</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="error-message">{{ form.title.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.destination.id_for_label }}">Destination *</label>
+                        {{ form.destination }}
+                        {% if form.destination.errors %}
+                            <div class="error-message">{{ form.destination.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.duration_days.id_for_label }}">Duration (Days) *</label>
+                            {{ form.duration_days }}
+                            {% if form.duration_days.errors %}
+                                <div class="error-message">{{ form.duration_days.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.max_group_size.id_for_label }}">Max Group Size *</label>
+                            {{ form.max_group_size }}
+                            {% if form.max_group_size.errors %}
+                                <div class="error-message">{{ form.max_group_size.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing Information -->
+                <div class="form-section">
+                    <h3>Pricing Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.pricing_type.id_for_label }}">Pricing Type *</label>
+                        {{ form.pricing_type }}
+                        {% if form.pricing_type.errors %}
+                            <div class="error-message">{{ form.pricing_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.price_per_person.id_for_label }}">Price per Person ($)</label>
+                            {{ form.price_per_person }}
+                            {% if form.price_per_person.errors %}
+                                <div class="error-message">{{ form.price_per_person.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.price_per_group.id_for_label }}">Price per Group ($)</label>
+                            {{ form.price_per_group }}
+                            {% if form.price_per_group.errors %}
+                                <div class="error-message">{{ form.price_per_group.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tour Details -->
+                <div class="form-section full-width">
+                    <h3>Tour Details</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.description.id_for_label }}">Description *</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="error-message">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.highlights.id_for_label }}">Highlights</label>
+                        {{ form.highlights }}
+                        {% if form.highlights.errors %}
+                            <div class="error-message">{{ form.highlights.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.included_services.id_for_label }}">Included Services</label>
+                            {{ form.included_services }}
+                            {% if form.included_services.errors %}
+                                <div class="error-message">{{ form.included_services.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.excluded_services.id_for_label }}">Excluded Services</label>
+                            {{ form.excluded_services }}
+                            {% if form.excluded_services.errors %}
+                                <div class="error-message">{{ form.excluded_services.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tour Classification -->
+                <div class="form-section">
+                    <h3>Tour Classification</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.difficulty_level.id_for_label }}">Difficulty Level</label>
+                        {{ form.difficulty_level }}
+                        {% if form.difficulty_level.errors %}
+                            <div class="error-message">{{ form.difficulty_level.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.seasonal_demand.id_for_label }}">Seasonal Demand</label>
+                        {{ form.seasonal_demand }}
+                        {% if form.seasonal_demand.errors %}
+                            <div class="error-message">{{ form.seasonal_demand.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Tour</button>
+                <a href="{% url 'document_results' document.id %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.create-tour {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    margin: 0;
+    color: #333;
+}
+
+.document-info {
+    margin-bottom: 2rem;
+}
+
+.info-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.info-card h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-item label {
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.info-item span {
+    color: #333;
+}
+
+.extracted-preview {
+    margin-bottom: 2rem;
+}
+
+.extracted-preview h2 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.preview-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+    margin-bottom: 1rem;
+}
+
+.preview-card h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.preview-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-item label {
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.preview-item span {
+    color: #333;
+}
+
+.tour-form-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tour-form-section h2 {
+    margin: 0 0 2rem 0;
+    color: #333;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-section h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-processing {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

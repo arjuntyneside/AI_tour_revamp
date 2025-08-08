@@ -1,17 +1,48 @@
 from django import forms
-from .models import Customer, CustomerNote, Tour, TourDeparture
+from .models import (
+    Customer, CustomerNote, Tour, TourDeparture, TourOperator, 
+    TourOperatorUser, DocumentUpload, Booking
+)
+
+class TourOperatorForm(forms.ModelForm):
+    class Meta:
+        model = TourOperator
+        fields = [
+            'name', 'company_name', 'email', 'phone', 'website', 'address',
+            'subscription_plan', 'subscription_status', 'subscription_end_date',
+            'ai_document_processing', 'ai_pricing_analysis', 
+            'ai_demand_forecasting', 'ai_customer_segmentation'
+        ]
+        widgets = {
+            'subscription_end_date': forms.DateInput(attrs={'type': 'date'}),
+            'address': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class TourOperatorUserForm(forms.ModelForm):
+    class Meta:
+        model = TourOperatorUser
+        fields = ['user', 'tour_operator', 'role', 'is_active']
+
+class DocumentUploadForm(forms.ModelForm):
+    class Meta:
+        model = DocumentUpload
+        fields = ['file_name', 'file_type']
+        widgets = {
+            'file_name': forms.TextInput(attrs={'placeholder': 'Enter file name...'}),
+        }
 
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = [
             'initials', 'full_name', 'email', 'phone_number', 'location', 
-            'bookings_count', 'last_interaction_date', 'total_spent', 
-            'cancellation_rate', 'customer_segment'
+            'ai_customer_segment', 'total_spent', 'bookings_count', 
+            'cancellation_rate', 'last_interaction_date'
         ]
         widgets = {
             'total_spent': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
             'cancellation_rate': forms.NumberInput(attrs={'step': '0.01', 'min': '0', 'max': '100'}),
+            'last_interaction_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
 class CustomerNoteForm(forms.ModelForm):
@@ -29,8 +60,8 @@ class TourForm(forms.ModelForm):
             'title', 'destination', 'duration_days', 'pricing_type',
             'price_per_person', 'price_per_group', 'description', 
             'highlights', 'included_services', 'excluded_services', 'max_group_size', 
-            'difficulty_level', 'image', 'image_url', 'cost_per_person', 'operational_costs', 
-            'profit_margin_percentage', 'seasonal_demand'
+            'difficulty_level', 'cost_per_person', 'operational_costs', 
+            'profit_margin_percentage', 'seasonal_demand', 'status'
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 6, 'placeholder': 'Detailed tour description...'}),
@@ -47,7 +78,19 @@ class TourForm(forms.ModelForm):
 class TourDepartureForm(forms.ModelForm):
     class Meta:
         model = TourDeparture
-        fields = ['tour', 'departure_date']
+        fields = ['tour', 'departure_date', 'status']
         widgets = {
             'departure_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class BookingForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = [
+            'tour', 'departure', 'customer', 'number_of_people', 
+            'total_amount', 'status', 'notes'
+        ]
+        widgets = {
+            'total_amount': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'notes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Additional notes...'}),
         } 
