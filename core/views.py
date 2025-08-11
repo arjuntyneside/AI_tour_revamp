@@ -597,6 +597,110 @@ def bookings(request):
 
 @login_required
 @require_tour_operator
+def departures(request):
+    """View all departures with financial analysis"""
+    tour_operator = request.tour_operator
+    departures = TourDeparture.objects.filter(tour__tour_operator=tour_operator).order_by('departure_date')
+    
+    # Calculate financial metrics
+    total_revenue = sum(departure.current_revenue for departure in departures)
+    total_profit = sum(departure.current_profit for departure in departures)
+    
+    # Calculate average occupancy
+    if departures:
+        total_occupancy = sum(departure.current_occupancy_rate for departure in departures)
+        avg_occupancy = total_occupancy / len(departures)
+    else:
+        avg_occupancy = 0
+    
+    # Count profitable departures
+    profitable_count = sum(1 for departure in departures if departure.is_profitable)
+    total_departures = len(departures)
+    
+    context = {
+        'departures': departures,
+        'tour_operator': tour_operator,
+        'total_revenue': total_revenue,
+        'total_profit': total_profit,
+        'avg_occupancy': avg_occupancy,
+        'profitable_count': profitable_count,
+        'total_departures': total_departures,
+    }
+    
+    return render(request, 'core/departures.html', context)
+
+@login_required
+@require_tour_operator
+def create_departure(request):
+    """Create a new departure with financial analysis"""
+    tour_operator = request.tour_operator
+    
+    if request.method == 'POST':
+        form = TourDepartureForm(request.POST, tour_operator=tour_operator)
+        if form.is_valid():
+            departure = form.save(commit=False)
+            # Set default price from tour if not provided
+            if not departure.current_price_per_person:
+                departure.current_price_per_person = departure.tour.price_per_person
+            departure.save()
+            messages.success(request, f"Departure for '{departure.tour.title}' created successfully!")
+            return redirect('departures')
+    else:
+        form = TourDepartureForm(tour_operator=tour_operator)
+    
+    context = {
+        'form': form,
+        'tour_operator': tour_operator,
+        'action': 'Create',
+    }
+    
+    return render(request, 'core/departure_form.html', context)
+
+@login_required
+@require_tour_operator
+def edit_departure(request, departure_id):
+    """Edit a departure with financial analysis"""
+    tour_operator = request.tour_operator
+    departure = get_object_or_404(TourDeparture, id=departure_id, tour__tour_operator=tour_operator)
+    
+    if request.method == 'POST':
+        form = TourDepartureForm(request.POST, instance=departure, tour_operator=tour_operator)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Departure for '{departure.tour.title}' updated successfully!")
+            return redirect('departures')
+    else:
+        form = TourDepartureForm(instance=departure, tour_operator=tour_operator)
+    
+    context = {
+        'form': form,
+        'departure': departure,
+        'tour_operator': tour_operator,
+        'action': 'Edit',
+    }
+    
+    return render(request, 'core/departure_form.html', context)
+
+@login_required
+@require_tour_operator
+def departure_detail(request, departure_id):
+    """View detailed financial analysis for a departure"""
+    tour_operator = request.tour_operator
+    departure = get_object_or_404(TourDeparture, id=departure_id, tour__tour_operator=tour_operator)
+    
+    # Get bookings for this departure
+    bookings = Booking.objects.filter(departure=departure).order_by('booking_date')
+    
+    context = {
+        'departure': departure,
+        'bookings': bookings,
+        'tour_operator': tour_operator,
+    }
+    
+    return render(request, 'core/departure_detail.html', context)
+
+@login_required
+@require_tour_operator
 def analytics(request):
     """AI-powered analytics dashboard"""
     tour_operator = request.tour_operator

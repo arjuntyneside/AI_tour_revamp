@@ -78,10 +78,27 @@ class TourForm(forms.ModelForm):
 class TourDepartureForm(forms.ModelForm):
     class Meta:
         model = TourDeparture
-        fields = ['tour', 'departure_date', 'status']
+        fields = [
+            'tour', 'departure_date', 'available_spots', 'status',
+            'fixed_costs', 'variable_costs_per_person', 'marketing_costs', 'commission_rate',
+            'current_price_per_person', 'discounted_price_per_person'
+        ]
         widgets = {
-            'departure_date': forms.DateInput(attrs={'type': 'date'}),
+            'departure_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'available_spots': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'fixed_costs': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
+            'variable_costs_per_person': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
+            'marketing_costs': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
+            'commission_rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00', 'max': '100'}),
+            'current_price_per_person': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
+            'discounted_price_per_person': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        tour_operator = kwargs.pop('tour_operator', None)
+        super().__init__(*args, **kwargs)
+        if tour_operator:
+            self.fields['tour'].queryset = Tour.objects.filter(tour_operator=tour_operator)
 
 class BookingForm(forms.ModelForm):
     class Meta:

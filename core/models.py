@@ -218,7 +218,7 @@ class Tour(models.Model):
         return self.profit_per_person * self.max_group_size
 
 class TourDeparture(models.Model):
-    """Tour departure dates with AI optimization"""
+    """Tour departure dates with AI optimization and financial analysis"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='departures')
     departure_date = models.DateField()
@@ -227,9 +227,24 @@ class TourDeparture(models.Model):
     ai_demand_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     ai_optimal_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
+    # Financial Analysis Fields
+    fixed_costs = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Fixed costs for this departure (guides, permits, etc.)")
+    variable_costs_per_person = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Variable costs per person (accommodation, meals, transport)")
+    marketing_costs = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Marketing and promotion costs")
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Commission rate as percentage")
+    
+    # Pricing
+    current_price_per_person = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discounted_price_per_person = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
     # Booking tracking
     total_bookings = models.PositiveIntegerField(default=0)
     available_spots = models.PositiveIntegerField()
+    
+    # Financial calculations
+    breakeven_passengers = models.PositiveIntegerField(null=True, blank=True, help_text="Number of passengers needed to break even")
+    profit_at_capacity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Profit if departure sells out")
+    roi_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Return on Investment percentage")
     
     # Status
     status = models.CharField(max_length=20, default='scheduled', choices=[
@@ -240,6 +255,7 @@ class TourDeparture(models.Model):
     ])
     
     created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.tour.title} - {self.departure_date}"
@@ -247,7 +263,81 @@ class TourDeparture(models.Model):
     def save(self, *args, **kwargs):
         if not self.available_spots:
             self.available_spots = self.tour.max_group_size
+        if not self.current_price_per_person:
+            self.current_price_per_person = self.tour.price_per_person
         super().save(*args, **kwargs)
+        self.calculate_financial_metrics()
+    
+    def calculate_financial_metrics(self):
+        """Calculate breakeven and financial metrics"""
+        try:
+            # Total fixed costs
+            total_fixed_costs = self.fixed_costs + self.marketing_costs
+            
+            # Revenue per person (after commission)
+            commission_amount = (self.current_price_per_person * self.commission_rate) / 100
+            net_revenue_per_person = self.current_price_per_person - commission_amount
+            
+            # Contribution margin per person
+            contribution_margin_per_person = net_revenue_per_person - self.variable_costs_per_person
+            
+            # Calculate breakeven
+            if contribution_margin_per_person > 0:
+                self.breakeven_passengers = int(total_fixed_costs / contribution_margin_per_person) + 1
+            else:
+                self.breakeven_passengers = None
+            
+            # Calculate profit at capacity
+            if self.breakeven_passengers and self.available_spots > self.breakeven_passengers:
+                excess_passengers = self.available_spots - self.breakeven_passengers
+                self.profit_at_capacity = excess_passengers * contribution_margin_per_person
+            else:
+                self.profit_at_capacity = 0
+            
+            # Calculate ROI
+            total_investment = total_fixed_costs + (self.available_spots * self.variable_costs_per_person)
+            if total_investment > 0 and self.profit_at_capacity:
+                self.roi_percentage = (self.profit_at_capacity / total_investment) * 100
+            else:
+                self.roi_percentage = 0
+                
+        except Exception as e:
+            print(f"Error calculating financial metrics: {e}")
+    
+    @property
+    def current_occupancy_rate(self):
+        """Calculate current occupancy rate"""
+        if self.available_spots > 0:
+            return (self.total_bookings / self.available_spots) * 100
+        return 0
+    
+    @property
+    def current_revenue(self):
+        """Calculate current revenue"""
+        return self.total_bookings * self.current_price_per_person
+    
+    @property
+    def current_profit(self):
+        """Calculate current profit"""
+        if self.total_bookings >= self.breakeven_passengers:
+            excess_passengers = self.total_bookings - self.breakeven_passengers
+            contribution_margin = self.current_price_per_person - self.variable_costs_per_person
+            commission_amount = (self.current_price_per_person * self.commission_rate) / 100
+            net_contribution = contribution_margin - commission_amount
+            return excess_passengers * net_contribution
+        return 0
+    
+    @property
+    def is_profitable(self):
+        """Check if departure is currently profitable"""
+        return self.total_bookings >= self.breakeven_passengers if self.breakeven_passengers else False
+    
+    @property
+    def days_until_departure(self):
+        """Calculate days until departure"""
+        from django.utils import timezone
+        today = timezone.now().date()
+        return (self.departure_date - today).days
 
 class Customer(models.Model):
     """Enhanced customer model with AI segmentation"""

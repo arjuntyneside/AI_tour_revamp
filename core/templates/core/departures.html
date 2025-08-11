@@ -1,26 +1,473 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Departures{% endblock %}
+{% block title %}Financial Analysis - Departures{% endblock %}
 
 {% block content %}
-<h1>All Departures</h1>
-<div class="departures-list-section">
-    <ul class="departures-list">
-        {% for dep in departures %}
-        <li>
-            <strong>{{ dep.tour.title }}</strong> — {{ dep.departure_date|date:"F d, Y" }}
-            {% if dep.days_left > 0 %}
-                <span class="days-left">(in {{ dep.days_left }} day{{ dep.days_left|pluralize }})</span>
-            {% elif dep.days_left == 0 %}
-                <span class="days-left">(today)</span>
-            {% else %}
-                <span class="days-left">(past)</span>
-            {% endif %}
-        </li>
-        {% empty %}
-        <li>No departures scheduled.</li>
-        {% endfor %}
-    </ul>
+<div class="financial-analysis-header">
+    <h1>Financial Analysis Dashboard</h1>
+    <p class="subtitle">Smart financial insights for your tour departures</p>
 </div>
+
+<!-- Financial Overview Cards -->
+<div class="financial-overview">
+    <div class="overview-grid">
+        <div class="overview-card total-revenue">
+            <h3>Total Revenue</h3>
+            <div class="amount">${{ total_revenue|floatformat:2 }}</div>
+            <small>Across all departures</small>
+        </div>
+        <div class="overview-card total-profit">
+            <h3>Total Profit</h3>
+            <div class="amount">${{ total_profit|floatformat:2 }}</div>
+            <small>Net profit generated</small>
+        </div>
+        <div class="overview-card avg-occupancy">
+            <h3>Avg Occupancy</h3>
+            <div class="amount">{{ avg_occupancy|floatformat:1 }}%</div>
+            <small>Average across departures</small>
+        </div>
+        <div class="overview-card profitable-departures">
+            <h3>Profitable</h3>
+            <div class="amount">{{ profitable_count }}/{{ total_departures }}</div>
+            <small>Departures above breakeven</small>
+        </div>
+    </div>
+</div>
+
+<!-- Departures Financial Analysis -->
+<div class="departures-analysis">
+    <div class="section-header">
+        <h2>Departure Financial Analysis</h2>
+        <a href="{% url 'create_departure' %}" class="btn btn-primary">Add New Departure</a>
+    </div>
+
+    {% if departures %}
+    <div class="departures-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tour & Date</th>
+                    <th>Bookings</th>
+                    <th>Revenue</th>
+                    <th>Breakeven</th>
+                    <th>Profit Status</th>
+                    <th>ROI</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for departure in departures %}
+                <tr class="departure-row {% if departure.is_profitable %}profitable{% else %}not-profitable{% endif %}">
+                    <td>
+                        <div class="departure-info">
+                            <strong>{{ departure.tour.title }}</strong>
+                            <div class="departure-date">{{ departure.departure_date|date:"M d, Y" }}</div>
+                            <div class="days-left">
+                                {% if departure.days_until_departure > 0 %}
+                                    <span class="countdown">in {{ departure.days_until_departure }} days</span>
+                                {% elif departure.days_until_departure == 0 %}
+                                    <span class="today">Today!</span>
+                                {% else %}
+                                    <span class="past">Past</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="booking-info">
+                            <div class="booking-count">{{ departure.total_bookings }}/{{ departure.available_spots }}</div>
+                            <div class="occupancy-rate">{{ departure.current_occupancy_rate|floatformat:1 }}%</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="revenue-info">
+                            <div class="current-revenue">${{ departure.current_revenue|floatformat:2 }}</div>
+                            <div class="price-per-person">${{ departure.current_price_per_person|floatformat:2 }} pp</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="breakeven-info">
+                            {% if departure.breakeven_passengers %}
+                                <div class="breakeven-count">{{ departure.breakeven_passengers }} passengers</div>
+                                <div class="breakeven-status {% if departure.total_bookings >= departure.breakeven_passengers %}achieved{% else %}pending{% endif %}">
+                                    {% if departure.total_bookings >= departure.breakeven_passengers %}
+                                        ✅ Achieved
+                                    {% else %}
+                                        ⏳ {{ departure.breakeven_passengers|add:"-"|add:departure.total_bookings }} more needed
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="no-breakeven">Not calculated</div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="profit-status">
+                            {% if departure.is_profitable %}
+                                <div class="profit-amount positive">+${{ departure.current_profit|floatformat:2 }}</div>
+                                <div class="profit-label">Profitable</div>
+                            {% else %}
+                                <div class="profit-amount negative">-${{ departure.current_profit|floatformat:2|default:"0.00" }}</div>
+                                <div class="profit-label">Below breakeven</div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="roi-info">
+                            {% if departure.roi_percentage %}
+                                <div class="roi-percentage {% if departure.roi_percentage > 0 %}positive{% else %}negative{% endif %}">
+                                    {{ departure.roi_percentage|floatformat:1 }}%
+                                </div>
+                                <div class="roi-potential">
+                                    Potential: ${{ departure.profit_at_capacity|floatformat:2|default:"0.00" }}
+                                </div>
+                            {% else %}
+                                <div class="no-roi">N/A</div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'departure_detail' departure.id %}" class="btn btn-sm btn-outline">Details</a>
+                            <a href="{% url 'edit_departure' departure.id %}" class="btn btn-sm btn-primary">Edit</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-departures">
+        <div class="empty-state">
+            <h3>No departures scheduled</h3>
+            <p>Create your first departure to start financial analysis</p>
+            <a href="{% url 'create_departure' %}" class="btn btn-primary">Create First Departure</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Financial Insights -->
+<div class="financial-insights">
+    <h2>AI Financial Insights</h2>
+    <div class="insights-grid">
+        <div class="insight-card">
+            <h4>💰 Pricing Optimization</h4>
+            <p>Based on demand analysis, consider adjusting prices for better profitability</p>
+            <div class="insight-actions">
+                <button class="btn btn-sm btn-outline">View Recommendations</button>
+            </div>
+        </div>
+        <div class="insight-card">
+            <h4>📊 Demand Forecasting</h4>
+            <p>AI predicts optimal departure dates and capacity planning</p>
+            <div class="insight-actions">
+                <button class="btn btn-sm btn-outline">View Forecast</button>
+            </div>
+        </div>
+        <div class="insight-card">
+            <h4>🎯 Cost Optimization</h4>
+            <p>Identify opportunities to reduce costs and improve margins</p>
+            <div class="insight-actions">
+                <button class="btn btn-sm btn-outline">View Analysis</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.financial-analysis-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+}
+
+.financial-analysis-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.financial-overview {
+    margin-bottom: 3rem;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.overview-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-left: 4px solid #667eea;
+}
+
+.overview-card h3 {
+    margin: 0 0 1rem 0;
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.overview-card .amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.overview-card small {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.departures-analysis {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.departures-table {
+    overflow-x: auto;
+}
+
+.departures-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.departures-table th {
+    background: #f8f9fa;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.departures-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: top;
+}
+
+.departure-row {
+    transition: background-color 0.2s;
+}
+
+.departure-row:hover {
+    background-color: #f8f9fa;
+}
+
+.departure-row.profitable {
+    border-left: 4px solid #28a745;
+}
+
+.departure-row.not-profitable {
+    border-left: 4px solid #dc3545;
+}
+
+.departure-info strong {
+    display: block;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.departure-date {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.days-left .countdown {
+    color: #007bff;
+    font-weight: 500;
+}
+
+.days-left .today {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.days-left .past {
+    color: #6c757d;
+}
+
+.booking-count {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.occupancy-rate {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.current-revenue {
+    font-weight: 600;
+    color: #28a745;
+    margin-bottom: 0.25rem;
+}
+
+.price-per-person {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.breakeven-count {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.breakeven-status.achieved {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.breakeven-status.pending {
+    color: #ffc107;
+    font-weight: 500;
+}
+
+.profit-amount.positive {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.profit-amount.negative {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.profit-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.roi-percentage.positive {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.roi-percentage.negative {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.roi-potential {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.financial-insights {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.insight-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.insight-card h4 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.insight-card p {
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.insight-actions {
+    text-align: right;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.empty-state h3 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.empty-state p {
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .departures-table {
+        font-size: 0.9rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %} 

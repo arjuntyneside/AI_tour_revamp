@@ -21,6 +21,10 @@ urlpatterns = [
     # Tour Management
     path('tours/', views.tours, name='tours'),
     path('tours/<uuid:tour_id>/', views.tour_detail, name='tour_detail'),
+    path('departures/', views.departures, name='departures'),
+    path('departures/create/', views.create_departure, name='create_departure'),
+    path('departures/<uuid:departure_id>/', views.departure_detail, name='departure_detail'),
+    path('departures/<uuid:departure_id>/edit/', views.edit_departure, name='edit_departure'),
     
     # Customer Management
     path('customers/', views.customers, name='customers'),
