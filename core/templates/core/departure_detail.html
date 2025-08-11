@@ -1,0 +1,263 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ departure.tour.title }} - Departure Details{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/departure_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="departure-detail-container">
+    <div class="container mx-auto px-4">
+    <!-- Header -->
+    <div class="departure-header">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="departure-title">{{ departure.tour.title }}</h1>
+                <p class="departure-date">{{ departure.departure_date|date:"F j, Y" }}</p>
+            </div>
+            <div class="action-buttons">
+                <a href="{% url 'edit_departure' departure.id %}" class="btn-primary">
+                    Edit Departure
+                </a>
+                <a href="{% url 'departures' %}" class="btn-secondary">
+                    Back to Departures
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Badge -->
+    <div class="mb-6">
+        {% if departure.is_profitable %}
+            <span class="status-badge status-profitable">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                Profitable
+            </span>
+        {% else %}
+            <span class="status-badge status-not-profitable">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                Not Yet Profitable
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Left Column - Basic Info -->
+        <div class="main-content">
+            <!-- Tour Information -->
+            <div class="card">
+                <h2 class="card-title">Tour Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label class="info-label">Tour Title</label>
+                        <p class="info-value">{{ departure.tour.title }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Destination</label>
+                        <p class="info-value">{{ departure.tour.destination }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Duration</label>
+                        <p class="info-value">{{ departure.tour.duration_days }} days</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Max Group Size</label>
+                        <p class="info-value">{{ departure.tour.max_group_size }} people</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Departure Date</label>
+                        <p class="info-value">{{ departure.departure_date|date:"F j, Y" }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Days Until Departure</label>
+                        <p class="info-value">{{ departure.days_until_departure }} days</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Analysis -->
+            <div class="card">
+                <h2 class="card-title">Financial Analysis</h2>
+                <div class="financial-section">
+                    <!-- Revenue & Pricing -->
+                    <div class="financial-subsection">
+                        <h3 class="financial-subtitle">Revenue & Pricing</h3>
+                        <div class="space-y-3">
+                            <div class="financial-row">
+                                <span class="financial-label">Current Price per Person:</span>
+                                <span class="financial-value value-neutral">${{ departure.current_price_per_person }}</span>
+                            </div>
+                            <div class="financial-row">
+                                <span class="financial-label">Discounted Price:</span>
+                                <span class="financial-value value-neutral">${{ departure.discounted_price_per_person|default:"N/A" }}</span>
+                            </div>
+                            <div class="financial-row">
+                                <span class="financial-label">Current Revenue:</span>
+                                <span class="financial-value value-positive">${{ departure.current_revenue }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Costs & Breakeven -->
+                    <div class="financial-subsection">
+                        <h3 class="financial-subtitle">Costs & Breakeven</h3>
+                        <div class="space-y-3">
+                            <div class="financial-row">
+                                <span class="financial-label">Fixed Costs:</span>
+                                <span class="financial-value value-neutral">${{ departure.fixed_costs }}</span>
+                            </div>
+                            <div class="financial-row">
+                                <span class="financial-label">Variable Costs per Person:</span>
+                                <span class="financial-value value-neutral">${{ departure.variable_costs_per_person }}</span>
+                            </div>
+                            <div class="financial-row">
+                                <span class="financial-label">Breakeven Passengers:</span>
+                                <span class="financial-value value-highlight">{{ departure.breakeven_passengers|default:"N/A" }}</span>
+                            </div>
+                            <div class="financial-row">
+                                <span class="financial-label">Current Profit:</span>
+                                <span class="financial-value {% if departure.current_profit > 0 %}value-positive{% else %}value-negative{% endif %}">
+                                    ${{ departure.current_profit|default:0 }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" style="color: #3b82f6;">{{ departure.current_occupancy_rate|floatformat:1 }}%</div>
+                        <div class="metric-label">Occupancy Rate</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" style="color: #10b981;">${{ departure.profit_at_capacity|default:0 }}</div>
+                        <div class="metric-label">Profit at Capacity</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" style="color: #8b5cf6;">{{ departure.roi_percentage|floatformat:1 }}%</div>
+                        <div class="metric-label">ROI</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" style="color: #f59e0b;">{{ departure.slots_filled }}/{{ departure.available_spots }}</div>
+                        <div class="metric-label">Slots Filled</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings -->
+            <div class="card">
+                <h2 class="card-title">Bookings ({{ bookings.count }})</h2>
+                {% if bookings %}
+                    <div class="overflow-x-auto">
+                        <table class="bookings-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Booked Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                <tr>
+                                    <td class="font-medium text-gray-900">
+                                        {{ booking.customer_name }}
+                                    </td>
+                                    <td class="text-gray-500">
+                                        {{ booking.customer_email }}
+                                    </td>
+                                    <td class="text-gray-500">
+                                        {{ booking.customer_phone }}
+                                    </td>
+                                    <td>
+                                        <span class="status-tag status-confirmed">
+                                            {{ booking.status }}
+                                        </span>
+                                    </td>
+                                    <td class="text-gray-500">
+                                        {{ booking.created_date|date:"M j, Y" }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <h3>No bookings yet</h3>
+                        <p>Get started by creating your first booking.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column - Summary Cards -->
+        <div class="sidebar">
+            <!-- Quick Stats -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">Quick Stats</h3>
+                <div class="space-y-4">
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Available Spots</span>
+                        <span class="sidebar-value">{{ departure.available_spots }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Slots Filled</span>
+                        <span class="sidebar-value" style="color: #3b82f6;">{{ departure.slots_filled }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Remaining Spots</span>
+                        <span class="sidebar-value" style="color: #f59e0b;">{{ departure.available_spots|add:"-"|add:departure.slots_filled }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Commission Rate</span>
+                        <span class="sidebar-value">{{ departure.commission_rate }}%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marketing Info -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">Marketing & Costs</h3>
+                <div class="space-y-4">
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Marketing Costs</span>
+                        <span class="sidebar-value">${{ departure.marketing_costs }}</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-label">Total Fixed Costs</span>
+                        <span class="sidebar-value">${{ departure.fixed_costs|add:departure.marketing_costs }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">Actions</h3>
+                <div class="sidebar-actions">
+                    <a href="{% url 'edit_departure' departure.id %}" class="sidebar-btn btn-primary">
+                        Edit Departure
+                    </a>
+                    <a href="{% url 'departures' %}" class="sidebar-btn btn-secondary">
+                        Back to Departures
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}

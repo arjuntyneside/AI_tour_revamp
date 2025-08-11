@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load financial_filters %}
 
 {% block title %}Financial Analysis - Departures{% endblock %}
 
@@ -22,15 +23,48 @@
             <div class="amount">${{ total_profit|floatformat:2 }}</div>
             <small>Net profit generated</small>
         </div>
-        <div class="overview-card avg-occupancy">
-            <h3>Avg Occupancy</h3>
-            <div class="amount">{{ avg_occupancy|floatformat:1 }}%</div>
-            <small>Average across departures</small>
+        <div class="overview-card total-investment">
+            <h3>Total Investment</h3>
+            <div class="amount">${{ total_investment|floatformat:2 }}</div>
+            <small>Fixed + Marketing + Variable</small>
+        </div>
+        <div class="overview-card overall-roi">
+            <h3>Overall ROI</h3>
+            <div class="amount">{{ overall_roi|floatformat:1 }}%</div>
+            <small>Return on investment</small>
+        </div>
+        <div class="overview-card total-bookings">
+            <h3>Slots Filled</h3>
+            <div class="amount">{{ total_slots_filled }}/{{ total_capacity }}</div>
+            <small>{{ overall_occupancy_rate|floatformat:1 }}% occupancy</small>
         </div>
         <div class="overview-card profitable-departures">
             <h3>Profitable</h3>
             <div class="amount">{{ profitable_count }}/{{ total_departures }}</div>
             <small>Departures above breakeven</small>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Financial Breakdown -->
+<div class="financial-breakdown">
+    <h3>Financial Breakdown</h3>
+    <div class="breakdown-grid">
+        <div class="breakdown-item">
+            <span class="label">Fixed Costs:</span>
+            <span class="value">${{ total_fixed_costs|floatformat:2 }}</span>
+        </div>
+        <div class="breakdown-item">
+            <span class="label">Marketing Costs:</span>
+            <span class="value">${{ total_marketing_costs|floatformat:2 }}</span>
+        </div>
+        <div class="breakdown-item">
+            <span class="label">Variable Costs:</span>
+            <span class="value">${{ total_variable_costs|floatformat:2 }}</span>
+        </div>
+        <div class="breakdown-item">
+            <span class="label">Commission Paid:</span>
+            <span class="value">${{ total_commission|floatformat:2 }}</span>
         </div>
     </div>
 </div>
@@ -48,11 +82,11 @@
             <thead>
                 <tr>
                     <th>Tour & Date</th>
-                    <th>Bookings</th>
-                    <th>Revenue</th>
-                    <th>Breakeven</th>
-                    <th>Profit Status</th>
-                    <th>ROI</th>
+                    <th>Slots Filled & Capacity</th>
+                    <th>Revenue & Pricing</th>
+                    <th>Costs & Breakeven</th>
+                    <th>Profit & ROI</th>
+                    <th>Financial Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -76,34 +110,49 @@
                     </td>
                     <td>
                         <div class="booking-info">
-                            <div class="booking-count">{{ departure.total_bookings }}/{{ departure.available_spots }}</div>
-                            <div class="occupancy-rate">{{ departure.current_occupancy_rate|floatformat:1 }}%</div>
+                            <div class="booking-count">{{ departure.slots_filled }}/{{ departure.available_spots }}</div>
+                            <div class="occupancy-rate">{{ departure.current_occupancy_rate|floatformat:1 }}% occupancy</div>
+                            <div class="remaining-spots">
+                                {% if departure.remaining_spots > 0 %}
+                                    {{ departure.remaining_spots }} spots left
+                                {% else %}
+                                    Fully booked
+                                {% endif %}
+                            </div>
                         </div>
                     </td>
                     <td>
                         <div class="revenue-info">
                             <div class="current-revenue">${{ departure.current_revenue|floatformat:2 }}</div>
                             <div class="price-per-person">${{ departure.current_price_per_person|floatformat:2 }} pp</div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="breakeven-info">
-                            {% if departure.breakeven_passengers %}
-                                <div class="breakeven-count">{{ departure.breakeven_passengers }} passengers</div>
-                                <div class="breakeven-status {% if departure.total_bookings >= departure.breakeven_passengers %}achieved{% else %}pending{% endif %}">
-                                    {% if departure.total_bookings >= departure.breakeven_passengers %}
-                                        ✅ Achieved
-                                    {% else %}
-                                        ⏳ {{ departure.breakeven_passengers|add:"-"|add:departure.total_bookings }} more needed
-                                    {% endif %}
-                                </div>
-                            {% else %}
-                                <div class="no-breakeven">Not calculated</div>
+                            {% if departure.discounted_price_per_person %}
+                                <div class="discounted-price">Discounted: ${{ departure.discounted_price_per_person|floatformat:2 }} pp</div>
                             {% endif %}
                         </div>
                     </td>
                     <td>
-                        <div class="profit-status">
+                        <div class="costs-info">
+                            <div class="fixed-costs">Fixed: ${{ departure.fixed_costs|floatformat:2 }}</div>
+                            <div class="variable-costs">Variable: ${{ departure.variable_costs_per_person|floatformat:2 }} pp</div>
+                            <div class="marketing-costs">Marketing: ${{ departure.marketing_costs|floatformat:2 }}</div>
+                            {% if departure.breakeven_passengers %}
+                                <div class="breakeven-info">
+                                    <div class="breakeven-count">{{ departure.breakeven_passengers }} passengers</div>
+                                    <div class="breakeven-status {% if departure.slots_filled >= departure.breakeven_passengers %}achieved{% else %}pending{% endif %}">
+                                                                            {% if departure.slots_filled >= departure.breakeven_passengers %}
+                                        ✅ Achieved
+                                    {% else %}
+                                        ⏳ {{ departure.breakeven_passengers|add:"-"|add:departure.slots_filled }} more needed
+                                    {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="no-breakeven">Breakeven: N/A</div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="profit-roi-info">
                             {% if departure.is_profitable %}
                                 <div class="profit-amount positive">+${{ departure.current_profit|floatformat:2 }}</div>
                                 <div class="profit-label">Profitable</div>
@@ -111,20 +160,24 @@
                                 <div class="profit-amount negative">-${{ departure.current_profit|floatformat:2|default:"0.00" }}</div>
                                 <div class="profit-label">Below breakeven</div>
                             {% endif %}
-                        </div>
-                    </td>
-                    <td>
-                        <div class="roi-info">
                             {% if departure.roi_percentage %}
                                 <div class="roi-percentage {% if departure.roi_percentage > 0 %}positive{% else %}negative{% endif %}">
-                                    {{ departure.roi_percentage|floatformat:1 }}%
+                                    ROI: {{ departure.roi_percentage|floatformat:1 }}%
                                 </div>
                                 <div class="roi-potential">
                                     Potential: ${{ departure.profit_at_capacity|floatformat:2|default:"0.00" }}
                                 </div>
                             {% else %}
-                                <div class="no-roi">N/A</div>
+                                <div class="no-roi">ROI: N/A</div>
                             {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="financial-status">
+                            <div class="commission-rate">Commission: {{ departure.commission_rate }}%</div>
+                            <div class="commission-amount">${{ departure.commission_amount|floatformat:2 }}</div>
+                            <div class="net-revenue">Net: ${{ departure.net_revenue|floatformat:2 }}</div>
+                            <div class="total-costs">Total Costs: ${{ departure.total_costs|floatformat:2 }}</div>
                         </div>
                     </td>
                     <td>
@@ -208,6 +261,47 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
+}
+
+.financial-breakdown {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.financial-breakdown h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+}
+
+.breakdown-item .label {
+    font-weight: 500;
+    color: #666;
+}
+
+.breakdown-item .value {
+    font-weight: 600;
+    color: #333;
 }
 
 .overview-card {
@@ -444,6 +538,58 @@
 .empty-state h3 {
     margin-bottom: 1rem;
     color: #333;
+}
+
+/* New table column styles */
+.booking-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.revenue-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.costs-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+}
+
+.profit-roi-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.financial-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+}
+
+.fixed-costs, .variable-costs, .marketing-costs {
+    color: #666;
+}
+
+.commission-rate, .commission-amount, .net-revenue, .total-costs {
+    color: #666;
+}
+
+.discounted-price {
+    color: #28a745;
+    font-size: 0.8rem;
+}
+
+.remaining-spots {
+    color: #ffc107;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 .empty-state p {

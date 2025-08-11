@@ -10,18 +10,41 @@
         <p class="subtitle">Set up departure details and financial parameters</p>
     </div>
 
-    <div class="form-sections">
+    <form method="post" class="departure-form">
+        {% csrf_token %}
+        
+        <!-- Debug: Show form errors -->
+        {% if form.errors %}
+        <div class="form-errors">
+            <h4>Please correct the following errors:</h4>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+        
+        <div class="form-sections">
         <!-- Basic Information -->
         <div class="form-section">
             <h3>📅 Basic Information</h3>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="{{ form.tour.id_for_label }}">Tour</label>
-                    {{ form.tour }}
-                    {% if form.tour.errors %}
-                        <div class="error-message">{{ form.tour.errors.0 }}</div>
-                    {% endif %}
+            <div class="info-note">
+                <p><strong>Note:</strong> "Total Capacity" is the maximum number of passengers you can accommodate. "Slots Filled" shows actual bookings. Financial calculations are based on slots filled (actual revenue), not total capacity.</p>
+            </div>
+            {% if tour %}
+                <div class="tour-info">
+                    <h4>Creating departure for: <strong>{{ tour.title }}</strong></h4>
+                    <p>Destination: {{ tour.destination }} | Duration: {{ tour.duration_days }} days | Max Group: {{ tour.max_group_size }}</p>
                 </div>
+            {% else %}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.tour.id_for_label }}">Tour</label>
+                        {{ form.tour }}
+                        {% if form.tour.errors %}
+                            <div class="error-message">{{ form.tour.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="form-grid">
                 <div class="form-group">
                     <label for="{{ form.departure_date.id_for_label }}">Departure Date</label>
                     {{ form.departure_date }}
@@ -30,11 +53,20 @@
                     {% endif %}
                 </div>
                 <div class="form-group">
-                    <label for="{{ form.available_spots.id_for_label }}">Available Spots</label>
-                    {{ form.available_spots }}
-                    {% if form.available_spots.errors %}
-                        <div class="error-message">{{ form.available_spots.errors.0 }}</div>
+                    <label for="{{ form.available_spots.id_for_label }}">Total Capacity</label>
+                    <div class="input-help">Maximum number of passengers (from tour settings: {{ tour.max_group_size }})</div>
+                    <div class="readonly-field">{{ tour.max_group_size }} passengers</div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.total_bookings.id_for_label }}">How Many Booked Already</label>
+                    <div class="input-help">Enter the number of passengers who have booked</div>
+                    {{ form.total_bookings }}
+                    {% if form.total_bookings.errors %}
+                        <div class="error-message">{{ form.total_bookings.errors.0 }}</div>
                     {% endif %}
+                    <div class="spots-info">
+                        <span class="spots-left">Spots left: <span id="spots-left">{{ tour.max_group_size }}</span></span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="{{ form.status.id_for_label }}">Status</label>
@@ -144,6 +176,7 @@
         <a href="{% url 'departures' %}" class="btn btn-secondary">Cancel</a>
         <button type="submit" class="btn btn-primary">{{ action }} Departure</button>
     </div>
+    </form>
 </div>
 
 <style>
@@ -196,6 +229,26 @@
     gap: 0.5rem;
 }
 
+.tour-info {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    margin-bottom: 1.5rem;
+}
+
+.tour-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.tour-info p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -240,6 +293,20 @@
     color: #dc3545;
     font-size: 0.85rem;
     margin-top: 0.25rem;
+}
+
+.form-errors {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #f5c6cb;
+}
+
+.form-errors h4 {
+    margin: 0 0 0.5rem 0;
+    color: #721c24;
 }
 
 .financial-preview {
@@ -302,6 +369,52 @@
     border-top: 1px solid #e1e5e9;
 }
 
+.readonly-field {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #495057;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+}
+
+.info-note {
+    background: #e3f2fd;
+    border: 1px solid #2196f3;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-note p {
+    margin: 0;
+    color: #1976d2;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.spots-info {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #28a745;
+}
+
+.spots-left {
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+#spots-left {
+    font-weight: 600;
+    color: #28a745;
+}
+
 .btn {
     padding: 0.75rem 1.5rem;
     border: none;
@@ -361,7 +474,8 @@ function calculateFinancials() {
     const variableCostsPerPerson = parseFloat(document.getElementById('{{ form.variable_costs_per_person.id_for_label }}').value) || 0;
     const marketingCosts = parseFloat(document.getElementById('{{ form.marketing_costs.id_for_label }}').value) || 0;
     const commissionRate = parseFloat(document.getElementById('{{ form.commission_rate.id_for_label }}').value) || 0;
-    const availableSpots = parseInt(document.getElementById('{{ form.available_spots.id_for_label }}').value) || 0;
+    const totalBookings = parseInt(document.getElementById('{{ form.total_bookings.id_for_label }}').value) || 0;
+    const totalCapacity = {{ tour.max_group_size }};
     
     // Calculate financial metrics
     const totalFixedCosts = fixedCosts + marketingCosts;
@@ -377,20 +491,24 @@ function calculateFinancials() {
     
     // Profit at capacity
     let profitAtCapacity = '$0.00';
-    if (breakevenPassengers !== 'N/A' && availableSpots > breakevenPassengers) {
-        const excessPassengers = availableSpots - breakevenPassengers;
+    if (breakevenPassengers !== 'N/A' && totalCapacity > breakevenPassengers) {
+        const excessPassengers = totalCapacity - breakevenPassengers;
         const profit = excessPassengers * contributionMarginPerPerson;
         profitAtCapacity = `$${profit.toFixed(2)}`;
     }
     
     // ROI calculation
     let roiPercentage = '0%';
-    const totalInvestment = totalFixedCosts + (availableSpots * variableCostsPerPerson);
+    const totalInvestment = totalFixedCosts + (totalCapacity * variableCostsPerPerson);
     if (totalInvestment > 0 && profitAtCapacity !== '$0.00') {
         const profit = parseFloat(profitAtCapacity.replace('$', ''));
         const roi = (profit / totalInvestment) * 100;
         roiPercentage = `${roi.toFixed(1)}%`;
     }
+    
+    // Calculate remaining spots
+    const remainingSpots = totalCapacity - totalBookings;
+    document.getElementById('spots-left').textContent = remainingSpots;
     
     // Update display
     document.getElementById('breakeven-passengers').textContent = breakevenPassengers;
@@ -407,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
         '{{ form.variable_costs_per_person.id_for_label }}',
         '{{ form.marketing_costs.id_for_label }}',
         '{{ form.commission_rate.id_for_label }}',
-        '{{ form.available_spots.id_for_label }}'
+        '{{ form.total_bookings.id_for_label }}'
     ];
     
     financialFields.forEach(fieldId => {

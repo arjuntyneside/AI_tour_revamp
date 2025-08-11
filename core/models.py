@@ -310,17 +310,22 @@ class TourDeparture(models.Model):
         if self.available_spots > 0:
             return (self.total_bookings / self.available_spots) * 100
         return 0
+
+    @property
+    def slots_filled(self):
+        """Get the number of slots filled (bookings)"""
+        return self.total_bookings
     
     @property
     def current_revenue(self):
-        """Calculate current revenue"""
-        return self.total_bookings * self.current_price_per_person
+        """Calculate current revenue based on slots filled"""
+        return self.slots_filled * self.current_price_per_person
     
     @property
     def current_profit(self):
-        """Calculate current profit"""
-        if self.total_bookings >= self.breakeven_passengers:
-            excess_passengers = self.total_bookings - self.breakeven_passengers
+        """Calculate current profit based on slots filled"""
+        if self.breakeven_passengers and self.slots_filled >= self.breakeven_passengers:
+            excess_passengers = self.slots_filled - self.breakeven_passengers
             contribution_margin = self.current_price_per_person - self.variable_costs_per_person
             commission_amount = (self.current_price_per_person * self.commission_rate) / 100
             net_contribution = contribution_margin - commission_amount
@@ -329,8 +334,8 @@ class TourDeparture(models.Model):
     
     @property
     def is_profitable(self):
-        """Check if departure is currently profitable"""
-        return self.total_bookings >= self.breakeven_passengers if self.breakeven_passengers else False
+        """Check if departure is currently profitable based on slots filled"""
+        return self.breakeven_passengers and self.slots_filled >= self.breakeven_passengers
     
     @property
     def days_until_departure(self):

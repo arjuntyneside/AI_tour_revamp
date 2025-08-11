@@ -11,26 +11,50 @@
 
 <!-- Departure Dates Management -->
 <div class="tour-departures-section">
-    <h2>Departure Dates</h2>
-    <form method="post" class="add-departure-form" style="margin-bottom: 1em;">
-        {% csrf_token %}
-        <input type="date" name="departure_date" required>
-        <button type="submit" name="add_departure" class="btn btn-primary">Add Departure</button>
-    </form>
-    <ul class="departure-dates-list">
+    <div class="section-header">
+        <h2>Departure Dates</h2>
+        <a href="{% url 'create_departure' %}?tour_id={{ tour.id }}" class="btn btn-primary">Add New Departure</a>
+    </div>
+    
+    {% if departures %}
+    <div class="departures-grid">
         {% for dep in departures %}
-        <li>
-            {{ dep.departure_date|date:"F d, Y" }}
-            <form method="post" style="display:inline;">
-                {% csrf_token %}
-                <input type="hidden" name="delete_departure" value="{{ dep.id }}">
-                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this departure date?');">Delete</button>
-            </form>
-        </li>
-        {% empty %}
-        <li>No departures yet for this tour.</li>
+        <div class="departure-card">
+            <div class="departure-date">{{ dep.departure_date|date:"F d, Y" }}</div>
+            <div class="departure-status">
+                <span class="status-badge status-{{ dep.status }}">{{ dep.get_status_display }}</span>
+            </div>
+            <div class="departure-info">
+                <div class="info-item">
+                    <span class="label">Bookings:</span>
+                    <span class="value">{{ dep.total_bookings }}/{{ dep.available_spots }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Price:</span>
+                    <span class="value">${{ dep.current_price_per_person|floatformat:2 }}</span>
+                </div>
+                {% if dep.breakeven_passengers %}
+                <div class="info-item">
+                    <span class="label">Breakeven:</span>
+                    <span class="value {% if dep.total_bookings >= dep.breakeven_passengers %}achieved{% else %}pending{% endif %}">
+                        {{ dep.breakeven_passengers }} passengers
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="departure-actions">
+                <a href="{% url 'edit_departure' dep.id %}" class="btn btn-sm btn-outline">Edit</a>
+                <a href="{% url 'departure_detail' dep.id %}" class="btn btn-sm btn-primary">View Details</a>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
+    {% else %}
+    <div class="no-departures">
+        <p>No departures scheduled for this tour yet.</p>
+        <a href="{% url 'create_departure' %}?tour_id={{ tour.id }}" class="btn btn-primary">Create First Departure</a>
+    </div>
+    {% endif %}
 </div>
 
 <div class="tour-detail-container">

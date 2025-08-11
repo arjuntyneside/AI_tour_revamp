@@ -18,7 +18,7 @@ from .models import (
     Tour, TourDeparture, Customer, Booking, CustomerNote, AIAnalytics
 )
 from .forms import (
-    TourOperatorForm, TourOperatorUserForm, DocumentUploadForm,
+    TourOperatorForm, DocumentUploadForm,
     CustomerForm, CustomerNoteForm, TourForm, TourDepartureForm, BookingForm
 )
 
@@ -602,13 +602,17 @@ def departures(request):
     tour_operator = request.tour_operator
     departures = TourDeparture.objects.filter(tour__tour_operator=tour_operator).order_by('departure_date')
     
-    # Calculate financial metrics
+    # Calculate overall financial metrics
     total_revenue = sum(departure.current_revenue for departure in departures)
-    total_profit = sum(departure.current_profit for departure in departures)
+    total_profit = sum(departure.current_profit or 0 for departure in departures)
+    total_fixed_costs = sum(departure.fixed_costs for departure in departures)
+    total_marketing_costs = sum(departure.marketing_costs for departure in departures)
+    total_variable_costs = sum(departure.variable_costs_per_person * departure.slots_filled for departure in departures)
+    total_commission = sum((departure.current_price_per_person * departure.commission_rate / 100) * departure.slots_filled for departure in departures)
     
     # Calculate average occupancy
     if departures:
-        total_occupancy = sum(departure.current_occupancy_rate for departure in departures)
+        total_occupancy = sum(departure.current_occupancy_rate or 0 for departure in departures)
         avg_occupancy = total_occupancy / len(departures)
     else:
         avg_occupancy = 0
@@ -617,11 +621,36 @@ def departures(request):
     profitable_count = sum(1 for departure in departures if departure.is_profitable)
     total_departures = len(departures)
     
+    # Calculate overall ROI
+    total_investment = total_fixed_costs + total_marketing_costs + total_variable_costs
+    overall_roi = (total_profit / total_investment * 100) if total_investment > 0 else 0
+    
+    # Calculate total slots filled and capacity
+    total_slots_filled = sum(departure.slots_filled for departure in departures)
+    total_capacity = sum(departure.available_spots for departure in departures)
+    overall_occupancy_rate = (total_slots_filled / total_capacity * 100) if total_capacity > 0 else 0
+    
+    # Add calculated fields to each departure for template use
+    for departure in departures:
+        departure.commission_amount = (departure.current_price_per_person * departure.commission_rate / 100) * departure.slots_filled
+        departure.net_revenue = departure.current_revenue - departure.commission_amount
+        departure.remaining_spots = departure.available_spots - departure.slots_filled
+        departure.total_costs = departure.fixed_costs + departure.marketing_costs + (departure.variable_costs_per_person * departure.slots_filled)
+    
     context = {
         'departures': departures,
         'tour_operator': tour_operator,
         'total_revenue': total_revenue,
         'total_profit': total_profit,
+        'total_fixed_costs': total_fixed_costs,
+        'total_marketing_costs': total_marketing_costs,
+        'total_variable_costs': total_variable_costs,
+        'total_commission': total_commission,
+        'total_investment': total_investment,
+        'overall_roi': overall_roi,
+        'total_slots_filled': total_slots_filled,
+        'total_capacity': total_capacity,
+        'overall_occupancy_rate': overall_occupancy_rate,
         'avg_occupancy': avg_occupancy,
         'profitable_count': profitable_count,
         'total_departures': total_departures,
@@ -634,25 +663,50 @@ def departures(request):
 def create_departure(request):
     """Create a new departure with financial analysis"""
     tour_operator = request.tour_operator
+    tour_id = request.GET.get('tour_id')
     
-    if request.method == 'POST':
-        form = TourDepartureForm(request.POST, tour_operator=tour_operator)
-        if form.is_valid():
-            departure = form.save(commit=False)
-            # Set default price from tour if not provided
-            if not departure.current_price_per_person:
-                departure.current_price_per_person = departure.tour.price_per_person
-            departure.save()
-            messages.success(request, f"Departure for '{departure.tour.title}' created successfully!")
-            return redirect('departures')
+    if tour_id:
+        # Create departure for specific tour
+        tour = get_object_or_404(Tour, id=tour_id, tour_operator=tour_operator)
+        
+        if request.method == 'POST':
+            form = TourDepartureForm(request.POST, tour=tour)
+            if form.is_valid():
+                departure = form.save(commit=False)
+                departure.tour = tour
+                departure.available_spots = tour.max_group_size  # Set from tour settings
+                departure.save()
+                messages.success(request, f"Departure for '{tour.title}' created successfully!")
+                return redirect('departures')
+        else:
+            form = TourDepartureForm(tour=tour)
+        
+        context = {
+            'form': form,
+            'tour': tour,
+            'tour_operator': tour_operator,
+            'action': 'Create',
+        }
     else:
-        form = TourDepartureForm(tour_operator=tour_operator)
-    
-    context = {
-        'form': form,
-        'tour_operator': tour_operator,
-        'action': 'Create',
-    }
+        # Create departure with tour selection
+        if request.method == 'POST':
+            from .forms import TourDepartureFormWithTour
+            form = TourDepartureFormWithTour(request.POST, tour_operator=tour_operator)
+            if form.is_valid():
+                departure = form.save(commit=False)
+                departure.available_spots = departure.tour.max_group_size  # Set from tour settings
+                departure.save()
+                messages.success(request, f"Departure for '{departure.tour.title}' created successfully!")
+                return redirect('departures')
+        else:
+            from .forms import TourDepartureFormWithTour
+            form = TourDepartureFormWithTour(tour_operator=tour_operator)
+        
+        context = {
+            'form': form,
+            'tour_operator': tour_operator,
+            'action': 'Create',
+        }
     
     return render(request, 'core/departure_form.html', context)
 
@@ -664,17 +718,20 @@ def edit_departure(request, departure_id):
     departure = get_object_or_404(TourDeparture, id=departure_id, tour__tour_operator=tour_operator)
     
     if request.method == 'POST':
-        form = TourDepartureForm(request.POST, instance=departure, tour_operator=tour_operator)
+        form = TourDepartureForm(request.POST, instance=departure, tour=departure.tour)
         if form.is_valid():
-            form.save()
+            departure = form.save(commit=False)
+            departure.available_spots = departure.tour.max_group_size  # Keep in sync with tour settings
+            departure.save()
             messages.success(request, f"Departure for '{departure.tour.title}' updated successfully!")
             return redirect('departures')
     else:
-        form = TourDepartureForm(instance=departure, tour_operator=tour_operator)
+        form = TourDepartureForm(instance=departure, tour=departure.tour)
     
     context = {
         'form': form,
         'departure': departure,
+        'tour': departure.tour,
         'tour_operator': tour_operator,
         'action': 'Edit',
     }
