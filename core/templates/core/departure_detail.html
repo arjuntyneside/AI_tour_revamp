@@ -110,12 +110,8 @@
                         <h3 class="financial-subtitle">Costs & Breakeven</h3>
                         <div class="space-y-3">
                             <div class="financial-row">
-                                <span class="financial-label">Fixed Costs:</span>
-                                <span class="financial-value value-neutral">${{ departure.fixed_costs }}</span>
-                            </div>
-                            <div class="financial-row">
-                                <span class="financial-label">Variable Costs per Person:</span>
-                                <span class="financial-value value-neutral">${{ departure.variable_costs_per_person }}</span>
+                                <span class="financial-label">Total Costs:</span>
+                                <span class="financial-value value-neutral">${{ departure.total_costs|floatformat:2 }}</span>
                             </div>
                             <div class="financial-row">
                                 <span class="financial-label">Breakeven Passengers:</span>
@@ -129,6 +125,34 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Cost Breakdown -->
+                <div class="cost-breakdown-section">
+                    <h3 class="financial-subtitle">Cost Breakdown</h3>
+                    <div class="cost-breakdown-grid">
+                        <div class="cost-item">
+                            <span class="cost-label">Fixed Costs:</span>
+                            <span class="cost-value">${{ departure.fixed_costs|floatformat:2 }}</span>
+                            <span class="cost-description">Guides, permits, equipment</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Variable Costs:</span>
+                            <span class="cost-value">${{ departure.variable_costs_total|floatformat:2 }}</span>
+                            <span class="cost-description">{{ departure.slots_filled }} passengers × ${{ departure.variable_costs_per_person|floatformat:2 }} each</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Marketing Costs:</span>
+                            <span class="cost-value">${{ departure.marketing_costs|floatformat:2 }}</span>
+                            <span class="cost-description">Promotion and advertising</span>
+                        </div>
+                        <div class="cost-item total">
+                            <span class="cost-label">Total Costs:</span>
+                            <span class="cost-value">${{ departure.total_costs|floatformat:2 }}</span>
+                            <span class="cost-description">All expenses for this departure</span>
+                        </div>
+                    </div>
+                </div>
                 </div>
 
                 <!-- Key Metrics -->

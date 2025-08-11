@@ -130,20 +130,18 @@
                             {% endif %}
                         </div>
                     </td>
-                    <td>
+                                        <td>
                         <div class="costs-info">
-                            <div class="fixed-costs">Fixed: ${{ departure.fixed_costs|floatformat:2 }}</div>
-                            <div class="variable-costs">Variable: ${{ departure.variable_costs_per_person|floatformat:2 }} pp</div>
-                            <div class="marketing-costs">Marketing: ${{ departure.marketing_costs|floatformat:2 }}</div>
+                            <div class="total-costs-highlight">${{ departure.total_costs|floatformat:2 }}</div>
                             {% if departure.breakeven_passengers %}
                                 <div class="breakeven-info">
                                     <div class="breakeven-count">{{ departure.breakeven_passengers }} passengers</div>
                                     <div class="breakeven-status {% if departure.slots_filled >= departure.breakeven_passengers %}achieved{% else %}pending{% endif %}">
-                                                                            {% if departure.slots_filled >= departure.breakeven_passengers %}
-                                        ✅ Achieved
-                                    {% else %}
-                                        ⏳ {{ departure.breakeven_passengers|add:"-"|add:departure.slots_filled }} more needed
-                                    {% endif %}
+                                        {% if departure.slots_filled >= departure.breakeven_passengers %}
+                                            ✅ Achieved
+                                        {% else %}
+                                            ⏳ {{ departure.breakeven_passengers|add:"-"|add:departure.slots_filled }} more needed
+                                        {% endif %}
                                     </div>
                                 </div>
                             {% else %}
@@ -504,6 +502,13 @@
     background-color: #c82333;
     border-color: #bd2130;
     color: white;
+}
+
+.total-costs-highlight {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #dc3545;
+    margin-bottom: 0.5rem;
 }
 
 .financial-insights {

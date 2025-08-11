@@ -748,6 +748,10 @@ def departure_detail(request, departure_id):
     # Get bookings for this departure
     bookings = Booking.objects.filter(departure=departure).order_by('booking_date')
     
+    # Add calculated fields for cost breakdown
+    departure.variable_costs_total = departure.variable_costs_per_person * departure.slots_filled
+    departure.total_costs = departure.fixed_costs + departure.marketing_costs + departure.variable_costs_total
+    
     context = {
         'departure': departure,
         'bookings': bookings,
