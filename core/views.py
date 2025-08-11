@@ -58,64 +58,7 @@ def require_tour_operator(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-@login_required
-@require_tour_operator
-def dashboard(request):
-    """AI-powered dashboard with business intelligence"""
-    tour_operator = request.tour_operator
-    
-    # Basic metrics
-    total_customers = Customer.objects.filter(tour_operator=tour_operator).count()
-    total_tours = Tour.objects.filter(tour_operator=tour_operator).count()
-    total_bookings = Booking.objects.filter(tour_operator=tour_operator).count()
-    
-    # Revenue calculations
-    total_revenue = Booking.objects.filter(
-        tour_operator=tour_operator, 
-        status='confirmed'
-    ).aggregate(total=Sum('total_amount'))['total'] or 0
-    
-    # Recent activity
-    recent_bookings = Booking.objects.filter(
-        tour_operator=tour_operator
-    ).order_by('-booking_date')[:5]
-    
-    upcoming_departures = TourDeparture.objects.filter(
-        tour__tour_operator=tour_operator,
-        departure_date__gte=timezone.now().date(),
-        status='scheduled'
-    ).order_by('departure_date')[:5]
-    
-    # AI analytics
-    recent_analytics = AIAnalytics.objects.filter(
-        tour_operator=tour_operator
-    ).order_by('-generated_date')[:3]
-    
-    # Document processing status
-    pending_documents = DocumentUpload.objects.filter(
-        tour_operator=tour_operator,
-        processing_status='pending'
-    ).count()
-    
-    processing_documents = DocumentUpload.objects.filter(
-        tour_operator=tour_operator,
-        processing_status='processing'
-    ).count()
-    
-    context = {
-        'tour_operator': tour_operator,
-        'total_customers': total_customers,
-        'total_tours': total_tours,
-        'total_bookings': total_bookings,
-        'total_revenue': total_revenue,
-        'recent_bookings': recent_bookings,
-        'upcoming_departures': upcoming_departures,
-        'recent_analytics': recent_analytics,
-        'pending_documents': pending_documents,
-        'processing_documents': processing_documents,
-    }
-    
-    return render(request, 'core/dashboard.html', context)
+
 
 @login_required
 @require_tour_operator
@@ -1056,7 +999,7 @@ def login(request):
                 # Check if user has tour operator access
                 tour_operator = get_user_tour_operator(user)
                 if tour_operator:
-                    return redirect('dashboard')
+                    return redirect('departures')
                 else:
                     messages.error(request, "You don't have access to any tour operator account.")
                     auth_logout(request)
