@@ -630,12 +630,38 @@ def departures(request):
     total_capacity = sum(departure.available_spots for departure in departures)
     overall_occupancy_rate = (total_slots_filled / total_capacity * 100) if total_capacity > 0 else 0
     
-    # Add calculated fields to each departure for template use
+    # Add calculated fields to each departure for template use using breakeven analyzer
+    from .breakeven_analysis import BreakevenAnalyzer
+    
     for departure in departures:
-        departure.commission_amount = (departure.current_price_per_person * departure.commission_rate / 100) * departure.slots_filled
+        # Create breakeven analyzer for this departure
+        analyzer = BreakevenAnalyzer(
+            fixed_costs=departure.fixed_costs,
+            variable_costs_per_person=departure.variable_costs_per_person,
+            marketing_costs=departure.marketing_costs,
+            price_per_person=departure.current_price_per_person,
+            commission_rate=departure.commission_rate,
+            max_capacity=departure.available_spots
+        )
+        
+        # Get analysis results
+        analysis = analyzer.get_breakeven_analysis(departure.slots_filled)
+        cost_breakdown = analyzer.get_cost_breakdown(departure.slots_filled)
+        
+        # Update departure object with calculated fields
+        departure.commission_amount = analysis['commission_amount_per_person'] * departure.slots_filled
         departure.net_revenue = departure.current_revenue - departure.commission_amount
         departure.remaining_spots = departure.available_spots - departure.slots_filled
-        departure.total_costs = departure.fixed_costs + departure.marketing_costs + (departure.variable_costs_per_person * departure.slots_filled)
+        departure.total_costs = cost_breakdown['total_costs']
+        departure.variable_costs_total = cost_breakdown['variable_costs_total']
+        
+        # Update breakeven fields if they're not set
+        if not departure.breakeven_passengers:
+            departure.breakeven_passengers = analysis['breakeven_passengers']
+        if not departure.profit_at_capacity:
+            departure.profit_at_capacity = analysis['profit_at_capacity']
+        if not departure.roi_percentage:
+            departure.roi_percentage = analysis['roi_percentage']
     
     context = {
         'departures': departures,
@@ -748,9 +774,37 @@ def departure_detail(request, departure_id):
     # Get bookings for this departure
     bookings = Booking.objects.filter(departure=departure).order_by('booking_date')
     
-    # Add calculated fields for cost breakdown
-    departure.variable_costs_total = departure.variable_costs_per_person * departure.slots_filled
-    departure.total_costs = departure.fixed_costs + departure.marketing_costs + departure.variable_costs_total
+    # Add calculated fields using breakeven analyzer
+    from .breakeven_analysis import BreakevenAnalyzer
+    
+    analyzer = BreakevenAnalyzer(
+        fixed_costs=departure.fixed_costs,
+        variable_costs_per_person=departure.variable_costs_per_person,
+        marketing_costs=departure.marketing_costs,
+        price_per_person=departure.current_price_per_person,
+        commission_rate=departure.commission_rate,
+        max_capacity=departure.available_spots
+    )
+    
+    # Get analysis results
+    analysis = analyzer.get_breakeven_analysis(departure.slots_filled)
+    cost_breakdown = analyzer.get_cost_breakdown(departure.slots_filled)
+    
+    # Update departure object with calculated fields
+    departure.variable_costs_total = cost_breakdown['variable_costs_total']
+    departure.total_costs = cost_breakdown['total_costs']
+    departure.commission_amount = analysis['commission_amount_per_person'] * departure.slots_filled
+    departure.net_revenue = departure.current_revenue - departure.commission_amount
+    departure.contribution_margin_per_person = analysis['contribution_margin_per_person']
+    departure.net_revenue_per_person = analysis['net_revenue_per_person']
+    
+    # Update breakeven fields if they're not set
+    if not departure.breakeven_passengers:
+        departure.breakeven_passengers = analysis['breakeven_passengers']
+    if not departure.profit_at_capacity:
+        departure.profit_at_capacity = analysis['profit_at_capacity']
+    if not departure.roi_percentage:
+        departure.roi_percentage = analysis['roi_percentage']
     
     context = {
         'departure': departure,

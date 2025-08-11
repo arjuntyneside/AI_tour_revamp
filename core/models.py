@@ -269,37 +269,27 @@ class TourDeparture(models.Model):
         self.calculate_financial_metrics()
     
     def calculate_financial_metrics(self):
-        """Calculate breakeven and financial metrics"""
+        """Calculate breakeven and financial metrics using the breakeven analysis module"""
         try:
-            # Total fixed costs
-            total_fixed_costs = self.fixed_costs + self.marketing_costs
+            from .breakeven_analysis import BreakevenAnalyzer
             
-            # Revenue per person (after commission)
-            commission_amount = (self.current_price_per_person * self.commission_rate) / 100
-            net_revenue_per_person = self.current_price_per_person - commission_amount
+            # Create breakeven analyzer
+            analyzer = BreakevenAnalyzer(
+                fixed_costs=self.fixed_costs,
+                variable_costs_per_person=self.variable_costs_per_person,
+                marketing_costs=self.marketing_costs,
+                price_per_person=self.current_price_per_person,
+                commission_rate=self.commission_rate,
+                max_capacity=self.available_spots
+            )
             
-            # Contribution margin per person
-            contribution_margin_per_person = net_revenue_per_person - self.variable_costs_per_person
+            # Get breakeven analysis
+            analysis = analyzer.get_breakeven_analysis(self.slots_filled)
             
-            # Calculate breakeven
-            if contribution_margin_per_person > 0:
-                self.breakeven_passengers = int(total_fixed_costs / contribution_margin_per_person) + 1
-            else:
-                self.breakeven_passengers = None
-            
-            # Calculate profit at capacity
-            if self.breakeven_passengers and self.available_spots > self.breakeven_passengers:
-                excess_passengers = self.available_spots - self.breakeven_passengers
-                self.profit_at_capacity = excess_passengers * contribution_margin_per_person
-            else:
-                self.profit_at_capacity = 0
-            
-            # Calculate ROI
-            total_investment = total_fixed_costs + (self.available_spots * self.variable_costs_per_person)
-            if total_investment > 0 and self.profit_at_capacity:
-                self.roi_percentage = (self.profit_at_capacity / total_investment) * 100
-            else:
-                self.roi_percentage = 0
+            # Update model fields
+            self.breakeven_passengers = analysis['breakeven_passengers']
+            self.profit_at_capacity = analysis['profit_at_capacity']
+            self.roi_percentage = analysis['roi_percentage']
                 
         except Exception as e:
             print(f"Error calculating financial metrics: {e}")
@@ -324,18 +314,40 @@ class TourDeparture(models.Model):
     @property
     def current_profit(self):
         """Calculate current profit based on slots filled"""
-        if self.breakeven_passengers and self.slots_filled >= self.breakeven_passengers:
-            excess_passengers = self.slots_filled - self.breakeven_passengers
-            contribution_margin = self.current_price_per_person - self.variable_costs_per_person
-            commission_amount = (self.current_price_per_person * self.commission_rate) / 100
-            net_contribution = contribution_margin - commission_amount
-            return excess_passengers * net_contribution
-        return 0
+        try:
+            from .breakeven_analysis import BreakevenAnalyzer
+            
+            analyzer = BreakevenAnalyzer(
+                fixed_costs=self.fixed_costs,
+                variable_costs_per_person=self.variable_costs_per_person,
+                marketing_costs=self.marketing_costs,
+                price_per_person=self.current_price_per_person,
+                commission_rate=self.commission_rate,
+                max_capacity=self.available_spots
+            )
+            
+            return analyzer.calculate_current_profit(self.slots_filled)
+        except Exception:
+            return 0
     
     @property
     def is_profitable(self):
         """Check if departure is currently profitable based on slots filled"""
-        return self.breakeven_passengers and self.slots_filled >= self.breakeven_passengers
+        try:
+            from .breakeven_analysis import BreakevenAnalyzer
+            
+            analyzer = BreakevenAnalyzer(
+                fixed_costs=self.fixed_costs,
+                variable_costs_per_person=self.variable_costs_per_person,
+                marketing_costs=self.marketing_costs,
+                price_per_person=self.current_price_per_person,
+                commission_rate=self.commission_rate,
+                max_capacity=self.available_spots
+            )
+            
+            return analyzer.is_profitable(self.slots_filled)
+        except Exception:
+            return False
     
     @property
     def days_until_departure(self):

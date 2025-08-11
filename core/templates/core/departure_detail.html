@@ -153,6 +153,41 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Breakeven Analysis -->
+                <div class="breakeven-analysis-section">
+                    <h3 class="financial-subtitle">Breakeven Analysis</h3>
+                    <div class="breakeven-analysis-grid">
+                        <div class="breakeven-item">
+                            <span class="breakeven-label">Price per Person:</span>
+                            <span class="breakeven-value">${{ departure.current_price_per_person|floatformat:2 }}</span>
+                        </div>
+                        <div class="breakeven-item">
+                            <span class="breakeven-label">Commission ({{ departure.commission_rate|floatformat:2 }}%):</span>
+                            <span class="breakeven-value">${{ departure.commission_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="breakeven-item">
+                            <span class="breakeven-label">Net Revenue per Person:</span>
+                            <span class="breakeven-value">${{ departure.net_revenue_per_person|floatformat:2 }}</span>
+                        </div>
+                        <div class="breakeven-item">
+                            <span class="breakeven-label">Contribution Margin per Person:</span>
+                            <span class="breakeven-value">${{ departure.contribution_margin_per_person|floatformat:2 }}</span>
+                        </div>
+                        <div class="breakeven-item highlight">
+                            <span class="breakeven-label">Breakeven Passengers:</span>
+                            <span class="breakeven-value">{{ departure.breakeven_passengers|default:"N/A" }}</span>
+                        </div>
+                        <div class="breakeven-item">
+                            <span class="breakeven-label">Current Passengers:</span>
+                            <span class="breakeven-value">{{ departure.slots_filled }}</span>
+                        </div>
+                        <div class="breakeven-item">
+                            <span class="breakeven-label">Passengers Needed:</span>
+                            <span class="breakeven-value">{{ departure.breakeven_passengers|add:"-"|add:departure.slots_filled|default:"N/A" }}</span>
+                        </div>
+                    </div>
+                </div>
                 </div>
 
                 <!-- Key Metrics -->

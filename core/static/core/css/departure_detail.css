@@ -507,3 +507,48 @@
 .bookings-table::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(135deg, #5a67d8, #6b46c1);
 }
+
+/* Breakeven Analysis Styles */
+.breakeven-analysis-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: 2rem;
+}
+
+.breakeven-analysis-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.breakeven-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    border-left: 4px solid #28a745;
+    align-items: center;
+}
+
+.breakeven-item.highlight {
+    background: rgba(40, 167, 69, 0.1);
+    border-left-color: #28a745;
+    font-weight: 600;
+}
+
+.breakeven-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.breakeven-value {
+    font-weight: 700;
+    color: #28a745;
+    text-align: right;
+}
