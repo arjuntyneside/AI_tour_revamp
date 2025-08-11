@@ -684,6 +684,122 @@ def departures(request):
     
     return render(request, 'core/departures.html', context)
 
+
+@login_required
+@require_tour_operator
+def ai_insights(request):
+    """Display AI-powered financial insights"""
+    tour_operator = request.tour_operator
+    
+    # Get both rule-based and AI insights
+    from .ai_financial_insights import get_ai_financial_insights
+    from .gemini_ai_insights import get_gemini_ai_insights
+    
+    rule_based_insights = get_ai_financial_insights(tour_operator)
+    gemini_ai_insights = get_gemini_ai_insights(tour_operator)
+    
+    context = {
+        'tour_operator': tour_operator,
+        'rule_based_insights': rule_based_insights,
+        'gemini_ai_insights': gemini_ai_insights,
+    }
+    
+    return render(request, 'core/ai_insights.html', context)
+
+@login_required
+@require_tour_operator
+def ai_chat(request):
+    """Handle AI chat requests"""
+    if request.method == 'POST':
+        import json
+        from django.http import JsonResponse
+        
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '').strip()
+            
+            if not user_message:
+                return JsonResponse({'success': False, 'error': 'No message provided'})
+            
+            # Guardrails for allowed questions
+            allowed_keywords = [
+                'analyze', 'performance', 'profit', 'revenue', 'cost', 'pricing',
+                'breakeven', 'departure', 'tour', 'financial', 'roi', 'occupancy',
+                'booking', 'capacity', 'margin', 'optimization', 'strategy',
+                'recommendation', 'improve', 'better', 'best', 'worst', 'compare'
+            ]
+            
+            # Check if message contains allowed keywords
+            message_lower = user_message.lower()
+            has_allowed_keyword = any(keyword in message_lower for keyword in allowed_keywords)
+            
+            if not has_allowed_keyword:
+                return JsonResponse({
+                    'success': True,
+                    'response': "I analyze tour financial performance. Ask about:\n\n- Profitability and revenue\n- Pricing strategies\n- Cost optimization\n- Breakeven analysis\n- Booking performance\n\nExamples: 'Analyze my tour financial performance' or 'Which departures are most profitable?'"
+                })
+            
+            # Get tour operator data for AI analysis
+            tour_operator = request.tour_operator
+            from .gemini_ai_insights import GeminiAIFinancialInsights
+            
+            # Create AI analyzer
+            ai_analyzer = GeminiAIFinancialInsights(tour_operator)
+            
+            # Prepare context for AI
+            context_data = ai_analyzer._prepare_data_for_ai()
+            
+            # Create AI prompt
+            ai_prompt = f"""
+You are a business-focused AI assistant for a tour operator. The user asked: "{user_message}"
+
+Based on this tour operator data, provide a CONCISE, business-focused response:
+
+{json.dumps(context_data, indent=2)}
+
+IMPORTANT GUIDELINES:
+- Be direct and concise (max 3-4 paragraphs)
+- Focus on actionable business insights
+- Use plain text (no markdown, bold, stars, or formatting)
+- Give specific numbers and percentages
+- Provide 2-3 concrete action items
+- Write for a busy business owner who wants quick insights
+
+Focus on: profitability, pricing, demand, costs, and specific actions to improve business performance.
+"""
+            
+            # Get AI response
+            if ai_analyzer.model:
+                try:
+                    response = ai_analyzer.model.generate_content(ai_prompt)
+                    ai_response = response.text.strip()
+                    
+                    # Clean up the response
+                    if ai_response.startswith('```json'):
+                        ai_response = ai_response.replace('```json', '').replace('```', '').strip()
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'response': ai_response
+                    })
+                except Exception as e:
+                    return JsonResponse({
+                        'success': True,
+                        'response': f"Your tour performance summary:\n\nTotal revenue: ${context_data['summary_metrics'].get('total_revenue', 0):,.0f}\nTotal profit: ${context_data['summary_metrics'].get('total_profit', 0):,.0f}\nProfit margin: {context_data['summary_metrics'].get('overall_profit_margin', 0):.0f}%\nProfitable departures: {context_data['summary_metrics'].get('profitable_departures', 0)}/{context_data['summary_metrics'].get('total_departures', 0)}\n\nAsk specific questions about pricing, costs, or profitability for detailed insights."
+                    })
+            else:
+                return JsonResponse({
+                    'success': True,
+                    'response': "I can analyze your tour financial performance. Ask me about profitability, pricing, costs, or specific departures for business insights."
+                })
+                
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Invalid JSON'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
 @login_required
 @require_tour_operator
 def create_departure(request):

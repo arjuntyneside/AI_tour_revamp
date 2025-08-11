@@ -36,6 +36,7 @@ urlpatterns = [
     
     # Analytics and AI Insights
     path('analytics/', views.analytics, name='analytics'),
+    path('ai-chat/', views.ai_chat, name='ai_chat'),
     
     # Settings
     path('settings/', views.settings, name='settings'),

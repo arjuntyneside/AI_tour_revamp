@@ -46,6 +46,49 @@
     </div>
 </div>
 
+<!-- AI Financial Chat Interface -->
+<div class="ai-chat-section">
+    <div class="ai-chat-header">
+        <div class="ai-header-content">
+            <div class="ai-icon">🤖</div>
+            <div class="ai-title">
+                <h3>AI Financial Assistant</h3>
+                <p>Ask me anything about your tour performance and finances</p>
+            </div>
+            <div class="ai-status">
+                <span class="status-badge ai-active">AI Ready</span>
+            </div>
+        </div>
+        <button class="btn btn-ai" onclick="toggleAIChat()">
+            <span class="btn-text">Open AI Chat</span>
+            <span class="btn-icon">💬</span>
+        </button>
+    </div>
+    
+    <div class="ai-chat-content" id="aiChatContent" style="display: none;">
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome message will be added by JavaScript -->
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Ask about your financial performance..." onkeypress="handleChatKeyPress(event)">
+                    <button class="chat-send-btn" onclick="sendChatMessage()">
+                        <span class="send-icon">📤</span>
+                    </button>
+                </div>
+                <div class="chat-suggestions">
+                    <button class="suggestion-btn" onclick="sendSuggestion('Analyze my tour financial performance')">📊 Analyze Performance</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('Which departures are most profitable?')">💰 Profitability</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('What pricing strategies should I consider?')">🎯 Pricing</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('How can I improve my breakeven points?')">⚖️ Breakeven</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Detailed Financial Breakdown -->
 <div class="financial-breakdown">
     <h3>Financial Breakdown</h3>
@@ -195,31 +238,77 @@
     {% endif %}
 </div>
 
-<!-- Financial Insights -->
+<!-- AI Financial Insights -->
 <div class="financial-insights">
-    <h2>AI Financial Insights</h2>
+    <div class="insights-header">
+        <h2>🤖 AI Financial Insights</h2>
+        <div class="insights-summary">
+            <span class="insight-count">{{ ai_insights.total_insights }} insights</span>
+            <span class="recommendation-count">{{ ai_insights.total_recommendations }} recommendations</span>
+            {% if ai_insights.high_priority_count > 0 %}
+                <span class="priority-alert">{{ ai_insights.high_priority_count }} high priority</span>
+            {% endif %}
+        </div>
+    </div>
+    
     <div class="insights-grid">
-        <div class="insight-card">
-            <h4>💰 Pricing Optimization</h4>
-            <p>Based on demand analysis, consider adjusting prices for better profitability</p>
-            <div class="insight-actions">
-                <button class="btn btn-sm btn-outline">View Recommendations</button>
+        {% for insight in ai_insights.insights %}
+        <div class="insight-card {% if insight.priority == 'high' %}priority-high{% elif insight.priority == 'medium' %}priority-medium{% else %}priority-low{% endif %}">
+            <div class="insight-header">
+                <h4>{{ insight.title }}</h4>
+                <span class="priority-badge {{ insight.priority }}">{{ insight.priority|title }}</span>
             </div>
-        </div>
-        <div class="insight-card">
-            <h4>📊 Demand Forecasting</h4>
-            <p>AI predicts optimal departure dates and capacity planning</p>
-            <div class="insight-actions">
-                <button class="btn btn-sm btn-outline">View Forecast</button>
+            
+            {% if insight.recommendations %}
+                <div class="recommendations-list">
+                    {% for recommendation in insight.recommendations %}
+                    <div class="recommendation-item">
+                        <div class="recommendation-header">
+                            <span class="recommendation-title">{{ recommendation.title }}</span>
+                            <span class="impact-badge {{ recommendation.impact }}">{{ recommendation.impact|title }} Impact</span>
+                        </div>
+                        <p class="recommendation-description">{{ recommendation.description }}</p>
+                        <div class="recommendation-actions">
+                            <button class="btn btn-sm btn-primary" onclick="showRecommendationDetails('{{ recommendation.type }}', '{{ recommendation.title }}')">
+                                {{ recommendation.action }}
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-recommendations">No specific recommendations at this time. All metrics are within optimal ranges.</p>
+            {% endif %}
+            
+            {% if insight.metrics %}
+            <div class="insight-metrics">
+                <h5>Key Metrics:</h5>
+                <div class="metrics-grid">
+                    {% for key, value in insight.metrics.items %}
+                    <div class="metric-item">
+                        <span class="metric-label">{{ key|title }}</span>
+                        <span class="metric-value">
+                            {% if value|floatformat:0 == value|floatformat:2 %}
+                                {{ value|floatformat:0 }}
+                            {% else %}
+                                {{ value|floatformat:2 }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
+            {% endif %}
         </div>
-        <div class="insight-card">
-            <h4>🎯 Cost Optimization</h4>
-            <p>Identify opportunities to reduce costs and improve margins</p>
-            <div class="insight-actions">
-                <button class="btn btn-sm btn-outline">View Analysis</button>
-            </div>
-        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Recommendation Details Modal -->
+<div id="recommendationModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="modalContent"></div>
     </div>
 </div>
 
@@ -506,39 +595,246 @@
 }
 
 .financial-insights {
-    background: white;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 20px;
     padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.insights-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.insights-header h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+}
+
+.insights-summary {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.insight-count, .recommendation-count, .priority-alert {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.insight-count {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.recommendation-count {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.priority-alert {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
 
 .insights-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
     margin-top: 1.5rem;
 }
 
 .insight-card {
-    background: #f8f9fa;
-    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.insight-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.insight-card.priority-high {
+    border-left: 5px solid #dc2626;
+}
+
+.insight-card.priority-medium {
+    border-left: 5px solid #f59e0b;
+}
+
+.insight-card.priority-low {
+    border-left: 5px solid #10b981;
+}
+
+.insight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.insight-header h4 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.priority-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.priority-badge.high {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+}
+
+.priority-badge.medium {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.priority-badge.low {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.recommendation-item {
+    background: rgba(249, 250, 251, 0.8);
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.recommendation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.recommendation-title {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.impact-badge {
+    padding: 0.25rem 0.5rem;
     border-radius: 8px;
-    border-left: 4px solid #667eea;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
 
-.insight-card h4 {
-    margin: 0 0 1rem 0;
-    color: #333;
+.impact-badge.high {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
 }
 
-.insight-card p {
-    color: #666;
+.impact-badge.medium {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.impact-badge.low {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.recommendation-description {
+    color: #6b7280;
+    font-size: 0.85rem;
     margin-bottom: 1rem;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
-.insight-actions {
+.recommendation-actions {
     text-align: right;
+}
+
+.no-recommendations {
+    color: #6b7280;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(249, 250, 251, 0.5);
+    border-radius: 8px;
+}
+
+.insight-metrics {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.insight-metrics h5 {
+    margin: 0 0 1rem 0;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.metric-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    border: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f2937;
 }
 
 .empty-state {
@@ -699,5 +995,739 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 20px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* AI Chat Section Styles */
+.ai-chat-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    margin: 2rem 0;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ai-chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.ai-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.ai-icon {
+    font-size: 2.5rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.ai-title h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ai-title p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0.25rem 0 0 0;
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.ai-active {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.status-badge.ai-inactive {
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.btn-ai {
+    background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+}
+
+.btn-ai:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(139, 92, 246, 0.6);
+    background: linear-gradient(45deg, #7c3aed, #6d28d9);
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+}
+
+.ai-chat-content {
+    background: white;
+    padding: 0;
+    border-radius: 0 0 20px 20px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    background: #f8fafc;
+}
+
+.message {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.ai-message .message-avatar {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+}
+
+.user-message .message-avatar {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.message-content {
+    flex: 1;
+    background: white;
+    padding: 1rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.ai-message .message-content {
+    border-left: 4px solid #8b5cf6;
+}
+
+.user-message .message-content {
+    border-left: 4px solid #3b82f6;
+}
+
+.message-text {
+    color: #1e293b;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.message-text p {
+    margin: 0 0 0.75rem 0;
+}
+
+.message-text ul {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.message-text li {
+    margin-bottom: 0.25rem;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-align: right;
+}
+
+.chat-input-container {
+    padding: 1.5rem;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+}
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.chat-input:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.chat-send-btn {
+    width: 45px;
+    height: 45px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.chat-send-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.send-icon {
+    font-size: 1rem;
+}
+
+.chat-suggestions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.suggestion-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    background: white;
+    color: #64748b;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.suggestion-btn:hover {
+    background: #f8fafc;
+    border-color: #8b5cf6;
+    color: #8b5cf6;
+    transform: translateY(-1px);
+}
+
+.typing-indicator {
+    display: flex;
+    gap: 0.25rem;
+    padding: 1rem;
+    color: #64748b;
+    font-style: italic;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #8b5cf6;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+@media (max-width: 768px) {
+    .ai-chat-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .ai-header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .chat-suggestions {
+        justify-content: center;
+    }
+    
+    .suggestion-btn {
+        font-size: 0.7rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
 </style>
+
+<script>
+// Modal functionality
+function showRecommendationDetails(type, title) {
+    const modal = document.getElementById('recommendationModal');
+    const modalContent = document.getElementById('modalContent');
+    
+    // Generate detailed content based on recommendation type
+    let content = '<h3>' + title + '</h3>' +
+        '<div class="recommendation-details">';
+    
+    switch(type) {
+        case 'price_increase':
+            content += '<h4>📈 Pricing Strategy Recommendations</h4>' +
+                '<ul>' +
+                '<li>Analyze competitor pricing in your market</li>' +
+                '<li>Consider value-added services to justify higher prices</li>' +
+                '<li>Implement dynamic pricing based on demand</li>' +
+                '<li>Offer early-bird discounts to increase bookings</li>' +
+                '</ul>' +
+                '<div class="action-steps">' +
+                '<h5>Next Steps:</h5>' +
+                '<ol>' +
+                '<li>Review current pricing against market rates</li>' +
+                '<li>Identify unique value propositions</li>' +
+                '<li>Test price increases on select departures</li>' +
+                '<li>Monitor booking patterns after changes</li>' +
+                '</ol>' +
+                '</div>';
+            break;
+            
+        case 'capacity_increase':
+            content += '<h4>🚀 Capacity Optimization</h4>' +
+                '<ul>' +
+                '<li>High demand indicates market opportunity</li>' +
+                '<li>Consider adding more departure dates</li>' +
+                '<li>Evaluate if you can increase group sizes</li>' +
+                '<li>Look for additional tour guides or resources</li>' +
+                '</ul>' +
+                '<div class="action-steps">' +
+                '<h5>Next Steps:</h5>' +
+                '<ol>' +
+                '<li>Assess resource availability</li>' +
+                '<li>Plan additional departure dates</li>' +
+                '<li>Consider increasing maximum group sizes</li>' +
+                '<li>Hire additional staff if needed</li>' +
+                '</ol>' +
+                '</div>';
+            break;
+            
+        case 'marketing_boost':
+            content += '<h4>📢 Marketing Strategy</h4>' +
+                '<ul>' +
+                '<li>Increase social media advertising</li>' +
+                '<li>Partner with travel influencers</li>' +
+                '<li>Offer referral incentives</li>' +
+                '<li>Create compelling content about your tours</li>' +
+                '</ul>' +
+                '<div class="action-steps">' +
+                '<h5>Next Steps:</h5>' +
+                '<ol>' +
+                '<li>Allocate additional marketing budget</li>' +
+                '<li>Create targeted advertising campaigns</li>' +
+                '<li>Develop partnership strategies</li>' +
+                '<li>Track marketing ROI</li>' +
+                '</ol>' +
+                '</div>';
+            break;
+            
+        case 'cost_reduction':
+            content += '<h4>💰 Cost Optimization</h4>' +
+                '<ul>' +
+                '<li>Negotiate better rates with suppliers</li>' +
+                '<li>Optimize route planning to reduce fuel costs</li>' +
+                '<li>Consider bulk purchasing for supplies</li>' +
+                '<li>Review and optimize staffing schedules</li>' +
+                '</ul>' +
+                '<div class="action-steps">' +
+                '<h5>Next Steps:</h5>' +
+                '<ol>' +
+                '<li>Audit all current costs</li>' +
+                '<li>Identify cost reduction opportunities</li>' +
+                '<li>Negotiate with suppliers</li>' +
+                '<li>Implement cost tracking systems</li>' +
+                '</ol>' +
+                '</div>';
+            break;
+            
+        default:
+            content += '<h4>📋 General Recommendations</h4>' +
+                '<p>Based on your current data, we recommend focusing on the areas highlighted in the insights above.</p>' +
+                '<div class="action-steps">' +
+                '<h5>General Next Steps:</h5>' +
+                '<ol>' +
+                '<li>Review all recommendations carefully</li>' +
+                '<li>Prioritize high-impact changes</li>' +
+                '<li>Implement changes gradually</li>' +
+                '<li>Monitor results and adjust strategies</li>' +
+                '</ol>' +
+                '</div>';
+    }
+    
+    content += '</div>' +
+        '<div class="modal-actions">' +
+        '<button class="btn btn-primary" onclick="closeModal()">Got it!</button>' +
+        '</div>';
+    
+    modalContent.innerHTML = content;
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    const modal = document.getElementById('recommendationModal');
+    modal.style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('recommendationModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Close modal with X button
+document.addEventListener('DOMContentLoaded', function() {
+    const closeBtn = document.querySelector('.close');
+    if (closeBtn) {
+        closeBtn.onclick = closeModal;
+    }
+});
+
+// AI Chat functionality
+function toggleAIChat() {
+    const content = document.getElementById('aiChatContent');
+    const btn = document.querySelector('.btn-ai');
+    const btnText = btn.querySelector('.btn-text');
+    const btnIcon = btn.querySelector('.btn-icon');
+    
+    if (content.style.display === 'none') {
+        // Show AI chat
+        content.style.display = 'block';
+        btnText.textContent = 'Close AI Chat';
+        btnIcon.textContent = '❌';
+        
+        // Show welcome message
+        showWelcomeMessage();
+        
+        // Focus on input
+        setTimeout(() => {
+            document.getElementById('chatInput').focus();
+        }, 100);
+        
+    } else {
+        // Hide AI chat
+        content.style.display = 'none';
+        btnText.textContent = 'Open AI Chat';
+        btnIcon.textContent = '💬';
+    }
+}
+
+function showWelcomeMessage() {
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.innerHTML = `
+        <div class="message ai-message">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+                <div class="message-text">
+                    <p>Hello! I'm your AI financial assistant. I can analyze your tour and departure performance, provide insights, and answer questions about your finances.</p>
+                    <p><strong>Try asking me:</strong></p>
+                    <ul>
+                        <li>"Analyze my tour financial performance"</li>
+                        <li>"Which departures are most profitable?"</li>
+                        <li>"What pricing strategies should I consider?"</li>
+                        <li>"How can I improve my breakeven points?"</li>
+                    </ul>
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+        </div>
+    `;
+}
+
+function handleChatKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendChatMessage();
+    }
+}
+
+function sendSuggestion(text) {
+    // Clear previous messages first
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.innerHTML = '';
+    
+    document.getElementById('chatInput').value = text;
+    sendChatMessage();
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Clear previous messages and show only current Q&A
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.innerHTML = '';
+    
+    // Add user message
+    addMessage(message, 'user');
+    input.value = '';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Send to AI (AJAX call)
+    fetch('/ai-chat/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTypingIndicator();
+        if (data.success) {
+            addMessage(data.response, 'ai');
+        } else {
+            addMessage('Sorry, I encountered an error. Please try again.', 'ai');
+        }
+    })
+    .catch(error => {
+        hideTypingIndicator();
+        addMessage('Sorry, I\'m having trouble connecting. Please try again.', 'ai');
+        console.error('Error:', error);
+    });
+}
+
+function addMessage(text, sender) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    const avatar = sender === 'ai' ? '🤖' : '👤';
+    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+            <div class="message-text">${formatMessage(text)}</div>
+            <div class="message-time">${time}</div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function formatMessage(text) {
+    // Convert line breaks to <br> tags
+    return text.replace(/\n/g, '<br>');
+}
+
+function showTypingIndicator() {
+    const messagesContainer = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message ai-message';
+    typingDiv.id = 'typingIndicator';
+    
+    typingDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+            <div class="typing-indicator">
+                AI is thinking
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Enhanced recommendation details modal
+function showRecommendationDetails(insightTitle, recTitle, recDescription, recAction, recImpact, recTimeline, implementationSteps, expectedOutcome) {
+    const modal = document.getElementById('recommendationModal');
+    const modalContent = document.getElementById('modalContent');
+    
+    let stepsHtml = '';
+    if (implementationSteps && implementationSteps.length > 0) {
+        stepsHtml = '<div class="implementation-steps"><h5>Implementation Steps:</h5><ol>';
+        implementationSteps.forEach(step => {
+            stepsHtml += '<li>' + step + '</li>';
+        });
+        stepsHtml += '</ol></div>';
+    }
+    
+    const content = `
+        <div class="recommendation-details">
+            <div class="rec-header">
+                <h3>${recTitle}</h3>
+                <div class="rec-meta-badges">
+                    <span class="impact-badge impact-${recImpact.toLowerCase()}">${recImpact} Impact</span>
+                    <span class="timeline-badge">${recTimeline}</span>
+                </div>
+            </div>
+            
+            <div class="rec-section">
+                <h4>📋 Description</h4>
+                <p>${recDescription}</p>
+            </div>
+            
+            <div class="rec-section">
+                <h4>🎯 Action Required</h4>
+                <p>${recAction}</p>
+            </div>
+            
+            ${stepsHtml}
+            
+            <div class="rec-section">
+                <h4>📈 Expected Outcome</h4>
+                <p>${expectedOutcome}</p>
+            </div>
+            
+            <div class="rec-section">
+                <h4>🔗 Related Insight</h4>
+                <p>This recommendation is part of: <strong>${insightTitle}</strong></p>
+            </div>
+        </div>
+        
+        <div class="modal-actions">
+            <button class="btn btn-primary" onclick="closeModal()">Got it!</button>
+            <button class="btn btn-outline" onclick="closeModal()">Dismiss</button>
+        </div>
+    `;
+    
+    modalContent.innerHTML = content;
+    modal.style.display = 'block';
+}
+
+// Auto-refresh AI insights every 5 minutes
+setInterval(function() {
+    const aiContent = document.getElementById('aiInsightsContent');
+    if (aiContent && aiContent.style.display !== 'none') {
+        // Refresh the page to get updated AI insights
+        // In a real app, you'd make an AJAX call here
+        console.log('AI insights auto-refresh triggered');
+    }
+}, 300000); // 5 minutes
+</script>
 {% endblock %} 
