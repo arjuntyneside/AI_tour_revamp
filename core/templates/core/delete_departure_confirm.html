@@ -1,0 +1,80 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Delete Departure{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="delete-confirmation">
+        <h2>Delete Departure</h2>
+        <div class="confirmation-message">
+            <p>Are you sure you want to delete this departure?</p>
+            <div class="departure-info">
+                <strong>Tour:</strong> {{ departure.tour.title }}<br>
+                <strong>Date:</strong> {{ departure.departure_date|date:"M d, Y" }}<br>
+                <strong>Bookings:</strong> {{ departure.total_bookings }} / {{ departure.available_spots }}
+            </div>
+            <p class="warning">This action cannot be undone.</p>
+        </div>
+        
+        <div class="confirmation-actions">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Departure</button>
+                <a href="{% url 'departures' %}" class="btn btn-outline">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.delete-confirmation {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.delete-confirmation h2 {
+    color: #dc3545;
+    margin-bottom: 1.5rem;
+}
+
+.confirmation-message {
+    margin-bottom: 2rem;
+}
+
+.departure-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: left;
+}
+
+.warning {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    color: white;
+}
+</style>
+{% endblock %}

@@ -758,6 +758,24 @@ def departure_detail(request, departure_id):
 
 @login_required
 @require_tour_operator
+def delete_departure(request, departure_id):
+    """Delete a departure"""
+    tour_operator = request.tour_operator
+    departure = get_object_or_404(TourDeparture, id=departure_id, tour__tour_operator=tour_operator)
+    
+    if request.method == 'POST':
+        departure.delete()
+        messages.success(request, f"Departure for '{departure.tour.title}' on {departure.departure_date} has been deleted.")
+        return redirect('departures')
+    
+    context = {
+        'departure': departure,
+        'tour_operator': tour_operator,
+    }
+    return render(request, 'core/delete_departure_confirm.html', context)
+
+@login_required
+@require_tour_operator
 def analytics(request):
     """AI-powered analytics dashboard"""
     tour_operator = request.tour_operator

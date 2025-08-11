@@ -25,6 +25,7 @@ urlpatterns = [
     path('departures/create/', views.create_departure, name='create_departure'),
     path('departures/<uuid:departure_id>/', views.departure_detail, name='departure_detail'),
     path('departures/<uuid:departure_id>/edit/', views.edit_departure, name='edit_departure'),
+    path('departures/<uuid:departure_id>/delete/', views.delete_departure, name='delete_departure'),
     
     # Customer Management
     path('customers/', views.customers, name='customers'),
