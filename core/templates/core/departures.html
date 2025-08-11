@@ -89,6 +89,111 @@
     </div>
 </div>
 
+<!-- Rule-Based Financial Analysis Section -->
+<div class="rule-based-insights-section">
+    <div class="insights-header">
+        <div class="header-content">
+            <div class="insights-icon">📊</div>
+            <div class="insights-title">
+                <h3>Rule-Based Financial Analysis</h3>
+                <p>Automated insights based on your departure data</p>
+            </div>
+        </div>
+        <button class="btn btn-insights" onclick="toggleRuleBasedInsights()">
+            <span class="btn-text">View Analysis</span>
+            <span class="btn-icon">📈</span>
+        </button>
+    </div>
+    
+    <div class="insights-content" id="ruleBasedInsightsContent" style="display: none;">
+        <div class="insights-summary">
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ rule_based_insights.total_insights }}</span>
+                    <span class="stat-label">Insights</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ rule_based_insights.total_recommendations }}</span>
+                    <span class="stat-label">Recommendations</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ rule_based_insights.high_priority_count }}</span>
+                    <span class="stat-label">High Priority</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights-list">
+            {% for insight in rule_based_insights.insights %}
+            <div class="insight-card">
+                <div class="insight-header">
+                    <div class="insight-icon">
+                        {% if insight.type == 'pricing_optimization' %}💰
+                        {% elif insight.type == 'demand_forecasting' %}📊
+                        {% elif insight.type == 'cost_optimization' %}🎯
+                        {% elif insight.type == 'profitability_trends' %}📈
+                        {% else %}📋
+                        {% endif %}
+                    </div>
+                    <div class="insight-info">
+                        <h4>{{ insight.title }}</h4>
+                        <div class="insight-meta">
+                            <span class="priority priority-{{ insight.priority }}">{{ insight.priority|title }}</span>
+                            <span class="risk risk-{{ insight.risk_level }}">{{ insight.risk_level|title }} Risk</span>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if insight.recommendations %}
+                <div class="recommendations-section">
+                    <h5>Recommendations</h5>
+                    <div class="recommendations-list">
+                        {% for rec in insight.recommendations %}
+                        <div class="recommendation-item">
+                            <div class="rec-icon">💡</div>
+                            <div class="rec-content">
+                                <h6>{{ rec.title }}</h6>
+                                <p>{{ rec.description }}</p>
+                                <div class="rec-meta">
+                                    <span class="impact impact-{{ rec.impact }}">{{ rec.impact|title }} Impact</span>
+                                    {% if rec.departures %}
+                                    <span class="affected-count">{{ rec.departures|length }} departures affected</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if insight.metrics %}
+                <div class="insight-metrics">
+                    <h5>Key Metrics</h5>
+                    <div class="metrics-grid">
+                        {% for key, value in insight.metrics.items %}
+                        <div class="metric-item">
+                            <span class="metric-label">{{ key|title }}</span>
+                            <span class="metric-value">
+                                {% if "percentage" in key or "rate" in key or "roi" in key %}
+                                    {{ value|floatformat:1 }}%
+                                {% elif "price" in key or "cost" in key or "revenue" in key or "profit" in key or "margin" in key %}
+                                    ${{ value|floatformat:2 }}
+                                {% else %}
+                                    {{ value|floatformat:0 }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 <!-- Detailed Financial Breakdown -->
 <div class="financial-breakdown">
     <h3>Financial Breakdown</h3>
@@ -238,71 +343,7 @@
     {% endif %}
 </div>
 
-<!-- AI Financial Insights -->
-<div class="financial-insights">
-    <div class="insights-header">
-        <h2>🤖 AI Financial Insights</h2>
-        <div class="insights-summary">
-            <span class="insight-count">{{ ai_insights.total_insights }} insights</span>
-            <span class="recommendation-count">{{ ai_insights.total_recommendations }} recommendations</span>
-            {% if ai_insights.high_priority_count > 0 %}
-                <span class="priority-alert">{{ ai_insights.high_priority_count }} high priority</span>
-            {% endif %}
-        </div>
-    </div>
-    
-    <div class="insights-grid">
-        {% for insight in ai_insights.insights %}
-        <div class="insight-card {% if insight.priority == 'high' %}priority-high{% elif insight.priority == 'medium' %}priority-medium{% else %}priority-low{% endif %}">
-            <div class="insight-header">
-                <h4>{{ insight.title }}</h4>
-                <span class="priority-badge {{ insight.priority }}">{{ insight.priority|title }}</span>
-            </div>
-            
-            {% if insight.recommendations %}
-                <div class="recommendations-list">
-                    {% for recommendation in insight.recommendations %}
-                    <div class="recommendation-item">
-                        <div class="recommendation-header">
-                            <span class="recommendation-title">{{ recommendation.title }}</span>
-                            <span class="impact-badge {{ recommendation.impact }}">{{ recommendation.impact|title }} Impact</span>
-                        </div>
-                        <p class="recommendation-description">{{ recommendation.description }}</p>
-                        <div class="recommendation-actions">
-                            <button class="btn btn-sm btn-primary" onclick="showRecommendationDetails('{{ recommendation.type }}', '{{ recommendation.title }}')">
-                                {{ recommendation.action }}
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="no-recommendations">No specific recommendations at this time. All metrics are within optimal ranges.</p>
-            {% endif %}
-            
-            {% if insight.metrics %}
-            <div class="insight-metrics">
-                <h5>Key Metrics:</h5>
-                <div class="metrics-grid">
-                    {% for key, value in insight.metrics.items %}
-                    <div class="metric-item">
-                        <span class="metric-label">{{ key|title }}</span>
-                        <span class="metric-value">
-                            {% if value|floatformat:0 == value|floatformat:2 %}
-                                {{ value|floatformat:0 }}
-                            {% else %}
-                                {{ value|floatformat:2 }}
-                            {% endif %}
-                        </span>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        {% endfor %}
-    </div>
-</div>
+
 
 <!-- Recommendation Details Modal -->
 <div id="recommendationModal" class="modal">
@@ -594,248 +635,15 @@
     margin-bottom: 0.5rem;
 }
 
-.financial-insights {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
 
-.insights-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-}
 
-.insights-header h2 {
-    font-size: 2rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0;
-}
 
-.insights-summary {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
 
-.insight-count, .recommendation-count, .priority-alert {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 600;
-}
 
-.insight-count {
-    background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
-}
 
-.recommendation-count {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-}
 
-.priority-alert {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-    animation: pulse 2s infinite;
-}
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
 
-.insights-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
-    margin-top: 1.5rem;
-}
-
-.insight-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-}
-
-.insight-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-}
-
-.insight-card.priority-high {
-    border-left: 5px solid #dc2626;
-}
-
-.insight-card.priority-medium {
-    border-left: 5px solid #f59e0b;
-}
-
-.insight-card.priority-low {
-    border-left: 5px solid #10b981;
-}
-
-.insight-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.insight-header h4 {
-    margin: 0;
-    color: #1f2937;
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-
-.priority-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.priority-badge.high {
-    background: rgba(220, 38, 38, 0.1);
-    color: #dc2626;
-}
-
-.priority-badge.medium {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-}
-
-.priority-badge.low {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-}
-
-.recommendations-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.recommendation-item {
-    background: rgba(249, 250, 251, 0.8);
-    padding: 1rem;
-    border-radius: 10px;
-    border: 1px solid rgba(229, 231, 235, 0.5);
-}
-
-.recommendation-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.recommendation-title {
-    font-weight: 600;
-    color: #374151;
-    font-size: 0.9rem;
-}
-
-.impact-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 8px;
-    font-size: 0.7rem;
-    font-weight: 600;
-}
-
-.impact-badge.high {
-    background: rgba(220, 38, 38, 0.1);
-    color: #dc2626;
-}
-
-.impact-badge.medium {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-}
-
-.impact-badge.low {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-}
-
-.recommendation-description {
-    color: #6b7280;
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
-    line-height: 1.4;
-}
-
-.recommendation-actions {
-    text-align: right;
-}
-
-.no-recommendations {
-    color: #6b7280;
-    font-style: italic;
-    text-align: center;
-    padding: 1rem;
-    background: rgba(249, 250, 251, 0.5);
-    border-radius: 8px;
-}
-
-.insight-metrics {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(229, 231, 235, 0.5);
-}
-
-.insight-metrics h5 {
-    margin: 0 0 1rem 0;
-    color: #374151;
-    font-size: 1rem;
-    font-weight: 600;
-}
-
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.75rem;
-}
-
-.metric-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    text-align: center;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 8px;
-    border: 1px solid rgba(229, 231, 235, 0.3);
-}
-
-.metric-label {
-    font-size: 0.75rem;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-.metric-value {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1f2937;
-}
 
 .empty-state {
     text-align: center;
@@ -1351,6 +1159,344 @@
         padding: 0.4rem 0.8rem;
     }
 }
+
+/* Rule-Based Insights Section Styles */
+.rule-based-insights-section {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 20px;
+    margin: 2rem 0;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.insights-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.insights-icon {
+    font-size: 2.5rem;
+    animation: pulse 2s infinite;
+}
+
+.insights-title h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.insights-title p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0.25rem 0 0 0;
+    font-size: 0.9rem;
+}
+
+.btn-insights {
+    background: linear-gradient(45deg, #059669, #047857);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.4);
+}
+
+.btn-insights:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(5, 150, 105, 0.6);
+    background: linear-gradient(45deg, #047857, #065f46);
+}
+
+.insights-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 0 0 20px 20px;
+}
+
+.insights-summary {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid #bbf7d0;
+}
+
+.insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.insight-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.insight-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.insight-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.insight-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 15px;
+    border: 2px solid #10b981;
+}
+
+.insight-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: #1e293b;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.insight-meta {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.priority, .risk {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.priority-high {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.priority-medium {
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.priority-low {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+}
+
+.risk-high {
+    background: linear-gradient(45deg, #dc2626, #b91c1c);
+    color: white;
+}
+
+.risk-medium {
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.risk-low {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+}
+
+.recommendations-section {
+    margin-bottom: 1.5rem;
+}
+
+.recommendations-section h5 {
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.recommendation-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 12px;
+    border: 1px solid #bbf7d0;
+    transition: all 0.3s ease;
+}
+
+.recommendation-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+}
+
+.rec-icon {
+    font-size: 1.5rem;
+    color: #10b981;
+}
+
+.rec-content {
+    flex: 1;
+}
+
+.rec-content h6 {
+    margin: 0 0 0.5rem 0;
+    color: #1e293b;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.rec-content p {
+    margin: 0 0 0.75rem 0;
+    color: #64748b;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.rec-meta {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.impact, .timeline, .affected-count {
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.impact-high {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.impact-medium {
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.impact-low {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+}
+
+.affected-count {
+    background: linear-gradient(45deg, #6366f1, #4f46e5);
+    color: white;
+}
+
+.insight-metrics {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.insight-metrics h5 {
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.metric-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.metric-label {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.metric-value {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .insights-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .insight-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .insight-meta {
+        justify-content: center;
+    }
+    
+    .recommendation-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .rec-meta {
+        justify-content: center;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 
 <script>
@@ -1729,5 +1875,25 @@ setInterval(function() {
         console.log('AI insights auto-refresh triggered');
     }
 }, 300000); // 5 minutes
+
+// Rule-based insights functionality
+function toggleRuleBasedInsights() {
+    const content = document.getElementById('ruleBasedInsightsContent');
+    const btn = document.querySelector('.btn-insights');
+    const btnText = btn.querySelector('.btn-text');
+    const btnIcon = btn.querySelector('.btn-icon');
+    
+    if (content.style.display === 'none') {
+        // Show rule-based insights
+        content.style.display = 'block';
+        btnText.textContent = 'Hide Analysis';
+        btnIcon.textContent = '👁️';
+    } else {
+        // Hide rule-based insights
+        content.style.display = 'none';
+        btnText.textContent = 'View Analysis';
+        btnIcon.textContent = '📈';
+    }
+}
 </script>
 {% endblock %} 

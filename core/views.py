@@ -663,6 +663,10 @@ def departures(request):
         if not departure.roi_percentage:
             departure.roi_percentage = analysis['roi_percentage']
     
+    # Get rule-based financial insights
+    from .rule_based_financial_analysis import get_ai_financial_insights
+    rule_based_insights = get_ai_financial_insights(tour_operator)
+    
     context = {
         'departures': departures,
         'tour_operator': tour_operator,
@@ -678,6 +682,7 @@ def departures(request):
         'total_capacity': total_capacity,
         'overall_occupancy_rate': overall_occupancy_rate,
         'avg_occupancy': avg_occupancy,
+        'rule_based_insights': rule_based_insights,
         'profitable_count': profitable_count,
         'total_departures': total_departures,
     }
@@ -692,7 +697,7 @@ def ai_insights(request):
     tour_operator = request.tour_operator
     
     # Get both rule-based and AI insights
-    from .ai_financial_insights import get_ai_financial_insights
+    from .rule_based_financial_analysis import get_ai_financial_insights
     from .gemini_ai_insights import get_gemini_ai_insights
     
     rule_based_insights = get_ai_financial_insights(tour_operator)
