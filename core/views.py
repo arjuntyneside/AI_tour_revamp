@@ -453,6 +453,63 @@ def tour_detail(request, tour_id):
 
 @login_required
 @require_tour_operator
+def edit_tour(request, tour_id):
+    """Edit tour details"""
+    tour_operator = request.tour_operator
+    tour = get_object_or_404(Tour, id=tour_id, tour_operator=tour_operator)
+    
+    if request.method == 'POST':
+        form = TourForm(request.POST, instance=tour)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Tour updated successfully.")
+            return redirect('tour_detail', tour_id=tour.id)
+    else:
+        form = TourForm(instance=tour)
+    
+    context = {
+        'form': form,
+        'tour': tour,
+        'tour_operator': tour_operator,
+        'action': 'Edit'
+    }
+    
+    return render(request, 'core/tour_form.html', context)
+
+@login_required
+@require_tour_operator
+def delete_tour(request, tour_id):
+    """Delete tour with confirmation"""
+    tour_operator = request.tour_operator
+    tour = get_object_or_404(Tour, id=tour_id, tour_operator=tour_operator)
+    
+    if request.method == 'POST':
+        # Check if tour has departures
+        departures_count = tour.departures.count()
+        if departures_count > 0:
+            messages.error(request, f"Cannot delete tour '{tour.title}'. It has {departures_count} departure(s). Please delete all departures first.")
+            return redirect('tour_detail', tour_id=tour.id)
+        
+        # Check if tour has bookings
+        bookings_count = Booking.objects.filter(tour=tour).count()
+        if bookings_count > 0:
+            messages.error(request, f"Cannot delete tour '{tour.title}'. It has {bookings_count} booking(s). Please handle all bookings first.")
+            return redirect('tour_detail', tour_id=tour.id)
+        
+        tour_title = tour.title
+        tour.delete()
+        messages.success(request, f"Tour '{tour_title}' has been deleted successfully.")
+        return redirect('tours')
+    
+    context = {
+        'tour': tour,
+        'tour_operator': tour_operator,
+    }
+    
+    return render(request, 'core/delete_tour_confirm.html', context)
+
+@login_required
+@require_tour_operator
 def customers(request):
     """Customer management with AI segmentation"""
     tour_operator = request.tour_operator

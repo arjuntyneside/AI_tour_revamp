@@ -1,0 +1,363 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Tour{% endblock %}
+
+{% block content %}
+<div class="tour-form-container">
+    <div class="form-header">
+        <h1>{{ action }} Tour</h1>
+        <p class="subtitle">Update tour details and configuration</p>
+    </div>
+
+    <form method="post" class="tour-form">
+        {% csrf_token %}
+        
+        <!-- Debug: Show form errors -->
+        {% if form.errors %}
+        <div class="form-errors">
+            <h4>Please correct the following errors:</h4>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+        
+        <div class="form-sections">
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h3>📋 Basic Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}">Tour Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="error-message">{{ form.title.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.destination.id_for_label }}">Destination</label>
+                        {{ form.destination }}
+                        {% if form.destination.errors %}
+                            <div class="error-message">{{ form.destination.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.duration_days.id_for_label }}">Duration (Days)</label>
+                        {{ form.duration_days }}
+                        {% if form.duration_days.errors %}
+                            <div class="error-message">{{ form.duration_days.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.difficulty_level.id_for_label }}">Difficulty Level</label>
+                        {{ form.difficulty_level }}
+                        {% if form.difficulty_level.errors %}
+                            <div class="error-message">{{ form.difficulty_level.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.max_group_size.id_for_label }}">Maximum Group Size</label>
+                        {{ form.max_group_size }}
+                        {% if form.max_group_size.errors %}
+                            <div class="error-message">{{ form.max_group_size.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.status.id_for_label }}">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="error-message">{{ form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="form-section">
+                <h3>💰 Pricing</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.pricing_type.id_for_label }}">Pricing Type</label>
+                        {{ form.pricing_type }}
+                        {% if form.pricing_type.errors %}
+                            <div class="error-message">{{ form.pricing_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.price_per_person.id_for_label }}">Price Per Person</label>
+                        {{ form.price_per_person }}
+                        {% if form.price_per_person.errors %}
+                            <div class="error-message">{{ form.price_per_person.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.price_per_group.id_for_label }}">Price Per Group</label>
+                        {{ form.price_per_group }}
+                        {% if form.price_per_group.errors %}
+                            <div class="error-message">{{ form.price_per_group.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.profit_margin_percentage.id_for_label }}">Profit Margin (%)</label>
+                        {{ form.profit_margin_percentage }}
+                        {% if form.profit_margin_percentage.errors %}
+                            <div class="error-message">{{ form.profit_margin_percentage.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Costs -->
+            <div class="form-section">
+                <h3>💸 Costs</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.cost_per_person.id_for_label }}">Cost Per Person</label>
+                        {{ form.cost_per_person }}
+                        {% if form.cost_per_person.errors %}
+                            <div class="error-message">{{ form.cost_per_person.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.operational_costs.id_for_label }}">Operational Costs</label>
+                        {{ form.operational_costs }}
+                        {% if form.operational_costs.errors %}
+                            <div class="error-message">{{ form.operational_costs.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-section">
+                <h3>📝 Description</h3>
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Tour Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="error-message">{{ form.description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Highlights -->
+            <div class="form-section">
+                <h3>⭐ Highlights</h3>
+                <div class="form-group">
+                    <label for="{{ form.highlights.id_for_label }}">Key Highlights</label>
+                    {{ form.highlights }}
+                    {% if form.highlights.errors %}
+                        <div class="error-message">{{ form.highlights.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Services -->
+            <div class="form-section">
+                <h3>🎯 Services</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.included_services.id_for_label }}">Included Services</label>
+                        {{ form.included_services }}
+                        {% if form.included_services.errors %}
+                            <div class="error-message">{{ form.included_services.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.excluded_services.id_for_label }}">Excluded Services</label>
+                        {{ form.excluded_services }}
+                        {% if form.excluded_services.errors %}
+                            <div class="error-message">{{ form.excluded_services.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seasonal Information -->
+            <div class="form-section">
+                <h3>🌤️ Seasonal Information</h3>
+                <div class="form-group">
+                    <label for="{{ form.seasonal_demand.id_for_label }}">Seasonal Demand</label>
+                    {{ form.seasonal_demand }}
+                    {% if form.seasonal_demand.errors %}
+                        <div class="error-message">{{ form.seasonal_demand.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'tour_detail' tour.id %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.tour-form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+}
+
+.form-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.form-errors {
+    background: #fee;
+    border: 1px solid #fcc;
+    color: #c33;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.form-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.form-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.form-section h3 {
+    margin: 0 0 1.5rem 0;
+    color: #1e293b;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding: 2rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .tour-form-container {
+        padding: 1rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

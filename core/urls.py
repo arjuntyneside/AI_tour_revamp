@@ -21,6 +21,8 @@ urlpatterns = [
     # Tour Management
     path('tours/', views.tours, name='tours'),
     path('tours/<uuid:tour_id>/', views.tour_detail, name='tour_detail'),
+    path('tours/<uuid:tour_id>/edit/', views.edit_tour, name='edit_tour'),
+    path('tours/<uuid:tour_id>/delete/', views.delete_tour, name='delete_tour'),
     path('departures/', views.departures, name='departures'),
     path('departures/create/', views.create_departure, name='create_departure'),
     path('departures/<uuid:departure_id>/', views.departure_detail, name='departure_detail'),
