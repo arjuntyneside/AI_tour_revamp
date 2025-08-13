@@ -5,6 +5,7 @@
     {% load static %}
     {% block extra_head %}
     <link rel="stylesheet" type="text/css" href="{% static 'core/css/dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     {% endblock %}
     {% block extra_css %}{% endblock %}
 </head>
@@ -14,6 +15,7 @@
             <span class="chevron chevron-left"></span>
         </button>
         <div class="nav-links">
+            <a href="/">Dashboard</a>
             <a href="/departures/">Departures</a>
             <a href="/tours/">Tours</a>
             <a href="/customers/">Customers</a>

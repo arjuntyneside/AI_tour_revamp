@@ -58,6 +58,121 @@ def require_tour_operator(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+@login_required
+@require_tour_operator
+def dashboard(request):
+    """AI-powered dashboard with business intelligence"""
+    tour_operator = request.tour_operator
+    
+    # Get all departures for analytics
+    departures = TourDeparture.objects.filter(
+        tour__tour_operator=tour_operator
+    ).order_by('departure_date')
+    
+    # Calculate monthly trends (last 6 months)
+    today = timezone.now().date()
+    months_data = []
+    revenue_data = []
+    profit_data = []
+    cost_data = []
+    
+    for i in range(6):
+        month_date = today - timedelta(days=30*i)
+        month_start = month_date.replace(day=1)
+        if i == 0:
+            month_end = today
+        else:
+            month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        
+        # Get departures in this month
+        month_departures = departures.filter(
+            departure_date__gte=month_start,
+            departure_date__lte=month_end
+        )
+        
+        # Calculate metrics
+        month_revenue = sum(dep.current_revenue for dep in month_departures)
+        month_profit = sum(dep.current_profit or 0 for dep in month_departures)
+        month_costs = sum(
+            dep.fixed_costs + dep.marketing_costs + (dep.variable_costs_per_person * dep.slots_filled)
+            for dep in month_departures
+        )
+        
+        months_data.append(month_start.strftime('%b %Y'))
+        revenue_data.append(month_revenue)
+        profit_data.append(month_profit)
+        cost_data.append(month_costs)
+    
+    # Reverse to show oldest to newest
+    months_data.reverse()
+    revenue_data.reverse()
+    profit_data.reverse()
+    cost_data.reverse()
+    
+    # Calculate overall metrics
+    total_revenue = sum(revenue_data)
+    total_profit = sum(profit_data)
+    total_costs = sum(cost_data)
+    total_departures = departures.count()
+    profitable_departures = sum(1 for dep in departures if dep.is_profitable)
+    
+    # Calculate averages
+    avg_revenue_per_departure = total_revenue / total_departures if total_departures > 0 else 0
+    avg_profit_per_departure = total_profit / total_departures if total_departures > 0 else 0
+    profit_margin = (total_profit / total_revenue * 100) if total_revenue > 0 else 0
+    
+    # Get top performing tours
+    tour_performance = {}
+    for dep in departures:
+        tour_name = dep.tour.title
+        if tour_name not in tour_performance:
+            tour_performance[tour_name] = {
+                'revenue': 0,
+                'profit': 0,
+                'departures': 0
+            }
+        tour_performance[tour_name]['revenue'] += dep.current_revenue
+        tour_performance[tour_name]['profit'] += dep.current_profit or 0
+        tour_performance[tour_name]['departures'] += 1
+    
+    # Sort by profit
+    top_tours = sorted(
+        [{'name': k, **v} for k, v in tour_performance.items()],
+        key=lambda x: x['profit'],
+        reverse=True
+    )[:5]
+    
+    # Calculate percentage for progress bars
+    if top_tours:
+        max_profit = top_tours[0]['profit']
+        for tour in top_tours:
+            tour['percentage'] = (tour['profit'] / max_profit * 100) if max_profit > 0 else 0
+    
+    # Risk alerts (unprofitable departures)
+    risk_departures = [
+        dep for dep in departures.filter(departure_date__gte=today)
+        if not dep.is_profitable and dep.slots_filled > 0
+    ][:3]
+    
+    context = {
+        'tour_operator': tour_operator,
+        'months_data': months_data,
+        'revenue_data': revenue_data,
+        'profit_data': profit_data,
+        'cost_data': cost_data,
+        'total_revenue': total_revenue,
+        'total_profit': total_profit,
+        'total_costs': total_costs,
+        'total_departures': total_departures,
+        'profitable_departures': profitable_departures,
+        'avg_revenue_per_departure': avg_revenue_per_departure,
+        'avg_profit_per_departure': avg_profit_per_departure,
+        'profit_margin': profit_margin,
+        'top_tours': top_tours,
+        'risk_departures': risk_departures,
+    }
+    
+    return render(request, 'core/dashboard.html', context)
 
 
 @login_required
@@ -1062,7 +1177,7 @@ def login(request):
                 # Check if user has tour operator access
                 tour_operator = get_user_tour_operator(user)
                 if tour_operator:
-                    return redirect('departures')
+                    return redirect('dashboard')
                 else:
                     messages.error(request, "You don't have access to any tour operator account.")
                     auth_logout(request)

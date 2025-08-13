@@ -1,0 +1,641 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Business Intelligence{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1>Business Intelligence Dashboard</h1>
+            <p class="subtitle">AI-powered insights for your tour business</p>
+        </div>
+        <div class="header-actions">
+            <div class="date-range">
+                <span class="date-label">Last 6 Months</span>
+                <span class="date-period">{{ months_data.0 }} - {{ months_data|last }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="metrics-grid">
+        <div class="metric-card revenue">
+            <div class="metric-icon">💰</div>
+            <div class="metric-content">
+                <h3>Total Revenue</h3>
+                <div class="metric-value">${{ total_revenue|floatformat:0 }}</div>
+                <div class="metric-trend positive">
+                    <span class="trend-arrow">↗</span>
+                    <span class="trend-text">+12.5% vs last period</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card profit">
+            <div class="metric-icon">📈</div>
+            <div class="metric-content">
+                <h3>Total Profit</h3>
+                <div class="metric-value">${{ total_profit|floatformat:0 }}</div>
+                <div class="metric-trend positive">
+                    <span class="trend-arrow">↗</span>
+                    <span class="trend-text">{{ profit_margin|floatformat:1 }}% margin</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card departures">
+            <div class="metric-icon">🚌</div>
+            <div class="metric-content">
+                <h3>Total Departures</h3>
+                <div class="metric-value">{{ total_departures }}</div>
+                <div class="metric-trend">
+                    <span class="trend-text">{{ profitable_departures }} profitable</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card avg-profit">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-content">
+                <h3>Avg Profit/Departure</h3>
+                <div class="metric-value">${{ avg_profit_per_departure|floatformat:0 }}</div>
+                <div class="metric-trend">
+                    <span class="trend-text">Per departure</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>Financial Performance Trends</h2>
+                <p>Revenue, Profit, and Costs over the last 6 months</p>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="financialChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights Grid -->
+    <div class="insights-grid">
+        <!-- Top Performing Tours -->
+        <div class="insight-card">
+            <div class="insight-header">
+                <h3>🏆 Top Performing Tours</h3>
+                <p>By total profit generated</p>
+            </div>
+            <div class="insight-content">
+                {% if top_tours %}
+                    {% for tour in top_tours %}
+                    <div class="tour-item">
+                        <div class="tour-info">
+                            <div class="tour-name">{{ tour.name }}</div>
+                            <div class="tour-stats">
+                                <span class="stat">${{ tour.profit|floatformat:0 }} profit</span>
+                                <span class="stat">{{ tour.departures }} departures</span>
+                            </div>
+                        </div>
+                        <div class="tour-bar">
+                            <div class="bar-fill" style="width: {{ tour.percentage|floatformat:0 }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No tour data available yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Risk Alerts -->
+        <div class="insight-card risk-alerts">
+            <div class="insight-header">
+                <h3>⚠️ Risk Alerts</h3>
+                <p>Departures that need attention</p>
+            </div>
+            <div class="insight-content">
+                {% if risk_departures %}
+                    {% for departure in risk_departures %}
+                    <div class="risk-item">
+                        <div class="risk-info">
+                            <div class="risk-title">{{ departure.tour.title }}</div>
+                            <div class="risk-date">{{ departure.departure_date|date:"M d, Y" }}</div>
+                            <div class="risk-details">
+                                <span class="risk-stat">${{ departure.current_profit|floatformat:0 }} profit</span>
+                                <span class="risk-stat">{{ departure.slots_filled }}/{{ departure.available_spots }} booked</span>
+                            </div>
+                        </div>
+                        <div class="risk-action">
+                            <a href="{% url 'edit_departure' departure.id %}" class="btn btn-sm btn-warning">Review</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No risk alerts - all departures are performing well!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="insight-card quick-actions">
+            <div class="insight-header">
+                <h3>⚡ Quick Actions</h3>
+                <p>Common tasks and shortcuts</p>
+            </div>
+            <div class="insight-content">
+                <div class="action-grid">
+                    <a href="{% url 'document_upload' %}" class="action-item">
+                        <div class="action-icon">📄</div>
+                        <div class="action-text">Upload Tour Document</div>
+                    </a>
+                    <a href="{% url 'create_departure' %}" class="action-item">
+                        <div class="action-icon">➕</div>
+                        <div class="action-text">Create Departure</div>
+                    </a>
+                    <a href="{% url 'tours' %}" class="action-item">
+                        <div class="action-icon">🗺️</div>
+                        <div class="action-text">Manage Tours</div>
+                    </a>
+                    <a href="{% url 'departures' %}" class="action-item">
+                        <div class="action-icon">📊</div>
+                        <div class="action-text">Financial Analysis</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.header-content h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.date-range {
+    text-align: right;
+}
+
+.date-label {
+    display: block;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+}
+
+.date-period {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.metric-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.revenue .metric-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.profit .metric-icon {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.departures .metric-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.avg-profit .metric-icon {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+}
+
+.metric-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.metric-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.metric-trend.positive {
+    color: #10b981;
+}
+
+.trend-arrow {
+    font-weight: bold;
+}
+
+/* Charts Section */
+.charts-section {
+    margin-bottom: 2rem;
+}
+
+.chart-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.chart-header {
+    margin-bottom: 2rem;
+}
+
+.chart-header h2 {
+    margin: 0 0 0.5rem 0;
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.chart-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 400px;
+}
+
+/* Insights Grid */
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.insight-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.insight-header {
+    margin-bottom: 1.5rem;
+}
+
+.insight-header h3 {
+    margin: 0 0 0.5rem 0;
+    color: #1e293b;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.insight-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+/* Tour Items */
+.tour-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.tour-item:last-child {
+    border-bottom: none;
+}
+
+.tour-info {
+    flex: 1;
+}
+
+.tour-name {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.tour-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.tour-bar {
+    width: 100px;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Risk Items */
+.risk-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.risk-item:last-child {
+    border-bottom: none;
+}
+
+.risk-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.risk-date {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.risk-details {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    transform: translateY(-1px);
+}
+
+/* Quick Actions */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #374151;
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.action-item:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: #374151;
+}
+
+.action-icon {
+    font-size: 2rem;
+}
+
+.action-text {
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #64748b;
+}
+
+.empty-state p {
+    margin: 0;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .header-content h1 {
+        font-size: 2rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Financial Performance Chart
+const ctx = document.getElementById('financialChart').getContext('2d');
+
+const financialChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ months_data|safe }},
+        datasets: [
+            {
+                label: 'Revenue',
+                data: {{ revenue_data|safe }},
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            },
+            {
+                label: 'Profit',
+                data: {{ profit_data|safe }},
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            },
+            {
+                label: 'Costs',
+                data: {{ cost_data|safe }},
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20,
+                    font: {
+                        size: 12,
+                        weight: '600'
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                },
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                }
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        },
+        elements: {
+            point: {
+                radius: 6,
+                hoverRadius: 8
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
