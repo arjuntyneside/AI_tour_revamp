@@ -545,6 +545,11 @@ def departures(request):
     tour_operator = request.tour_operator
     departures = TourDeparture.objects.filter(tour__tour_operator=tour_operator).order_by('departure_date')
     
+    # Filter by status
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        departures = departures.filter(status=status_filter)
+    
     # Calculate overall financial metrics
     total_revenue = sum(departure.current_revenue for departure in departures)
     total_profit = sum(departure.current_profit or 0 for departure in departures)
@@ -613,6 +618,7 @@ def departures(request):
     context = {
         'departures': departures,
         'tour_operator': tour_operator,
+        'status_filter': status_filter,
         'total_revenue': total_revenue,
         'total_profit': total_profit,
         'total_fixed_costs': total_fixed_costs,

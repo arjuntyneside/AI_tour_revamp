@@ -221,7 +221,19 @@
 <div class="departures-analysis">
     <div class="section-header">
         <h2>Departure Financial Analysis</h2>
-        <a href="{% url 'create_departure' %}" class="btn btn-primary">Add New Departure</a>
+        <div class="header-actions">
+            <div class="status-filter">
+                <label for="status-filter">Filter by Status:</label>
+                <select id="status-filter" onchange="filterByStatus(this.value)">
+                    <option value="">All Statuses</option>
+                    <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                    <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+            <a href="{% url 'create_departure' %}" class="btn btn-primary">Add New Departure</a>
+        </div>
     </div>
 
     {% if departures %}
@@ -242,7 +254,10 @@
                 <tr class="departure-row {% if departure.is_profitable %}profitable{% else %}not-profitable{% endif %}">
                     <td>
                         <div class="departure-info">
-                            <strong>{{ departure.tour.title }}</strong>
+                            <div class="departure-header">
+                                <strong>{{ departure.tour.title }}</strong>
+                                <span class="status-badge status-{{ departure.status }}">{{ departure.get_status_display }}</span>
+                            </div>
                             <div class="departure-date">{{ departure.departure_date|date:"M d, Y" }}</div>
                             <div class="days-left">
                                 {% if departure.days_until_departure > 0 %}
@@ -476,6 +491,46 @@
     color: #333;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-filter label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.status-filter select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    color: #333;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.status-filter select:hover {
+    border-color: #cbd5e1;
+}
+
+.status-filter select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
 .departures-table {
     overflow-x: auto;
 }
@@ -517,10 +572,45 @@
     border-left: 4px solid #dc3545;
 }
 
-.departure-info strong {
-    display: block;
-    color: #333;
+.departure-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 0.25rem;
+}
+
+.departure-info strong {
+    color: #333;
+    margin: 0;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-scheduled {
+    background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+    color: white;
+}
+
+.status-confirmed {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+}
+
+.status-cancelled {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.status-completed {
+    background: linear-gradient(45deg, #6b7280, #4b5563);
+    color: white;
 }
 
 .departure-date {
@@ -1500,6 +1590,17 @@
 </style>
 
 <script>
+// Status filter functionality
+function filterByStatus(status) {
+    const currentUrl = new URL(window.location);
+    if (status) {
+        currentUrl.searchParams.set('status', status);
+    } else {
+        currentUrl.searchParams.delete('status');
+    }
+    window.location.href = currentUrl.toString();
+}
+
 // Modal functionality
 function showRecommendationDetails(type, title) {
     const modal = document.getElementById('recommendationModal');
