@@ -154,12 +154,14 @@ def dashboard(request):
         if not dep.is_profitable and dep.slots_filled > 0
     ][:3]
     
+    import json
+    
     context = {
         'tour_operator': tour_operator,
-        'months_data': months_data,
-        'revenue_data': revenue_data,
-        'profit_data': profit_data,
-        'cost_data': cost_data,
+        'months_data': json.dumps(months_data, ensure_ascii=False),
+        'revenue_data': json.dumps(revenue_data, ensure_ascii=False),
+        'profit_data': json.dumps(profit_data, ensure_ascii=False),
+        'cost_data': json.dumps(cost_data, ensure_ascii=False),
         'total_revenue': total_revenue,
         'total_profit': total_profit,
         'total_costs': total_costs,
