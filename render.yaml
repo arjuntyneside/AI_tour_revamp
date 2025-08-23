@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: ai-tour-system
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn undiscovered_destinations.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: ".render.com"
+      - key: GEMINI_API_KEY
+        sync: false  # You'll need to set this in Render dashboard
