@@ -6,7 +6,7 @@ services:
     startCommand: "gunicorn undiscovered_destinations.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: 3.10.14
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
