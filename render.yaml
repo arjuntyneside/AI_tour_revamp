@@ -12,7 +12,7 @@ services:
       - key: DEBUG
         value: false
       - key: ALLOWED_HOSTS
-        value: ".render.com"
+        value: "ai-tour-system.onrender.com,.render.com"
       - key: GEMINI_API_KEY
         sync: false  # You'll need to set this in Render dashboard
     envFromDatabase:

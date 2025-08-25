@@ -50,6 +50,33 @@ def get_user_tour_operator(user):
 def require_tour_operator(view_func):
     """Decorator to ensure user has access to a tour operator"""
     def wrapper(request, *args, **kwargs):
+        # Allow superusers to bypass tour operator requirement
+        if request.user.is_superuser:
+            # For superusers, try to get any tour operator or create a default one
+            tour_operator = get_user_tour_operator(request.user)
+            if not tour_operator:
+                # Create a default tour operator for superusers
+                from .models import TourOperator
+                tour_operator, created = TourOperator.objects.get_or_create(
+                    name="Default Tour Operator",
+                    defaults={
+                        'company_name': 'Default Tour Operator',
+                        'email': request.user.email or 'admin@example.com',
+                        'phone': '+1234567890',
+                        'address': 'Default Address',
+                        'website': 'https://example.com'
+                    }
+                )
+                # Create TourOperatorUser association
+                TourOperatorUser.objects.get_or_create(
+                    user=request.user,
+                    tour_operator=tour_operator,
+                    defaults={'is_active': True}
+                )
+            request.tour_operator = tour_operator
+            return view_func(request, *args, **kwargs)
+        
+        # For regular users, require tour operator access
         tour_operator = get_user_tour_operator(request.user)
         if not tour_operator:
             messages.error(request, "You don't have access to any tour operator account.")
@@ -1176,7 +1203,11 @@ def login(request):
             if user is not None:
                 auth_login(request, user)
                 
-                # Check if user has tour operator access
+                # Allow superusers to login without tour operator requirement
+                if user.is_superuser:
+                    return redirect('dashboard')
+                
+                # Check if regular user has tour operator access
                 tour_operator = get_user_tour_operator(user)
                 if tour_operator:
                     return redirect('dashboard')
