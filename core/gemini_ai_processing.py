@@ -268,7 +268,7 @@ class GeminiAIProcessor:
             df = pd.read_excel(file_path)
             return df.to_string()
         except ImportError:
-            return "Excel processing requires pandas. Install with: pip install pandas openpyxl"
+            return "Excel processing is not available in this deployment. Please upload documents in PDF, Word, or text format."
         except Exception as e:
             return f"Error reading Excel file: {str(e)}"
 

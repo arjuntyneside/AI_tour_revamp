@@ -15,3 +15,11 @@ services:
         value: ".render.com"
       - key: GEMINI_API_KEY
         sync: false  # You'll need to set this in Render dashboard
+    envFromDatabase:
+      - name: postgres
+        key: DATABASE_URL
+
+databases:
+  - name: postgres
+    databaseName: ai_tour_system
+    user: ai_tour_user
