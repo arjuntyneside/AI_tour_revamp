@@ -90,13 +90,13 @@ def dashboard(request):
             departure_date__lte=month_end
         )
         
-        # Calculate metrics
-        month_revenue = sum(dep.current_revenue for dep in month_departures)
-        month_profit = sum(dep.current_profit or 0 for dep in month_departures)
-        month_costs = sum(
+        # Calculate metrics - Convert Decimal to float for JSON serialization
+        month_revenue = float(sum(dep.current_revenue for dep in month_departures))
+        month_profit = float(sum(dep.current_profit or 0 for dep in month_departures))
+        month_costs = float(sum(
             dep.fixed_costs + dep.marketing_costs + (dep.variable_costs_per_person * dep.slots_filled)
             for dep in month_departures
-        )
+        ))
         
         months_data.append(month_start.strftime('%b %Y'))
         revenue_data.append(month_revenue)
@@ -109,17 +109,17 @@ def dashboard(request):
     profit_data.reverse()
     cost_data.reverse()
     
-    # Calculate overall metrics
-    total_revenue = sum(revenue_data)
-    total_profit = sum(profit_data)
-    total_costs = sum(cost_data)
+    # Calculate overall metrics - Convert to float
+    total_revenue = float(sum(revenue_data))
+    total_profit = float(sum(profit_data))
+    total_costs = float(sum(cost_data))
     total_departures = departures.count()
     profitable_departures = sum(1 for dep in departures if dep.is_profitable)
     
-    # Calculate averages
-    avg_revenue_per_departure = total_revenue / total_departures if total_departures > 0 else 0
-    avg_profit_per_departure = total_profit / total_departures if total_departures > 0 else 0
-    profit_margin = (total_profit / total_revenue * 100) if total_revenue > 0 else 0
+    # Calculate averages - Convert to float
+    avg_revenue_per_departure = float(total_revenue / total_departures if total_departures > 0 else 0)
+    avg_profit_per_departure = float(total_profit / total_departures if total_departures > 0 else 0)
+    profit_margin = float((total_profit / total_revenue * 100) if total_revenue > 0 else 0)
     
     # Get top performing tours
     tour_performance = {}
@@ -131,8 +131,8 @@ def dashboard(request):
                 'profit': 0,
                 'departures': 0
             }
-        tour_performance[tour_name]['revenue'] += dep.current_revenue
-        tour_performance[tour_name]['profit'] += dep.current_profit or 0
+        tour_performance[tour_name]['revenue'] += float(dep.current_revenue)
+        tour_performance[tour_name]['profit'] += float(dep.current_profit or 0)
         tour_performance[tour_name]['departures'] += 1
     
     # Sort by profit
@@ -146,7 +146,7 @@ def dashboard(request):
     if top_tours:
         max_profit = top_tours[0]['profit']
         for tour in top_tours:
-            tour['percentage'] = (tour['profit'] / max_profit * 100) if max_profit > 0 else 0
+            tour['percentage'] = float((tour['profit'] / max_profit * 100) if max_profit > 0 else 0)
     
     # Risk alerts (unprofitable departures)
     risk_departures = [
