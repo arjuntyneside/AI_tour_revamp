@@ -1,0 +1,50 @@
+/* Delete Departure Confirm-specific styles extracted from delete_departure_confirm.html */
+.delete-confirmation {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.delete-confirmation h2 {
+    color: #dc3545;
+    margin-bottom: 1.5rem;
+}
+
+.confirmation-message {
+    margin-bottom: 2rem;
+}
+
+.departure-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: left;
+}
+
+.warning {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    color: white;
+}

@@ -3,6 +3,10 @@
 
 {% block title %}{{ customer.full_name }} - Customer Details{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'core/css/customer_detail.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="customer-detail-header">
     <a href="{% url 'customers' %}" class="back-link">← Back to Customers</a>

@@ -3,6 +3,10 @@
 
 {% block title %}Logout{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'core/css/logout.css' %}">
+{% endblock %}
+
 {% block content %}
 <h1>Logout</h1>
 <p>You have been logged out. See you next time!</p>

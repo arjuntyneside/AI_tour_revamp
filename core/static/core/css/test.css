@@ -1,0 +1,33 @@
+.vfrc-widget {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 200px !important;
+    height: 300px !important;
+    max-height: 300px !important;
+    min-height: 200px !important;
+    width: 350px !important;
+    max-width: 350px !important;
+    z-index: 9999 !important;
+}
+
+
+
+
+.vfrc-chat {
+    height: 300px !important;
+    max-height: 300px !important;
+}
+
+
+
+/* Additional styling options */
+.vfrc-widget .vfrc-chat-container {
+    height: 300px !important;
+    max-height: 300px !important;
+    overflow: hidden !important;
+}
+
+.vfrc-widget .vfrc-messages {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+}
