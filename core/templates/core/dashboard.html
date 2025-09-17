@@ -160,15 +160,21 @@
             <div class="insight-content">
                 <div class="action-grid">
                     <a href="{% url 'document_upload' %}" class="action-item">
-                        <div class="action-icon">📄</div>
+                        <div class="action-icon">
+                            <img src="{% static 'core/icons/file-text.svg' %}" alt="Upload Tour Document" class="action-icon-img">
+                        </div>
                         <div class="action-text">Upload Tour Document</div>
                     </a>
                     <a href="{% url 'create_departure' %}" class="action-item">
-                        <div class="action-icon">🎫</div>
+                        <div class="action-icon">
+                            <img src="{% static 'core/icons/train-front-tunnel.svg' %}" alt="Create Departure" class="action-icon-img">
+                        </div>
                         <div class="action-text">Create Departure</div>
                     </a>
                     <a href="{% url 'tours' %}" class="action-item">
-                        <div class="action-icon">🗺️</div>
+                        <div class="action-icon">
+                            <img src="{% static 'core/icons/book-open-text.svg' %}" alt="Manage Tours" class="action-icon-img">
+                        </div>
                         <div class="action-text">Manage Tours</div>
                     </a>
                     <a href="{% url 'departures' %}" class="action-item">
