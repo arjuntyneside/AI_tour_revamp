@@ -92,15 +92,15 @@
                         <div class="space-y-3">
                             <div class="financial-row">
                                 <span class="financial-label">Current Price per Person:</span>
-                                <span class="financial-value value-neutral">${{ departure.current_price_per_person }}</span>
+                                <span class="financial-value value-neutral">£{{ departure.current_price_per_person }}</span>
                             </div>
                             <div class="financial-row">
                                 <span class="financial-label">Discounted Price:</span>
-                                <span class="financial-value value-neutral">${{ departure.discounted_price_per_person|default:"N/A" }}</span>
+                                <span class="financial-value value-neutral">£{{ departure.discounted_price_per_person|default:"N/A" }}</span>
                             </div>
                             <div class="financial-row">
                                 <span class="financial-label">Current Revenue:</span>
-                                <span class="financial-value value-positive">${{ departure.current_revenue }}</span>
+                                <span class="financial-value value-positive">£{{ departure.current_revenue }}</span>
                             </div>
                         </div>
                     </div>
@@ -111,7 +111,7 @@
                         <div class="space-y-3">
                             <div class="financial-row">
                                 <span class="financial-label">Total Costs:</span>
-                                <span class="financial-value value-neutral">${{ departure.total_costs|floatformat:2 }}</span>
+                                <span class="financial-value value-neutral">£{{ departure.total_costs|floatformat:2 }}</span>
                             </div>
                             <div class="financial-row">
                                 <span class="financial-label">Breakeven Passengers:</span>
@@ -120,7 +120,7 @@
                             <div class="financial-row">
                                 <span class="financial-label">Current Profit:</span>
                                 <span class="financial-value {% if departure.current_profit > 0 %}value-positive{% else %}value-negative{% endif %}">
-                                    ${{ departure.current_profit|default:0 }}
+                                    £{{ departure.current_profit|default:0 }}
                                 </span>
                             </div>
                         </div>
@@ -133,22 +133,22 @@
                     <div class="cost-breakdown-grid">
                         <div class="cost-item">
                             <span class="cost-label">Fixed Costs:</span>
-                            <span class="cost-value">${{ departure.fixed_costs|floatformat:2 }}</span>
+                            <span class="cost-value">£{{ departure.fixed_costs|floatformat:2 }}</span>
                             <span class="cost-description">Guides, permits, equipment</span>
                         </div>
                         <div class="cost-item">
                             <span class="cost-label">Variable Costs:</span>
-                            <span class="cost-value">${{ departure.variable_costs_total|floatformat:2 }}</span>
-                            <span class="cost-description">{{ departure.slots_filled }} passengers × ${{ departure.variable_costs_per_person|floatformat:2 }} each</span>
+                            <span class="cost-value">£{{ departure.variable_costs_total|floatformat:2 }}</span>
+                            <span class="cost-description">{{ departure.slots_filled }} passengers × £{{ departure.variable_costs_per_person|floatformat:2 }} each</span>
                         </div>
                         <div class="cost-item">
                             <span class="cost-label">Marketing Costs:</span>
-                            <span class="cost-value">${{ departure.marketing_costs|floatformat:2 }}</span>
+                            <span class="cost-value">£{{ departure.marketing_costs|floatformat:2 }}</span>
                             <span class="cost-description">Promotion and advertising</span>
                         </div>
                         <div class="cost-item total">
                             <span class="cost-label">Total Costs:</span>
-                            <span class="cost-value">${{ departure.total_costs|floatformat:2 }}</span>
+                            <span class="cost-value">£{{ departure.total_costs|floatformat:2 }}</span>
                             <span class="cost-description">All expenses for this departure</span>
                         </div>
                     </div>
@@ -160,19 +160,19 @@
                     <div class="breakeven-analysis-grid">
                         <div class="breakeven-item">
                             <span class="breakeven-label">Price per Person:</span>
-                            <span class="breakeven-value">${{ departure.current_price_per_person|floatformat:2 }}</span>
+                            <span class="breakeven-value">£{{ departure.current_price_per_person|floatformat:2 }}</span>
                         </div>
                         <div class="breakeven-item">
                             <span class="breakeven-label">Commission ({{ departure.commission_rate|floatformat:2 }}%):</span>
-                            <span class="breakeven-value">${{ departure.commission_amount|floatformat:2 }}</span>
+                            <span class="breakeven-value">£{{ departure.commission_amount|floatformat:2 }}</span>
                         </div>
                         <div class="breakeven-item">
                             <span class="breakeven-label">Net Revenue per Person:</span>
-                            <span class="breakeven-value">${{ departure.net_revenue_per_person|floatformat:2 }}</span>
+                            <span class="breakeven-value">£{{ departure.net_revenue_per_person|floatformat:2 }}</span>
                         </div>
                         <div class="breakeven-item">
                             <span class="breakeven-label">Contribution Margin per Person:</span>
-                            <span class="breakeven-value">${{ departure.contribution_margin_per_person|floatformat:2 }}</span>
+                            <span class="breakeven-value">£{{ departure.contribution_margin_per_person|floatformat:2 }}</span>
                         </div>
                         <div class="breakeven-item highlight">
                             <span class="breakeven-label">Breakeven Passengers:</span>
@@ -197,7 +197,7 @@
                         <div class="metric-label">Occupancy Rate</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" style="color: #10b981;">${{ departure.profit_at_capacity|default:0 }}</div>
+                        <div class="metric-value" style="color: #10b981;">£{{ departure.profit_at_capacity|default:0 }}</div>
                         <div class="metric-label">Profit at Capacity</div>
                     </div>
                     <div class="metric-card">
@@ -294,11 +294,11 @@
                 <div class="space-y-4">
                     <div class="sidebar-item">
                         <span class="sidebar-label">Marketing Costs</span>
-                        <span class="sidebar-value">${{ departure.marketing_costs }}</span>
+                        <span class="sidebar-value">£{{ departure.marketing_costs }}</span>
                     </div>
                     <div class="sidebar-item">
                         <span class="sidebar-label">Total Fixed Costs</span>
-                        <span class="sidebar-value">${{ departure.fixed_costs|add:departure.marketing_costs }}</span>
+                        <span class="sidebar-value">£{{ departure.fixed_costs|add:departure.marketing_costs }}</span>
                     </div>
                 </div>
             </div>

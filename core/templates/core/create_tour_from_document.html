@@ -61,7 +61,7 @@
                 </div>
                 <div class="preview-item">
                     <label>Price per Person:</label>
-                    <span>${{ tour_data.price_per_person|default:"Not extracted" }}</span>
+                    <span>£{{ tour_data.price_per_person|default:"Not extracted" }}</span>
                 </div>
             </div>
         </div>
@@ -129,7 +129,7 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="{{ form.price_per_person.id_for_label }}">Price per Person ($)</label>
+                            <label for="{{ form.price_per_person.id_for_label }}">Price per Person (£)</label>
                             {{ form.price_per_person }}
                             {% if form.price_per_person.errors %}
                                 <div class="error-message">{{ form.price_per_person.errors.0 }}</div>
@@ -137,7 +137,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="{{ form.price_per_group.id_for_label }}">Price per Group ($)</label>
+                            <label for="{{ form.price_per_group.id_for_label }}">Price per Group (£)</label>
                             {{ form.price_per_group }}
                             {% if form.price_per_group.errors %}
                                 <div class="error-message">{{ form.price_per_group.errors.0 }}</div>

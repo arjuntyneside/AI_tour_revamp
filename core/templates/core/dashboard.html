@@ -34,7 +34,7 @@
                     </div>
                     <div class="metric-content">
                         <h3>Total Revenue</h3>
-                        <div class="metric-value">${{ total_revenue|floatformat:0 }}</div>
+                        <div class="metric-value">£{{ total_revenue|floatformat:0 }}</div>
                         <div class="metric-trend positive">
                             <span class="trend-arrow">↗</span>
                             <span class="trend-text">+12.5% vs last period</span>
@@ -48,7 +48,7 @@
                     </div>
                     <div class="metric-content">
                         <h3>Total Profit</h3>
-                        <div class="metric-value">${{ total_profit|floatformat:0 }}</div>
+                        <div class="metric-value">£{{ total_profit|floatformat:0 }}</div>
                         <div class="metric-trend positive">
                             <span class="trend-arrow">↗</span>
                             <span class="trend-text">{{ profit_margin|floatformat:1 }}% margin</span>
@@ -75,7 +75,7 @@
                     </div>
                     <div class="metric-content">
                         <h3>Avg Profit/Departure</h3>
-                        <div class="metric-value">${{ avg_profit_per_departure|floatformat:0 }}</div>
+                        <div class="metric-value">£{{ avg_profit_per_departure|floatformat:0 }}</div>
                         <div class="metric-trend">
                             <span class="trend-text">Per departure</span>
                         </div>
@@ -118,7 +118,7 @@
                         <div class="tour-info">
                             <div class="tour-name">{{ tour.name }}</div>
                             <div class="tour-stats">
-                                <span class="stat">${{ tour.profit|floatformat:0 }} profit</span>
+                                <span class="stat">£{{ tour.profit|floatformat:0 }} profit</span>
                                 <span class="stat">{{ tour.departures }} departures</span>
                             </div>
                         </div>
@@ -149,7 +149,7 @@
                             <div class="risk-title">{{ departure.tour.title }}</div>
                             <div class="risk-date">{{ departure.departure_date|date:"M d, Y" }}</div>
                             <div class="risk-details">
-                                <span class="risk-stat">${{ departure.current_profit|floatformat:0 }} profit</span>
+                                <span class="risk-stat">£{{ departure.current_profit|floatformat:0 }} profit</span>
                                 <span class="risk-stat">{{ departure.slots_filled }}/{{ departure.available_spots }} booked</span>
                             </div>
                         </div>
@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return '$' + value.toLocaleString();
+                                    return '£' + value.toLocaleString();
                                 }
                             }
                         },

@@ -14,7 +14,7 @@
     <div class="page-header">
         <div class="header-content">
             <h1><img src="{% static 'core/icons/dashboard/financial-analysis.png' %}" alt="Financial Analysis" class="page-icon-img"> Financial Analysis Dashboard</h1>
-            <p class="subtitle">Smart financial insights for your tour departures</p>
+            
         </div>
     </div>
 
@@ -23,17 +23,17 @@
     <div class="overview-grid">
         <div class="overview-card total-revenue">
             <h3>Total Revenue</h3>
-            <div class="amount">${{ total_revenue|floatformat:2 }}</div>
+            <div class="amount">£{{ total_revenue|floatformat:2 }}</div>
             <small>Across all departures</small>
         </div>
         <div class="overview-card total-profit">
             <h3>Total Profit</h3>
-            <div class="amount">${{ total_profit|floatformat:2 }}</div>
+            <div class="amount">£{{ total_profit|floatformat:2 }}</div>
             <small>Net profit generated</small>
         </div>
         <div class="overview-card total-investment">
             <h3>Total Investment</h3>
-            <div class="amount">${{ total_investment|floatformat:2 }}</div>
+            <div class="amount">£{{ total_investment|floatformat:2 }}</div>
             <small>Fixed + Marketing + Variable</small>
         </div>
         <div class="overview-card overall-roi">
@@ -60,7 +60,7 @@
         <div class="ai-header-content">
             <div class="ai-title-section">
                 <div class="ai-icon">
-                    <img src="{% static 'core/icons/dashboard/financial-analysis.png' %}" alt="AI Assistant" class="ai-icon-img">
+                    <img src="{% static 'core/icons/departures/bot-message-square.svg' %}" alt="AI Assistant" class="ai-icon-img">
                 </div>
                 <div class="ai-title">
                     <h3>AI Financial Assistant</h3>
@@ -194,7 +194,7 @@
                                 {% if "percentage" in key or "rate" in key or "roi" in key %}
                                     {{ value|floatformat:1 }}%
                                 {% elif "price" in key or "cost" in key or "revenue" in key or "profit" in key or "margin" in key %}
-                                    ${{ value|floatformat:2 }}
+                                    £{{ value|floatformat:2 }}
                                 {% else %}
                                     {{ value|floatformat:0 }}
                                 {% endif %}
@@ -216,19 +216,19 @@
     <div class="breakdown-grid">
         <div class="breakdown-item">
             <span class="label">Fixed Costs:</span>
-            <span class="value">${{ total_fixed_costs|floatformat:2 }}</span>
+            <span class="value">£{{ total_fixed_costs|floatformat:2 }}</span>
         </div>
         <div class="breakdown-item">
             <span class="label">Marketing Costs:</span>
-            <span class="value">${{ total_marketing_costs|floatformat:2 }}</span>
+            <span class="value">£{{ total_marketing_costs|floatformat:2 }}</span>
         </div>
         <div class="breakdown-item">
             <span class="label">Variable Costs:</span>
-            <span class="value">${{ total_variable_costs|floatformat:2 }}</span>
+            <span class="value">£{{ total_variable_costs|floatformat:2 }}</span>
         </div>
         <div class="breakdown-item">
             <span class="label">Commission Paid:</span>
-            <span class="value">${{ total_commission|floatformat:2 }}</span>
+            <span class="value">£{{ total_commission|floatformat:2 }}</span>
         </div>
     </div>
 </div>
@@ -301,20 +301,20 @@
                     </td>
                     <td>
                         <div class="revenue-info">
-                            <div class="current-revenue">${{ departure.current_revenue|floatformat:2 }}</div>
-                            <div class="price-per-person">${{ departure.current_price_per_person|floatformat:2 }} pp</div>
+                            <div class="current-revenue">£{{ departure.current_revenue|floatformat:2 }}</div>
+                            <div class="price-per-person">£{{ departure.current_price_per_person|floatformat:2 }} pp</div>
                             {% if departure.discounted_price_per_person %}
-                                <div class="discounted-price">Discounted: ${{ departure.discounted_price_per_person|floatformat:2 }} pp</div>
+                                <div class="discounted-price">Discounted: £{{ departure.discounted_price_per_person|floatformat:2 }} pp</div>
                             {% endif %}
                         </div>
                     </td>
                     <td>
                         <div class="costs-info">
-                            <div class="total-costs-highlight">${{ departure.total_costs|floatformat:2 }}</div>
+                            <div class="total-costs-highlight">£{{ departure.total_costs|floatformat:2 }}</div>
                             <div class="cost-breakdown">
-                                <div class="fixed-costs">Fixed: ${{ departure.fixed_costs|floatformat:2 }}</div>
-                                <div class="variable-costs">Variable: ${{ departure.variable_costs_total|floatformat:2 }}</div>
-                                <div class="marketing-costs">Marketing: ${{ departure.marketing_costs|floatformat:2 }}</div>
+                                <div class="fixed-costs">Fixed: £{{ departure.fixed_costs|floatformat:2 }}</div>
+                                <div class="variable-costs">Variable: £{{ departure.variable_costs_total|floatformat:2 }}</div>
+                                <div class="marketing-costs">Marketing: £{{ departure.marketing_costs|floatformat:2 }}</div>
                             </div>
                             {% if departure.breakeven_passengers %}
                                 <div class="breakeven-highlight {% if departure.slots_filled >= departure.breakeven_passengers %}breakeven-achieved{% else %}breakeven-pending{% endif %}">
@@ -332,10 +332,10 @@
                     <td>
                         <div class="profit-roi-info">
                             {% if departure.is_profitable %}
-                                <div class="profit-amount positive">+${{ departure.current_profit|floatformat:2 }}</div>
+                                <div class="profit-amount positive">+£{{ departure.current_profit|floatformat:2 }}</div>
                                 <div class="profit-label">Profitable</div>
                             {% else %}
-                                <div class="profit-amount negative">-${{ departure.current_profit|floatformat:2|default:"0.00" }}</div>
+                                <div class="profit-amount negative">-£{{ departure.current_profit|floatformat:2|default:"0.00" }}</div>
                                 <div class="profit-label">Below breakeven</div>
                             {% endif %}
                             {% if departure.roi_percentage %}
@@ -343,7 +343,7 @@
                                     ROI: {{ departure.roi_percentage|floatformat:1 }}%
                                 </div>
                                 <div class="roi-potential">
-                                    Potential: ${{ departure.profit_at_capacity|floatformat:2|default:"0.00" }}
+                                    Potential: £{{ departure.profit_at_capacity|floatformat:2|default:"0.00" }}
                                 </div>
                             {% else %}
                                 <div class="no-roi">ROI: N/A</div>
@@ -382,412 +382,5 @@
     </div>
 </div>
 
-<script>
-// Status filter functionality
-function filterByStatus(status) {
-    const currentUrl = new URL(window.location);
-    if (status) {
-        currentUrl.searchParams.set('status', status);
-    } else {
-        currentUrl.searchParams.delete('status');
-    }
-    window.location.href = currentUrl.toString();
-}
-
-// Modal functionality
-function showRecommendationDetails(type, title) {
-    const modal = document.getElementById('recommendationModal');
-    const modalContent = document.getElementById('modalContent');
-    
-    // Generate detailed content based on recommendation type
-    let content = '<h3>' + title + '</h3>' +
-        '<div class="recommendation-details">';
-    
-    switch(type) {
-        case 'price_increase':
-            content += '<h4>📈 Pricing Strategy Recommendations</h4>' +
-                '<ul>' +
-                '<li>Analyze competitor pricing in your market</li>' +
-                '<li>Consider value-added services to justify higher prices</li>' +
-                '<li>Implement dynamic pricing based on demand</li>' +
-                '<li>Offer early-bird discounts to increase bookings</li>' +
-                '</ul>' +
-                '<div class="action-steps">' +
-                '<h5>Next Steps:</h5>' +
-                '<ol>' +
-                '<li>Review current pricing against market rates</li>' +
-                '<li>Identify unique value propositions</li>' +
-                '<li>Test price increases on select departures</li>' +
-                '<li>Monitor booking patterns after changes</li>' +
-                '</ol>' +
-                '</div>';
-            break;
-            
-        case 'capacity_increase':
-            content += '<h4>🚀 Capacity Optimization</h4>' +
-                '<ul>' +
-                '<li>High demand indicates market opportunity</li>' +
-                '<li>Consider adding more departure dates</li>' +
-                '<li>Evaluate if you can increase group sizes</li>' +
-                '<li>Look for additional tour guides or resources</li>' +
-                '</ul>' +
-                '<div class="action-steps">' +
-                '<h5>Next Steps:</h5>' +
-                '<ol>' +
-                '<li>Assess resource availability</li>' +
-                '<li>Plan additional departure dates</li>' +
-                '<li>Consider increasing maximum group sizes</li>' +
-                '<li>Hire additional staff if needed</li>' +
-                '</ol>' +
-                '</div>';
-            break;
-            
-        case 'marketing_boost':
-            content += '<h4>📢 Marketing Strategy</h4>' +
-                '<ul>' +
-                '<li>Increase social media advertising</li>' +
-                '<li>Partner with travel influencers</li>' +
-                '<li>Offer referral incentives</li>' +
-                '<li>Create compelling content about your tours</li>' +
-                '</ul>' +
-                '<div class="action-steps">' +
-                '<h5>Next Steps:</h5>' +
-                '<ol>' +
-                '<li>Allocate additional marketing budget</li>' +
-                '<li>Create targeted advertising campaigns</li>' +
-                '<li>Develop partnership strategies</li>' +
-                '<li>Track marketing ROI</li>' +
-                '</ol>' +
-                '</div>';
-            break;
-            
-        case 'cost_reduction':
-            content += '<h4>💰 Cost Optimization</h4>' +
-                '<ul>' +
-                '<li>Negotiate better rates with suppliers</li>' +
-                '<li>Optimize route planning to reduce fuel costs</li>' +
-                '<li>Consider bulk purchasing for supplies</li>' +
-                '<li>Review and optimize staffing schedules</li>' +
-                '</ul>' +
-                '<div class="action-steps">' +
-                '<h5>Next Steps:</h5>' +
-                '<ol>' +
-                '<li>Audit all current costs</li>' +
-                '<li>Identify cost reduction opportunities</li>' +
-                '<li>Negotiate with suppliers</li>' +
-                '<li>Implement cost tracking systems</li>' +
-                '</ol>' +
-                '</div>';
-            break;
-            
-        default:
-            content += '<h4>📋 General Recommendations</h4>' +
-                '<p>Based on your current data, we recommend focusing on the areas highlighted in the insights above.</p>' +
-                '<div class="action-steps">' +
-                '<h5>General Next Steps:</h5>' +
-                '<ol>' +
-                '<li>Review all recommendations carefully</li>' +
-                '<li>Prioritize high-impact changes</li>' +
-                '<li>Implement changes gradually</li>' +
-                '<li>Monitor results and adjust strategies</li>' +
-                '</ol>' +
-                '</div>';
-    }
-    
-    content += '</div>' +
-        '<div class="modal-actions">' +
-        '<button class="btn btn-primary" onclick="closeModal()">Got it!</button>' +
-        '</div>';
-    
-    modalContent.innerHTML = content;
-    modal.style.display = 'block';
-}
-
-function closeModal() {
-    const modal = document.getElementById('recommendationModal');
-    modal.style.display = 'none';
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('recommendationModal');
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Close modal with X button
-document.addEventListener('DOMContentLoaded', function() {
-    const closeBtn = document.querySelector('.close');
-    if (closeBtn) {
-        closeBtn.onclick = closeModal;
-    }
-});
-
-// AI Chat functionality
-function toggleAIChat() {
-    const content = document.getElementById('aiChatContent');
-    const btn = document.querySelector('.btn-ai');
-    const btnText = btn.querySelector('.btn-text');
-    const btnIcon = btn.querySelector('.btn-icon');
-    
-    if (content.style.display === 'none') {
-        // Show AI chat
-        content.style.display = 'block';
-        btnText.textContent = 'Close AI Chat';
-        btnIcon.textContent = '❌';
-        
-        // Show welcome message
-        showWelcomeMessage();
-        
-        // Focus on input
-        setTimeout(() => {
-            document.getElementById('chatInput').focus();
-        }, 100);
-        
-    } else {
-        // Hide AI chat
-        content.style.display = 'none';
-        btnText.textContent = 'Open AI Chat';
-        btnIcon.textContent = '💬';
-    }
-}
-
-function showWelcomeMessage() {
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.innerHTML = `
-        <div class="message ai-message">
-            <div class="message-avatar">🤖</div>
-            <div class="message-content">
-                <div class="message-text">
-                    <p>Hello! I'm your AI financial assistant. I can analyze your tour and departure performance, provide insights, and answer questions about your finances.</p>
-                    <p><strong>Try asking me:</strong></p>
-                    <ul>
-                        <li>"Analyze my tour financial performance"</li>
-                        <li>"Which departures are most profitable?"</li>
-                        <li>"What pricing strategies should I consider?"</li>
-                        <li>"How can I improve my breakeven points?"</li>
-                    </ul>
-                </div>
-                <div class="message-time">Just now</div>
-            </div>
-        </div>
-    `;
-}
-
-function handleChatKeyPress(event) {
-    if (event.key === 'Enter') {
-        sendChatMessage();
-    }
-}
-
-function sendSuggestion(text) {
-    // Clear previous messages first
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.innerHTML = '';
-    
-    document.getElementById('chatInput').value = text;
-    sendChatMessage();
-}
-
-function sendChatMessage() {
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    // Clear previous messages and show only current Q&A
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.innerHTML = '';
-    
-    // Add user message
-    addMessage(message, 'user');
-    input.value = '';
-    
-    // Show typing indicator
-    showTypingIndicator();
-    
-    // Send to AI (AJAX call)
-    fetch('/ai-chat/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            message: message
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        hideTypingIndicator();
-        if (data.success) {
-            addMessage(data.response, 'ai');
-        } else {
-            addMessage('Sorry, I encountered an error. Please try again.', 'ai');
-        }
-    })
-    .catch(error => {
-        hideTypingIndicator();
-        addMessage('Sorry, I\'m having trouble connecting. Please try again.', 'ai');
-        console.error('Error:', error);
-    });
-}
-
-function addMessage(text, sender) {
-    const messagesContainer = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}-message`;
-    
-    const avatar = sender === 'ai' ? '🤖' : '👤';
-    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    
-    messageDiv.innerHTML = `
-        <div class="message-avatar">${avatar}</div>
-        <div class="message-content">
-            <div class="message-text">${formatMessage(text)}</div>
-            <div class="message-time">${time}</div>
-        </div>
-    `;
-    
-    messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-function formatMessage(text) {
-    // Convert line breaks to <br> tags
-    return text.replace(/\n/g, '<br>');
-}
-
-function showTypingIndicator() {
-    const messagesContainer = document.getElementById('chatMessages');
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'message ai-message';
-    typingDiv.id = 'typingIndicator';
-    
-    typingDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
-        <div class="message-content">
-            <div class="typing-indicator">
-                AI is thinking
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-        </div>
-    `;
-    
-    messagesContainer.appendChild(typingDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-function hideTypingIndicator() {
-    const typingIndicator = document.getElementById('typingIndicator');
-    if (typingIndicator) {
-        typingIndicator.remove();
-    }
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-// Enhanced recommendation details modal
-function showRecommendationDetails(insightTitle, recTitle, recDescription, recAction, recImpact, recTimeline, implementationSteps, expectedOutcome) {
-    const modal = document.getElementById('recommendationModal');
-    const modalContent = document.getElementById('modalContent');
-    
-    let stepsHtml = '';
-    if (implementationSteps && implementationSteps.length > 0) {
-        stepsHtml = '<div class="implementation-steps"><h5>Implementation Steps:</h5><ol>';
-        implementationSteps.forEach(step => {
-            stepsHtml += '<li>' + step + '</li>';
-        });
-        stepsHtml += '</ol></div>';
-    }
-    
-    const content = `
-        <div class="recommendation-details">
-            <div class="rec-header">
-                <h3>${recTitle}</h3>
-                <div class="rec-meta-badges">
-                    <span class="impact-badge impact-${recImpact.toLowerCase()}">${recImpact} Impact</span>
-                    <span class="timeline-badge">${recTimeline}</span>
-                </div>
-            </div>
-            
-            <div class="rec-section">
-                <h4>📋 Description</h4>
-                <p>${recDescription}</p>
-            </div>
-            
-            <div class="rec-section">
-                <h4>🎯 Action Required</h4>
-                <p>${recAction}</p>
-            </div>
-            
-            ${stepsHtml}
-            
-            <div class="rec-section">
-                <h4>📈 Expected Outcome</h4>
-                <p>${expectedOutcome}</p>
-            </div>
-            
-            <div class="rec-section">
-                <h4>🔗 Related Insight</h4>
-                <p>This recommendation is part of: <strong>${insightTitle}</strong></p>
-            </div>
-        </div>
-        
-        <div class="modal-actions">
-            <button class="btn btn-primary" onclick="closeModal()">Got it!</button>
-            <button class="btn btn-outline" onclick="closeModal()">Dismiss</button>
-        </div>
-    `;
-    
-    modalContent.innerHTML = content;
-    modal.style.display = 'block';
-}
-
-// Auto-refresh AI insights every 5 minutes
-setInterval(function() {
-    const aiContent = document.getElementById('aiInsightsContent');
-    if (aiContent && aiContent.style.display !== 'none') {
-        // Refresh the page to get updated AI insights
-        // In a real app, you'd make an AJAX call here
-        console.log('AI insights auto-refresh triggered');
-    }
-}, 300000); // 5 minutes
-
-// Rule-based insights functionality
-function toggleRuleBasedInsights() {
-    const content = document.getElementById('ruleBasedInsightsContent');
-    const btn = document.querySelector('.btn-insights');
-    const btnText = btn.querySelector('.btn-text');
-    const btnIcon = btn.querySelector('.btn-icon');
-    
-    if (content.style.display === 'none') {
-        // Show rule-based insights
-        content.style.display = 'block';
-        btnText.textContent = 'Hide Analysis';
-        btnIcon.textContent = '👁️';
-    } else {
-        // Hide rule-based insights
-        content.style.display = 'none';
-        btnText.textContent = 'View Analysis';
-        btnIcon.textContent = '📈';
-    }
-}
-</script>
+<script src="{% static 'core/js/departures.js' %}"></script>
 {% endblock %}

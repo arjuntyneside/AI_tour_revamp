@@ -490,18 +490,18 @@ function calculateFinancials() {
     }
     
     // Profit at capacity
-    let profitAtCapacity = '$0.00';
+    let profitAtCapacity = '£0.00';
     if (breakevenPassengers !== 'N/A' && totalCapacity > breakevenPassengers) {
         const excessPassengers = totalCapacity - breakevenPassengers;
         const profit = excessPassengers * contributionMarginPerPerson;
-        profitAtCapacity = `$${profit.toFixed(2)}`;
+        profitAtCapacity = `£${profit.toFixed(2)}`;
     }
     
     // ROI calculation
     let roiPercentage = '0%';
     const totalInvestment = totalFixedCosts + (totalCapacity * variableCostsPerPerson);
-    if (totalInvestment > 0 && profitAtCapacity !== '$0.00') {
-        const profit = parseFloat(profitAtCapacity.replace('$', ''));
+    if (totalInvestment > 0 && profitAtCapacity !== '£0.00') {
+        const profit = parseFloat(profitAtCapacity.replace('£', ''));
         const roi = (profit / totalInvestment) * 100;
         roiPercentage = `${roi.toFixed(1)}%`;
     }
@@ -512,7 +512,7 @@ function calculateFinancials() {
     
     // Update display
     document.getElementById('breakeven-passengers').textContent = breakevenPassengers;
-    document.getElementById('contribution-margin').textContent = `$${contributionMarginPerPerson.toFixed(2)}`;
+    document.getElementById('contribution-margin').textContent = `£${contributionMarginPerPerson.toFixed(2)}`;
     document.getElementById('profit-at-capacity').textContent = profitAtCapacity;
     document.getElementById('roi-percentage').textContent = roiPercentage;
 }

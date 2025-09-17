@@ -93,7 +93,7 @@
                     </div>
                     <div class="data-item">
                         <label>Price per Person:</label>
-                        <span>${{ tour_data.price_per_person|default:"Not extracted" }}</span>
+                        <span>£{{ tour_data.price_per_person|default:"Not extracted" }}</span>
                     </div>
                     <div class="data-item full-width">
                         <label>Description:</label>
@@ -144,7 +144,7 @@
                 <h4>{{ tour.title }}</h4>
                 <p><strong>Destination:</strong> {{ tour.destination }}</p>
                 <p><strong>Duration:</strong> {{ tour.duration_days }} days</p>
-                <p><strong>Price:</strong> ${{ tour.price_per_person }}</p>
+                <p><strong>Price:</strong> £{{ tour.price_per_person }}</p>
                 <a href="{% url 'tour_detail' tour.id %}" class="btn btn-sm btn-outline">View Tour</a>
             </div>
             {% endfor %}

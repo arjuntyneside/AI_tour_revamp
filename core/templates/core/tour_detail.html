@@ -41,7 +41,7 @@
                 </div>
                 <div class="info-item">
                     <span class="label">Price:</span>
-                    <span class="value">${{ dep.current_price_per_person|floatformat:2 }}</span>
+                    <span class="value">£{{ dep.current_price_per_person|floatformat:2 }}</span>
                 </div>
                 {% if dep.breakeven_passengers %}
                 <div class="info-item">
