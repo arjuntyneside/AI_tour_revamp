@@ -7,6 +7,10 @@
 <link rel="stylesheet" type="text/css" href="{% static 'core/css/departure_form.css' %}">
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'core/js/departure_form.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 <div class="departure-form-container">
     <div class="form-header">
@@ -185,76 +189,17 @@
 
 
 <script>
-// Real-time financial calculation
-function calculateFinancials() {
-    const pricePerPerson = parseFloat(document.getElementById('{{ form.current_price_per_person.id_for_label }}').value) || 0;
-    const fixedCosts = parseFloat(document.getElementById('{{ form.fixed_costs.id_for_label }}').value) || 0;
-    const variableCostsPerPerson = parseFloat(document.getElementById('{{ form.variable_costs_per_person.id_for_label }}').value) || 0;
-    const marketingCosts = parseFloat(document.getElementById('{{ form.marketing_costs.id_for_label }}').value) || 0;
-    const commissionRate = parseFloat(document.getElementById('{{ form.commission_rate.id_for_label }}').value) || 0;
-    const totalBookings = parseInt(document.getElementById('{{ form.total_bookings.id_for_label }}').value) || 0;
-    const totalCapacity = {{ tour.max_group_size }};
-    
-    // Calculate financial metrics
-    const totalFixedCosts = fixedCosts + marketingCosts;
-    const commissionAmount = (pricePerPerson * commissionRate) / 100;
-    const netRevenuePerPerson = pricePerPerson - commissionAmount;
-    const contributionMarginPerPerson = netRevenuePerPerson - variableCostsPerPerson;
-    
-    // Breakeven calculation
-    let breakevenPassengers = 'N/A';
-    if (contributionMarginPerPerson > 0) {
-        breakevenPassengers = Math.ceil(totalFixedCosts / contributionMarginPerPerson);
-    }
-    
-    // Profit at capacity
-    let profitAtCapacity = '$0.00';
-    if (breakevenPassengers !== 'N/A' && totalCapacity > breakevenPassengers) {
-        const excessPassengers = totalCapacity - breakevenPassengers;
-        const profit = excessPassengers * contributionMarginPerPerson;
-        profitAtCapacity = `$${profit.toFixed(2)}`;
-    }
-    
-    // ROI calculation
-    let roiPercentage = '0%';
-    const totalInvestment = totalFixedCosts + (totalCapacity * variableCostsPerPerson);
-    if (totalInvestment > 0 && profitAtCapacity !== '$0.00') {
-        const profit = parseFloat(profitAtCapacity.replace('$', ''));
-        const roi = (profit / totalInvestment) * 100;
-        roiPercentage = `${roi.toFixed(1)}%`;
-    }
-    
-    // Calculate remaining spots
-    const remainingSpots = totalCapacity - totalBookings;
-    document.getElementById('spots-left').textContent = remainingSpots;
-    
-    // Update display
-    document.getElementById('breakeven-passengers').textContent = breakevenPassengers;
-    document.getElementById('contribution-margin').textContent = `$${contributionMarginPerPerson.toFixed(2)}`;
-    document.getElementById('profit-at-capacity').textContent = profitAtCapacity;
-    document.getElementById('roi-percentage').textContent = roiPercentage;
-}
-
-// Add event listeners to form fields
-document.addEventListener('DOMContentLoaded', function() {
-    const financialFields = [
-        '{{ form.current_price_per_person.id_for_label }}',
-        '{{ form.fixed_costs.id_for_label }}',
-        '{{ form.variable_costs_per_person.id_for_label }}',
-        '{{ form.marketing_costs.id_for_label }}',
-        '{{ form.commission_rate.id_for_label }}',
-        '{{ form.total_bookings.id_for_label }}'
-    ];
-    
-    financialFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.addEventListener('input', calculateFinancials);
-        }
-    });
-    
-    // Calculate initial values
-    calculateFinancials();
-});
+// Pass data from Django template to JavaScript
+window.departureFormData = {
+    fieldIds: {
+        current_price_per_person: '{{ form.current_price_per_person.id_for_label }}',
+        fixed_costs: '{{ form.fixed_costs.id_for_label }}',
+        variable_costs_per_person: '{{ form.variable_costs_per_person.id_for_label }}',
+        marketing_costs: '{{ form.marketing_costs.id_for_label }}',
+        commission_rate: '{{ form.commission_rate.id_for_label }}',
+        total_bookings: '{{ form.total_bookings.id_for_label }}'
+    },
+    totalCapacity: {{ tour.max_group_size }}
+};
 </script>
 {% endblock %}

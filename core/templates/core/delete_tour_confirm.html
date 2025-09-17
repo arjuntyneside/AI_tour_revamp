@@ -7,6 +7,10 @@
 <link rel="stylesheet" type="text/css" href="{% static 'core/css/delete_tour_confirm.css' %}">
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'core/js/delete_tour_confirm.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 <div class="delete-confirmation-container">
     <div class="confirmation-card">
@@ -102,15 +106,4 @@
 </div>
 
 
-<script>
-function confirmFinalDelete() {
-    const confirmInput = document.getElementById('confirm-delete');
-    if (confirmInput.value !== 'DELETE') {
-        alert('Please type "DELETE" to confirm the deletion.');
-        return false;
-    }
-    
-    return confirm('Are you absolutely sure you want to delete this tour? This action cannot be undone.');
-}
-</script>
 {% endblock %}
