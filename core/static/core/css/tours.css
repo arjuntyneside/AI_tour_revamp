@@ -26,7 +26,7 @@
 .step-number {
     width: 40px;
     height: 40px;
-    background: #007bff;
+    background: #fe5757;
     color: white;
     border-radius: 50%;
     display: flex;
@@ -38,11 +38,11 @@
 
 .step-content h3 {
     margin-bottom: 0.5rem;
-    color: #333;
+    color: #000000;
 }
 
 .step-content p {
-    color: #666;
+    color: #64748b;
     margin-bottom: 1rem;
 }
 
@@ -54,12 +54,12 @@
 }
 
 .empty-state h3 {
-    color: #333;
+    color: #000000;
     margin-bottom: 1rem;
 }
 
 .empty-state p {
-    color: #666;
+    color: #64748b;
     margin-bottom: 2rem;
 }
 
@@ -73,7 +73,7 @@
 
 .tour-title {
     margin: 0;
-    color: #333;
+    color: #000000;
     font-size: 1.25rem;
     font-weight: 700;
     flex: 1;
@@ -100,25 +100,25 @@
 }
 
 .btn-edit {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: #fe5757;
     color: white;
 }
 
 .btn-edit:hover {
-    background: linear-gradient(135deg, #2563eb, #1e40af);
+    background: #e04a4a;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 2px 8px rgba(254, 87, 87, 0.3);
 }
 
 .btn-delete {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    background: #fe5757;
     color: white;
 }
 
 .btn-delete:hover {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    background: #e04a4a;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 2px 8px rgba(254, 87, 87, 0.3);
 }
 
 .tour-card-link {
@@ -154,7 +154,7 @@
 }
 
 .tour-destination {
-    color: #666;
+    color: #64748b;
     margin-bottom: 1rem;
     font-size: 1.1rem;
 }
@@ -167,12 +167,12 @@
 }
 
 .departures-count {
-    color: #007bff;
+    color: #fe5757;
     font-weight: 600;
 }
 
 .next-departure {
-    color: #666;
+    color: #64748b;
 }
 
 .tour-details {

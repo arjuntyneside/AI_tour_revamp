@@ -26,7 +26,7 @@
     <!-- Key Metrics Cards -->
     <div class="metrics-grid">
         <div class="metric-card revenue">
-            <div class="metric-icon">💰</div>
+            <div class="metric-icon">$</div>
             <div class="metric-content">
                 <h3>Total Revenue</h3>
                 <div class="metric-value">${{ total_revenue|floatformat:0 }}</div>
@@ -38,7 +38,7 @@
         </div>
 
         <div class="metric-card profit">
-            <div class="metric-icon">📈</div>
+            <div class="metric-icon">↗</div>
             <div class="metric-content">
                 <h3>Total Profit</h3>
                 <div class="metric-value">${{ total_profit|floatformat:0 }}</div>
@@ -50,7 +50,7 @@
         </div>
 
         <div class="metric-card departures">
-            <div class="metric-icon">🚌</div>
+            <div class="metric-icon">🏢</div>
             <div class="metric-content">
                 <h3>Total Departures</h3>
                 <div class="metric-value">{{ total_departures }}</div>
@@ -61,7 +61,7 @@
         </div>
 
         <div class="metric-card avg-profit">
-            <div class="metric-icon">🎯</div>
+            <div class="metric-icon">↗</div>
             <div class="metric-content">
                 <h3>Avg Profit/Departure</h3>
                 <div class="metric-value">${{ avg_profit_per_departure|floatformat:0 }}</div>
@@ -164,7 +164,7 @@
                         <div class="action-text">Upload Tour Document</div>
                     </a>
                     <a href="{% url 'create_departure' %}" class="action-item">
-                        <div class="action-icon">➕</div>
+                        <div class="action-icon">🎫</div>
                         <div class="action-text">Create Departure</div>
                     </a>
                     <a href="{% url 'tours' %}" class="action-item">
@@ -242,8 +242,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         {
                             label: 'Revenue',
                             data: revenueData,
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderColor: '#00a254',
+                            backgroundColor: 'rgba(0, 162, 84, 0.1)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.4
@@ -251,8 +251,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         {
                             label: 'Profit',
                             data: profitData,
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderColor: '#599dff',
+                            backgroundColor: 'rgba(89, 157, 255, 0.1)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.4
@@ -260,8 +260,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         {
                             label: 'Costs',
                             data: costData,
-                            borderColor: '#ef4444',
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderColor: '#fe5757',
+                            backgroundColor: 'rgba(254, 87, 87, 0.1)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.4

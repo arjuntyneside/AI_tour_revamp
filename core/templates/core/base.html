@@ -14,15 +14,43 @@
         <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">
             <span class="chevron chevron-left"></span>
         </button>
-        <div class="nav-links">
-            <a href="/">Dashboard</a>
-            <a href="/departures/">Departures</a>
-            <a href="/tours/">Tours</a>
-            <a href="/customers/">Customers</a>
-            <a href="/settings/">Settings</a>
+        
+        <!-- Logo Section -->
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">🏔️</div>
+            <div class="sidebar-logo-text">Undiscovered Destinations</div>
         </div>
+        
+        <!-- Navigation Links -->
+        <div class="nav-links">
+            <a href="/" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="/departures/" class="{% if request.resolver_match.url_name == 'departures' %}active{% endif %}">
+                <span class="nav-icon">🚂</span>
+                <span>Departures</span>
+            </a>
+            <a href="/tours/" class="{% if request.resolver_match.url_name == 'tours' %}active{% endif %}">
+                <span class="nav-icon">🗺️</span>
+                <span>Tours</span>
+            </a>
+            <a href="/customers/" class="{% if request.resolver_match.url_name == 'customers' %}active{% endif %}">
+                <span class="nav-icon">👥</span>
+                <span>Customers</span>
+            </a>
+            <a href="/settings/" class="{% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                <span class="nav-icon">⚙️</span>
+                <span>Settings</span>
+            </a>
+        </div>
+        
+        <!-- Logout Link -->
         <div class="logout-link">
-            <a href="/logout/">Logout</a>
+            <a href="/logout/">
+                <span class="nav-icon">🚪</span>
+                <span>Logout</span>
+            </a>
         </div>
     </div>
     <div class="main-content">

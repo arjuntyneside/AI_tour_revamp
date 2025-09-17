@@ -1,16 +1,16 @@
 :root {
-    --color-sidebar-bg: #232946;
+    --color-sidebar-bg: #96ab9d;
     --color-sidebar-link: #fff;
-    --color-sidebar-link-hover: #eebbc3;
-    --color-sidebar-link-active: #b8c1ec;
-    --color-sidebar-toggle-bg: #f6c177;
-    --color-sidebar-toggle-hover: #eebbc3;
-    --color-main-bg: #f4faff;
-    --color-accent: #f6c177;
-    --color-success: #98f5e1;
-    --color-warning: #f6c177;
-    --color-text-main: #232946;
-    --color-text-muted: #b8c1ec;
+    --color-sidebar-link-hover: rgba(255, 255, 255, 0.1);
+    --color-sidebar-link-active: rgba(255, 255, 255, 0.2);
+    --color-sidebar-toggle-bg: #fe5757;
+    --color-sidebar-toggle-hover: #e04a4a;
+    --color-main-bg: #f4f6fb;
+    --color-accent: #fe5757;
+    --color-success: #00a254;
+    --color-warning: #fe5757;
+    --color-text-main: #000000;
+    --color-text-muted: #64748b;
 }
 
 /* Sidebar toggle styles */
