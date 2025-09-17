@@ -103,7 +103,9 @@ function showWelcomeMessage() {
     const messagesContainer = document.getElementById('chatMessages');
     messagesContainer.innerHTML = `
         <div class="message ai-message">
-            <div class="message-avatar">🤖</div>
+            <div class="message-avatar">
+                <img src="/static/core/icons/departures/bot-message-square.svg" alt="AI Bot" class="avatar-icon-img">
+            </div>
             <div class="message-content">
                 <div class="message-text">
                     <p>Hello! I'm your AI financial assistant. I can analyze your tour and departure performance, provide insights, and answer questions about your finances.</p>
@@ -179,7 +181,7 @@ function addMessage(text, sender) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}-message`;
     
-    const avatar = sender === 'ai' ? '🤖' : '👤';
+    const avatar = sender === 'ai' ? '<img src="/static/core/icons/departures/bot-message-square.svg" alt="AI Bot" class="avatar-icon-img">' : '👤';
     const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     
     messageDiv.innerHTML = `
@@ -206,7 +208,9 @@ function showTypingIndicator() {
     typingDiv.id = 'typingIndicator';
     
     typingDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
+        <div class="message-avatar">
+            <img src="/static/core/icons/departures/bot-message-square.svg" alt="AI Bot" class="avatar-icon-img">
+        </div>
         <div class="message-content">
             <div class="typing-indicator">
                 AI is thinking
