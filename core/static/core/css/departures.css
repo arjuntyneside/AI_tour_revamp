@@ -60,6 +60,57 @@
     object-fit: contain;
 }
 
+/* Icon styling for dashboard icons */
+.ai-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+.send-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+.suggestion-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+    margin-right: 0.5rem;
+}
+
+.insights-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+.btn-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+.insight-type-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+.rec-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
 /* Departures-specific styles extracted from departures.html */
 .financial-analysis-header {
     text-align: center;

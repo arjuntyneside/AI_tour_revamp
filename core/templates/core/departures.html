@@ -59,7 +59,9 @@
     <div class="ai-chat-header">
         <div class="ai-header-content">
             <div class="ai-title-section">
-                <div class="ai-icon">⚡</div>
+                <div class="ai-icon">
+                    <img src="{% static 'core/icons/dashboard/financial-analysis.png' %}" alt="AI Assistant" class="ai-icon-img">
+                </div>
                 <div class="ai-title">
                     <h3>AI Financial Assistant</h3>
                     <p>Ask me anything about your tour performance and finances</p>
@@ -85,14 +87,14 @@
                 <div class="chat-input-wrapper">
                     <input type="text" id="chatInput" class="chat-input" placeholder="Ask about your financial performance..." onkeypress="handleChatKeyPress(event)">
                     <button class="chat-send-btn" onclick="sendChatMessage()">
-                        <span class="send-icon">➤</span>
+                        <img src="{% static 'core/icons/dashboard/financial-analysis.png' %}" alt="Send" class="send-icon-img">
                     </button>
                 </div>
                 <div class="chat-suggestions">
-                    <button class="suggestion-btn" onclick="sendSuggestion('Analyze my tour financial performance')">📊 Analyze Performance</button>
-                    <button class="suggestion-btn" onclick="sendSuggestion('Which departures are most profitable?')">📈 Profitability</button>
-                    <button class="suggestion-btn" onclick="sendSuggestion('What pricing strategies should I consider?')">🎯 Pricing</button>
-                    <button class="suggestion-btn" onclick="sendSuggestion('How can I improve my breakeven points?')">⚖️ Breakeven</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('Analyze my tour financial performance')"><img src="{% static 'core/icons/dashboard/financial-analysis.png' %}" alt="Analyze" class="suggestion-icon-img"> Analyze Performance</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('Which departures are most profitable?')"><img src="{% static 'core/icons/dashboard/profit.png' %}" alt="Profitability" class="suggestion-icon-img"> Profitability</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('What pricing strategies should I consider?')"><img src="{% static 'core/icons/dashboard/revenue.png' %}" alt="Pricing" class="suggestion-icon-img"> Pricing</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('How can I improve my breakeven points?')"><img src="{% static 'core/icons/dashboard/avg-profit-departure.png' %}" alt="Breakeven" class="suggestion-icon-img"> Breakeven</button>
                 </div>
             </div>
         </div>
@@ -103,7 +105,9 @@
 <div class="rule-based-insights-section">
     <div class="insights-header">
         <div class="header-content">
-            <div class="insights-icon">📈</div>
+            <div class="insights-icon">
+                <img src="{% static 'core/icons/dashboard/top-performing-tours.png' %}" alt="Insights" class="insights-icon-img">
+            </div>
             <div class="insights-title">
                 <h3>Rule-Based Financial Analysis</h3>
                 <p>Automated insights based on your departure data</p>
@@ -111,7 +115,7 @@
         </div>
         <button class="btn btn-insights" onclick="toggleRuleBasedInsights()">
             <span class="btn-text">View Analysis</span>
-            <span class="btn-icon">📊</span>
+            <img src="{% static 'core/icons/dashboard/financial-analysis.png' %}" alt="View Insights" class="btn-icon-img">
         </button>
     </div>
     
@@ -138,11 +142,11 @@
             <div class="insight-card">
                 <div class="insight-header">
                     <div class="insight-icon">
-                        {% if insight.type == 'pricing_optimization' %}💰
-                        {% elif insight.type == 'demand_forecasting' %}📊
-                        {% elif insight.type == 'cost_optimization' %}🎯
-                        {% elif insight.type == 'profitability_trends' %}📈
-                        {% else %}📋
+                        {% if insight.type == 'pricing_optimization' %}<img src="{% static 'core/icons/dashboard/revenue.png' %}" alt="Pricing" class="insight-type-icon">
+                        {% elif insight.type == 'demand_forecasting' %}<img src="{% static 'core/icons/dashboard/total-departures.png' %}" alt="Demand" class="insight-type-icon">
+                        {% elif insight.type == 'cost_optimization' %}<img src="{% static 'core/icons/dashboard/cost.png' %}" alt="Cost" class="insight-type-icon">
+                        {% elif insight.type == 'profitability_trends' %}<img src="{% static 'core/icons/dashboard/profit.png' %}" alt="Profit" class="insight-type-icon">
+                        {% else %}<img src="{% static 'core/icons/dashboard/financial-analysis.png' %}" alt="General" class="insight-type-icon">
                         {% endif %}
                     </div>
                     <div class="insight-info">
@@ -160,7 +164,9 @@
                     <div class="recommendations-list">
                         {% for rec in insight.recommendations %}
                         <div class="recommendation-item">
-                            <div class="rec-icon">💡</div>
+                            <div class="rec-icon">
+                                <img src="{% static 'core/icons/dashboard/quick-actions.png' %}" alt="Recommendation" class="rec-icon-img">
+                            </div>
                             <div class="rec-content">
                                 <h6>{{ rec.title }}</h6>
                                 <p>{{ rec.description }}</p>
