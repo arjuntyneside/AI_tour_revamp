@@ -1,4 +1,5 @@
 /* Departures Page Styling - Dashboard Theme */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
     --color-sidebar-bg: #96ab9d;
@@ -13,6 +14,7 @@
     --color-warning: #fe5757;
     --color-text-main: #000000;
     --color-text-muted: #64748b;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .page-container {
