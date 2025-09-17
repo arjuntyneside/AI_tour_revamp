@@ -8,7 +8,14 @@
 {% endblock %}
 
 {% block content %}
-<h1>Manage Tours</h1>
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><img src="{% static 'core/icons/dashboard/manage-tours.png' %}" alt="Manage Tours" class="page-icon-img"> Manage Tours</h1>
+            <p class="subtitle">Create and manage your tour catalog with AI assistance</p>
+        </div>
+    </div>
 
 <!-- Django Messages -->
 {% if messages %}
@@ -21,33 +28,39 @@
 </div>
 {% endif %}
 
-<!-- AI Document Processing Section -->
-<div class="ai-processing-section">
-    <h2>Create Tours with AI</h2>
-    <div class="ai-workflow">
-        <div class="workflow-step">
-            <div class="step-number">1</div>
-            <div class="step-content">
-                <h3>Upload Tour Documents</h3>
-                <p>Upload brochures, PDFs, or Excel files containing tour information</p>
-                <a href="{% url 'document_upload' %}" class="btn btn-primary">Upload Documents</a>
+    <!-- AI Document Processing Section -->
+    <div class="ai-processing-section">
+        <h2><img src="{% static 'core/icons/dashboard/upload-documents.png' %}" alt="AI Processing" class="section-icon-img"> Create Tours with AI</h2>
+        <div class="ai-workflow">
+            <div class="workflow-step">
+                <div class="step-icon">
+                    <img src="{% static 'core/icons/dashboard/upload-documents.png' %}" alt="Upload" class="step-icon-img">
+                </div>
+                <div class="step-content">
+                    <h3>Upload Tour Documents</h3>
+                    <p>Upload brochures, PDFs, or Excel files containing tour information</p>
+                    <a href="{% url 'document_upload' %}" class="btn btn-primary">Upload Documents</a>
+                </div>
             </div>
-        </div>
-        
-        <div class="workflow-step">
-            <div class="step-number">2</div>
-            <div class="step-content">
-                <h3>AI Processing</h3>
-                <p>Our AI extracts tour details, pricing, and schedules automatically</p>
-                <a href="{% url 'document_processing' %}" class="btn btn-secondary">View Processing Status</a>
+            
+            <div class="workflow-step">
+                <div class="step-icon">
+                    <img src="{% static 'core/icons/dashboard/financial-analysis.png' %}" alt="AI Processing" class="step-icon-img">
+                </div>
+                <div class="step-content">
+                    <h3>AI Processing</h3>
+                    <p>Our AI extracts tour details, pricing, and schedules automatically</p>
+                    <a href="{% url 'document_processing' %}" class="btn btn-secondary">View Processing Status</a>
+                </div>
             </div>
-        </div>
-        
-        <div class="workflow-step">
-            <div class="step-number">3</div>
-            <div class="step-content">
-                <h3>Review & Publish</h3>
-                <p>Review AI-extracted data and publish tours to your catalog</p>
+            
+            <div class="workflow-step">
+                <div class="step-icon">
+                    <img src="{% static 'core/icons/dashboard/manage-tours.png' %}" alt="Review" class="step-icon-img">
+                </div>
+                <div class="step-content">
+                    <h3>Review & Publish</h3>
+                    <p>Review AI-extracted data and publish tours to your catalog</p>
             </div>
         </div>
     </div>

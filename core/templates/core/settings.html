@@ -4,7 +4,14 @@
 {% block title %}Settings{% endblock %}
 
 {% block content %}
-<h1>Settings</h1>
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><img src="{% static 'core/icons/dashboard/settings.png' %}" alt="Settings" class="page-icon-img"> Settings</h1>
+            <p class="subtitle">Manage your account and application preferences</p>
+        </div>
+    </div>
 <div class="settings-container">
     <div class="settings-tabs">
         <button class="settings-tab active" data-tab="profile">Profile</button>

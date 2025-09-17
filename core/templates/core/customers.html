@@ -4,7 +4,14 @@
 {% block title %}Customers{% endblock %}
 
 {% block content %}
-<h1>Manage Customers</h1>
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><img src="{% static 'core/icons/dashboard/customers.png' %}" alt="Manage Customers" class="page-icon-img"> Manage Customers</h1>
+            <p class="subtitle">View and manage your customer database</p>
+        </div>
+    </div>
 
 <!-- Django Messages -->
 {% if messages %}

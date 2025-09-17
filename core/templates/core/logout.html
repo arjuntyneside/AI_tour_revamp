@@ -4,6 +4,23 @@
 {% block title %}Logout{% endblock %}
 
 {% block content %}
-<h1>Logout</h1>
-<p>You have been logged out. See you next time!</p>
+<div class="logout-container">
+    <div class="logout-card">
+        <div class="logout-header">
+            <div class="logout-icon">
+                <img src="{% static 'core/icons/log-out.svg' %}" alt="Logout" class="logout-icon-img">
+            </div>
+            <h1>Logged Out Successfully</h1>
+            <p class="logout-subtitle">Thank you for using Undiscovered Destinations</p>
+        </div>
+        
+        <div class="logout-content">
+            <p class="logout-message">You have been safely logged out of your account.</p>
+            <div class="logout-actions">
+                <a href="{% url 'login' %}" class="btn btn-primary">Sign In Again</a>
+                <a href="/" class="btn btn-secondary">Go to Homepage</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %} 

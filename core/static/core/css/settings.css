@@ -1,3 +1,5 @@
+/* Settings Page Styling - Dashboard Theme */
+
 :root {
     --color-sidebar-bg: #96ab9d;
     --color-sidebar-link: #fff;
@@ -13,95 +15,239 @@
     --color-text-muted: #64748b;
 }
 
-/* Sidebar toggle styles */
-.sidebar-toggle {
+.page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+    background-color: #f4f6fb;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fffbfb 0%, #fe5757 100%);
+    color: #000000;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(254, 87, 87, 0.15);
+}
+
+.header-content h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.subtitle {
+    margin: 0.5rem 0 0 0;
+    color: #64748b;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+.page-icon-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+/* Settings Container */
+.settings-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.settings-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.settings-tab {
     background: none;
     border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #64748b;
     cursor: pointer;
-    padding: 16px 12px;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.settings-tab:hover {
+    color: #000000;
+    background: rgba(254, 87, 87, 0.05);
+}
+
+.settings-tab.active {
+    color: #fe5757;
+    border-bottom-color: #fe5757;
+    background: white;
+}
+
+.settings-content {
+    padding: 2rem;
+}
+
+.settings-section h2 {
+    margin: 0 0 1.5rem 0;
+    color: #000000;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Settings Form */
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.settings-form label {
+    color: #000000;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.settings-form input {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+.settings-form input:focus {
     outline: none;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1001;
+    border-color: #fe5757;
+    box-shadow: 0 0 0 3px rgba(254, 87, 87, 0.1);
 }
 
-.hamburger {
-    display: block;
-    width: 28px;
-    height: 3px;
-    background: #333;
-    position: relative;
-    border-radius: 2px;
-    transition: background 0.3s;
-}
-.hamburger::before,
-.hamburger::after {
-    content: '';
-    display: block;
-    width: 28px;
-    height: 3px;
-    background: #333;
-    position: absolute;
-    border-radius: 2px;
-    transition: transform 0.3s, top 0.3s, bottom 0.3s;
-}
-.hamburger::before {
-    top: -9px;
-}
-.hamburger::after {
-    bottom: -9px;
+.settings-form input:disabled {
+    background: #f8f9fa;
+    color: #64748b;
+    cursor: not-allowed;
 }
 
-.sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 240px;
-    height: 100vh;
-    background: #f5f6fa;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.04);
-    z-index: 1000;
-    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-    will-change: transform;
-    overflow-x: hidden;
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    align-self: flex-start;
 }
 
-.main-content {
-    margin-left: 240px;
-    transition: margin-left 0.3s cubic-bezier(.4,0,.2,1);
+.btn-primary {
+    background: #fe5757;
+    color: white;
 }
 
-.sidebar.collapsed {
-    transform: translateX(-220px);
-}
-.sidebar.collapsed .nav-links,
-.sidebar.collapsed .logout-link {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
+.btn-primary:hover {
+    background: #e04a4a;
+    box-shadow: 0 4px 12px rgba(254, 87, 87, 0.3);
 }
 
-.main-content.sidebar-collapsed {
-    margin-left: 40px;
+.btn-secondary {
+    background: #96ab9d;
+    color: white;
 }
 
-@media (max-width: 900px) {
-    .sidebar {
-        width: 200px;
+.btn-secondary:hover {
+    background: #7a8b7e;
+    box-shadow: 0 4px 12px rgba(150, 171, 157, 0.3);
+}
+
+/* Profile Meta */
+.profile-meta {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.profile-meta p {
+    margin: 0 0 0.5rem 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.profile-meta p:last-child {
+    margin-bottom: 0;
+}
+
+.profile-meta span {
+    font-weight: 600;
+}
+
+/* Messages */
+.messages {
+    margin-bottom: 1rem;
+}
+
+.message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.message.success {
+    background: rgba(0, 162, 84, 0.1);
+    color: #00a254;
+    border: 1px solid rgba(0, 162, 84, 0.2);
+}
+
+.message.error {
+    background: rgba(254, 87, 87, 0.1);
+    color: #fe5757;
+    border: 1px solid rgba(254, 87, 87, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .settings-tabs {
+        flex-direction: column;
     }
-    .main-content {
-        margin-left: 200px;
+    
+    .settings-tab {
+        text-align: left;
+        border-bottom: none;
+        border-right: 3px solid transparent;
     }
-    .sidebar.collapsed {
-        transform: translateX(-180px);
+    
+    .settings-tab.active {
+        border-bottom: none;
+        border-right-color: #fe5757;
     }
-    .main-content.sidebar-collapsed {
-        margin-left: 40px;
+    
+    .settings-content {
+        padding: 1rem;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
     }
 }
-
-.sidebar-toggle {
-    left: 10px;
-    top: 10px;
-} 
