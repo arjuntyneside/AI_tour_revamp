@@ -561,24 +561,31 @@
 
 /* AI Chat Section Styles */
 .ai-chat-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #fffbfb 0%, #fe5757 100%);
     border-radius: 20px;
     margin: 2rem 0;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 20px 40px rgba(254, 87, 87, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .ai-chat-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     padding: 2rem;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
 }
 
 .ai-header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.ai-title-section {
     display: flex;
     align-items: center;
     gap: 1.5rem;
@@ -595,15 +602,14 @@
 }
 
 .ai-title h3 {
-    color: white;
+    color: #000000;
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .ai-title p {
-    color: rgba(255, 255, 255, 0.8);
+    color: #64748b;
     margin: 0.25rem 0 0 0;
     font-size: 0.9rem;
 }
@@ -621,7 +627,7 @@
 }
 
 .btn-ai {
-    background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+    background: linear-gradient(45deg, #fe5757, #e04a4a);
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -633,13 +639,15 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 8px 20px rgba(254, 87, 87, 0.4);
+    align-self: flex-start;
+    margin-top: 0.5rem;
 }
 
 .btn-ai:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(139, 92, 246, 0.6);
-    background: linear-gradient(45deg, #7c3aed, #6d28d9);
+    box-shadow: 0 12px 25px rgba(254, 87, 87, 0.6);
+    background: linear-gradient(45deg, #e04a4a, #d43d3d);
 }
 
 .btn-icon {
@@ -866,28 +874,49 @@
 
 /* Rule-Based Insights Section Styles */
 .rule-based-insights-section {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #fffbfb 0%, #96ab9d 100%);
     border-radius: 20px;
     margin: 2rem 0;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 20px 40px rgba(254, 87, 87, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* .insights-header styles moved to dashboard.css to avoid conflicts */
+/* Rule-Based Insights Header Styles */
+.insights-header {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
 
 .header-content {
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
-/* .insights-icon styles moved to dashboard.css to avoid conflicts */
+.insights-icon {
+    font-size: 2.5rem;
+}
 
-/* .insights-title styles moved to dashboard.css to avoid conflicts */
+.insights-title h3 {
+    color: #000000;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.insights-title p {
+    color: #64748b;
+    margin: 0.25rem 0 0 0;
+    font-size: 0.9rem;
+}
 
 .btn-insights {
-    background: linear-gradient(45deg, #059669, #047857);
+    background: linear-gradient(45deg, #fe5757, #e04a4a);
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -899,13 +928,15 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.4);
+    box-shadow: 0 8px 20px rgba(254, 87, 87, 0.4);
+    align-self: flex-start;
+    margin-top: 0.5rem;
 }
 
 .btn-insights:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(5, 150, 105, 0.6);
-    background: linear-gradient(45deg, #047857, #065f46);
+    box-shadow: 0 12px 25px rgba(254, 87, 87, 0.6);
+    background: linear-gradient(45deg, #e04a4a, #d43d3d);
 }
 
 .insights-content {

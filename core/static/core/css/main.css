@@ -160,6 +160,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.nav-icon-img {
+    width: 16px;
+    height: 16px;
+    filter: brightness(0) invert(1); /* Makes SVG white */
     font-size: 16px;
 }
 

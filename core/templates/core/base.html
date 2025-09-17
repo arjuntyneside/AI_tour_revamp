@@ -24,23 +24,33 @@
         <!-- Navigation Links -->
         <div class="nav-links">
             <a href="/" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                <span class="nav-icon">📊</span>
+                <span class="nav-icon">
+                    <img src="{% static 'core/icons/layout-dashboard.svg' %}" alt="Dashboard" class="nav-icon-img">
+                </span>
                 <span>Dashboard</span>
             </a>
             <a href="/departures/" class="{% if request.resolver_match.url_name == 'departures' %}active{% endif %}">
-                <span class="nav-icon">🚂</span>
+                <span class="nav-icon">
+                    <img src="{% static 'core/icons/train-front.svg' %}" alt="Departures" class="nav-icon-img">
+                </span>
                 <span>Departures</span>
             </a>
             <a href="/tours/" class="{% if request.resolver_match.url_name == 'tours' %}active{% endif %}">
-                <span class="nav-icon">🗺️</span>
+                <span class="nav-icon">
+                    <img src="{% static 'core/icons/type-outline.svg' %}" alt="Tours" class="nav-icon-img">
+                </span>
                 <span>Tours</span>
             </a>
             <a href="/customers/" class="{% if request.resolver_match.url_name == 'customers' %}active{% endif %}">
-                <span class="nav-icon">👥</span>
+                <span class="nav-icon">
+                    <img src="{% static 'core/icons/users-round.svg' %}" alt="Customers" class="nav-icon-img">
+                </span>
                 <span>Customers</span>
             </a>
             <a href="/settings/" class="{% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
-                <span class="nav-icon">⚙️</span>
+                <span class="nav-icon">
+                    <img src="{% static 'core/icons/settings.svg' %}" alt="Settings" class="nav-icon-img">
+                </span>
                 <span>Settings</span>
             </a>
         </div>
@@ -48,7 +58,9 @@
         <!-- Logout Link -->
         <div class="logout-link">
             <a href="/logout/">
-                <span class="nav-icon">🚪</span>
+                <span class="nav-icon">
+                    <img src="{% static 'core/icons/logout.svg' %}" alt="Logout" class="nav-icon-img">
+                </span>
                 <span>Logout</span>
             </a>
         </div>

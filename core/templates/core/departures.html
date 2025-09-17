@@ -54,10 +54,12 @@
 <div class="ai-chat-section">
     <div class="ai-chat-header">
         <div class="ai-header-content">
-            <div class="ai-icon">🤖</div>
-            <div class="ai-title">
-                <h3>AI Financial Assistant</h3>
-                <p>Ask me anything about your tour performance and finances</p>
+            <div class="ai-title-section">
+                <div class="ai-icon">⚡</div>
+                <div class="ai-title">
+                    <h3>AI Financial Assistant</h3>
+                    <p>Ask me anything about your tour performance and finances</p>
+                </div>
             </div>
             <div class="ai-status">
                 <span class="status-badge ai-active">AI Ready</span>
@@ -65,7 +67,7 @@
         </div>
         <button class="btn btn-ai" onclick="toggleAIChat()">
             <span class="btn-text">Open AI Chat</span>
-            <span class="btn-icon">💬</span>
+            <span class="btn-icon">📋</span>
         </button>
     </div>
     
@@ -79,12 +81,12 @@
                 <div class="chat-input-wrapper">
                     <input type="text" id="chatInput" class="chat-input" placeholder="Ask about your financial performance..." onkeypress="handleChatKeyPress(event)">
                     <button class="chat-send-btn" onclick="sendChatMessage()">
-                        <span class="send-icon">📤</span>
+                        <span class="send-icon">➤</span>
                     </button>
                 </div>
                 <div class="chat-suggestions">
                     <button class="suggestion-btn" onclick="sendSuggestion('Analyze my tour financial performance')">📊 Analyze Performance</button>
-                    <button class="suggestion-btn" onclick="sendSuggestion('Which departures are most profitable?')">💰 Profitability</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('Which departures are most profitable?')">📈 Profitability</button>
                     <button class="suggestion-btn" onclick="sendSuggestion('What pricing strategies should I consider?')">🎯 Pricing</button>
                     <button class="suggestion-btn" onclick="sendSuggestion('How can I improve my breakeven points?')">⚖️ Breakeven</button>
                 </div>
@@ -97,7 +99,7 @@
 <div class="rule-based-insights-section">
     <div class="insights-header">
         <div class="header-content">
-            <div class="insights-icon">📊</div>
+            <div class="insights-icon">📈</div>
             <div class="insights-title">
                 <h3>Rule-Based Financial Analysis</h3>
                 <p>Automated insights based on your departure data</p>
@@ -105,7 +107,7 @@
         </div>
         <button class="btn btn-insights" onclick="toggleRuleBasedInsights()">
             <span class="btn-text">View Analysis</span>
-            <span class="btn-icon">📈</span>
+            <span class="btn-icon">📊</span>
         </button>
     </div>
     
