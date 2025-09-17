@@ -1,7 +1,7 @@
 .dashboard-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1rem;
     background-color: #f4f6fb;
     min-height: 100vh;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -12,17 +12,17 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding: 2rem;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
     background: linear-gradient(135deg, #fffbfb 0%, #fe5757 100%);
     color: #000000;
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(254, 87, 87, 0.15);
 }
 
 .header-content h1 {
     margin: 0;
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: #000000;
 }
@@ -56,22 +56,36 @@
 }
 
 /* Metrics Grid */
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+/* Main Dashboard Content Layout */
+.dashboard-main-content {
+    display: flex;
     gap: 1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+}
+
+.metrics-column {
+    flex: 0 0 350px; /* Reduced width for metrics column */
+}
+
+.charts-column {
+    flex: 1; /* Takes remaining space */
+}
+
+.metrics-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .metric-card {
     background: white;
-    padding: 2rem;
-    border-radius: 16px;
+    padding: 1.5rem;
+    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
     transition: all 0.3s ease;
 }
 
@@ -81,9 +95,9 @@
 }
 
 .metric-icon {
-    font-size: 1.5rem;
-    width: 50px;
-    height: 50px;
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -91,6 +105,18 @@
     background: #fe5757;
     color: white;
     font-weight: bold;
+}
+
+.metric-icon-img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+/* Special case for avg-profit-departure icon - keep original colors */
+.avg-profit .metric-icon-img {
+    filter: none; /* Remove white filter for this specific icon */
 }
 
 .revenue .metric-icon {
@@ -114,19 +140,19 @@
 }
 
 .metric-content h3 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.25rem 0;
     color: #64748b;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .metric-value {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #1e293b;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .metric-trend {
@@ -146,25 +172,47 @@
 
 /* Charts Section */
 .charts-section {
-    margin-bottom: 2rem;
+    margin-bottom: 0; /* Remove margin since it's now in a column */
+    height: 100%; /* Take full height of the column */
+}
+
+.charts-column .charts-section {
+    height: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .dashboard-main-content {
+        flex-direction: column;
+    }
+    
+    .metrics-column {
+        flex: none;
+    }
+    
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
 }
 
 .chart-container {
     background: white;
-    padding: 2rem;
-    border-radius: 16px;
+    padding: 1.5rem;
+    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border: 1px solid #e2e8f0;
 }
 
 .chart-header {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .chart-header h2 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.25rem 0;
     color: #000000;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 600;
 }
 
@@ -189,20 +237,20 @@
 /* Insights Grid */
 .insights-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1rem;
 }
 
 .insight-card {
     background: white;
-    padding: 2rem;
-    border-radius: 16px;
+    padding: 1.5rem;
+    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border: 1px solid #e2e8f0;
 }
 
 .insight-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .insight-header h3 {
@@ -356,6 +404,21 @@
     border-radius: 50%;
     background: #fe5757;
     color: white;
+}
+
+.action-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+.insight-icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    margin-right: 8px;
+    vertical-align: middle;
 }
 
 .action-text {

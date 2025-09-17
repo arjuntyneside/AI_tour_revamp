@@ -23,66 +23,81 @@
         </div>
     </div>
 
-    <!-- Key Metrics Cards -->
-    <div class="metrics-grid">
-        <div class="metric-card revenue">
-            <div class="metric-icon">$</div>
-            <div class="metric-content">
-                <h3>Total Revenue</h3>
-                <div class="metric-value">${{ total_revenue|floatformat:0 }}</div>
-                <div class="metric-trend positive">
-                    <span class="trend-arrow">↗</span>
-                    <span class="trend-text">+12.5% vs last period</span>
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-main-content">
+        <!-- Left Column - Metrics Cards -->
+        <div class="metrics-column">
+            <div class="metrics-grid">
+                <div class="metric-card revenue">
+                    <div class="metric-icon">
+                        <img src="{% static 'core/icons/dashboard/revenue.png' %}" alt="Revenue" class="metric-icon-img">
+                    </div>
+                    <div class="metric-content">
+                        <h3>Total Revenue</h3>
+                        <div class="metric-value">${{ total_revenue|floatformat:0 }}</div>
+                        <div class="metric-trend positive">
+                            <span class="trend-arrow">↗</span>
+                            <span class="trend-text">+12.5% vs last period</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card profit">
+                    <div class="metric-icon">
+                        <img src="{% static 'core/icons/dashboard/profit.png' %}" alt="Profit" class="metric-icon-img">
+                    </div>
+                    <div class="metric-content">
+                        <h3>Total Profit</h3>
+                        <div class="metric-value">${{ total_profit|floatformat:0 }}</div>
+                        <div class="metric-trend positive">
+                            <span class="trend-arrow">↗</span>
+                            <span class="trend-text">{{ profit_margin|floatformat:1 }}% margin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card departures">
+                    <div class="metric-icon">
+                        <img src="{% static 'core/icons/dashboard/departures.png' %}" alt="Departures" class="metric-icon-img">
+                    </div>
+                    <div class="metric-content">
+                        <h3>Total Departures</h3>
+                        <div class="metric-value">{{ total_departures }}</div>
+                        <div class="metric-trend">
+                            <span class="trend-text">{{ profitable_departures }} profitable</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card avg-profit">
+                    <div class="metric-icon">
+                        <img src="{% static 'core/icons/dashboard/avg-profit-departure.png' %}" alt="Avg Profit" class="metric-icon-img">
+                    </div>
+                    <div class="metric-content">
+                        <h3>Avg Profit/Departure</h3>
+                        <div class="metric-value">${{ avg_profit_per_departure|floatformat:0 }}</div>
+                        <div class="metric-trend">
+                            <span class="trend-text">Per departure</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="metric-card profit">
-            <div class="metric-icon">↗</div>
-            <div class="metric-content">
-                <h3>Total Profit</h3>
-                <div class="metric-value">${{ total_profit|floatformat:0 }}</div>
-                <div class="metric-trend positive">
-                    <span class="trend-arrow">↗</span>
-                    <span class="trend-text">{{ profit_margin|floatformat:1 }}% margin</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="metric-card departures">
-            <div class="metric-icon">🏢</div>
-            <div class="metric-content">
-                <h3>Total Departures</h3>
-                <div class="metric-value">{{ total_departures }}</div>
-                <div class="metric-trend">
-                    <span class="trend-text">{{ profitable_departures }} profitable</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="metric-card avg-profit">
-            <div class="metric-icon">↗</div>
-            <div class="metric-content">
-                <h3>Avg Profit/Departure</h3>
-                <div class="metric-value">${{ avg_profit_per_departure|floatformat:0 }}</div>
-                <div class="metric-trend">
-                    <span class="trend-text">Per departure</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Section -->
-    <div class="charts-section">
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2>Financial Performance Trends</h2>
-                <p>Revenue, Profit, and Costs over the last 6 months</p>
-            </div>
-            <div class="chart-wrapper">
-                <canvas id="financialChart"></canvas>
-                <div id="no-data-message" style="display: none; text-align: center; padding: 2rem; color: #64748b;">
-                    <p>No financial data available yet. Create some departures to see trends!</p>
+        <!-- Right Column - Charts Section -->
+        <div class="charts-column">
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h2>Financial Performance Trends</h2>
+                        <p>Revenue, Profit, and Costs over the last 6 months</p>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="financialChart"></canvas>
+                        <div id="no-data-message" style="display: none; text-align: center; padding: 2rem; color: #64748b;">
+                            <p>No financial data available yet. Create some departures to see trends!</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,7 +108,7 @@
         <!-- Top Performing Tours -->
         <div class="insight-card">
             <div class="insight-header">
-                <h3>🏆 Top Performing Tours</h3>
+                <h3><img src="{% static 'core/icons/dashboard/top-performing-tours.png' %}" alt="Top Tours" class="insight-icon-img"> Top Performing Tours</h3>
                 <p>By total profit generated</p>
             </div>
             <div class="insight-content">
@@ -123,7 +138,7 @@
         <!-- Risk Alerts -->
         <div class="insight-card risk-alerts">
             <div class="insight-header">
-                <h3>⚠️ Risk Alerts</h3>
+                <h3><img src="{% static 'core/icons/dashboard/risk-alerts.png' %}" alt="Risk Alerts" class="insight-icon-img"> Risk Alerts</h3>
                 <p>Departures that need attention</p>
             </div>
             <div class="insight-content">
@@ -154,31 +169,33 @@
         <!-- Quick Actions -->
         <div class="insight-card quick-actions">
             <div class="insight-header">
-                <h3>⚡ Quick Actions</h3>
+                <h3><img src="{% static 'core/icons/dashboard/quick-actions.png' %}" alt="Quick Actions" class="insight-icon-img"> Quick Actions</h3>
                 <p>Common tasks and shortcuts</p>
             </div>
             <div class="insight-content">
                 <div class="action-grid">
                     <a href="{% url 'document_upload' %}" class="action-item">
                         <div class="action-icon">
-                            <img src="{% static 'core/icons/file-text.svg' %}" alt="Upload Tour Document" class="action-icon-img">
+                            <img src="{% static 'core/icons/dashboard/upload-documents.png' %}" alt="Upload Tour Document" class="action-icon-img">
                         </div>
                         <div class="action-text">Upload Tour Document</div>
                     </a>
                     <a href="{% url 'create_departure' %}" class="action-item">
                         <div class="action-icon">
-                            <img src="{% static 'core/icons/train-front-tunnel.svg' %}" alt="Create Departure" class="action-icon-img">
+                            <img src="{% static 'core/icons/dashboard/create-departure.png' %}" alt="Create Departure" class="action-icon-img">
                         </div>
                         <div class="action-text">Create Departure</div>
                     </a>
                     <a href="{% url 'tours' %}" class="action-item">
                         <div class="action-icon">
-                            <img src="{% static 'core/icons/book-open-text.svg' %}" alt="Manage Tours" class="action-icon-img">
+                            <img src="{% static 'core/icons/dashboard/manage-tours.png' %}" alt="Manage Tours" class="action-icon-img">
                         </div>
                         <div class="action-text">Manage Tours</div>
                     </a>
                     <a href="{% url 'departures' %}" class="action-item">
-                        <div class="action-icon">📊</div>
+                        <div class="action-icon">
+                            <img src="{% static 'core/icons/dashboard/financial-analysis.png' %}" alt="Financial Analysis" class="action-icon-img">
+                        </div>
                         <div class="action-text">Financial Analysis</div>
                     </a>
                 </div>
