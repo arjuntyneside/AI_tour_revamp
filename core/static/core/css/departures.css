@@ -114,7 +114,7 @@
     filter: brightness(0) invert(1); /* Makes PNG icons white */
 }
 
-/* Departures-specific styles extracted from departures.html */
+
 .financial-analysis-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -675,11 +675,11 @@
 
 /* AI Chat Section Styles */
 .ai-chat-section {
-    background: linear-gradient(135deg, #fffbfb 0%, #fe5757 100%);
+    background: linear-gradient(135deg, #fffbfb 0%, #f7c8c8 100%);
     border-radius: 20px;
     margin: 2rem 0;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(254, 87, 87, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -988,11 +988,11 @@
 
 /* Rule-Based Insights Section Styles */
 .rule-based-insights-section {
-    background: linear-gradient(135deg, #fffbfb 0%, #96ab9d 100%);
+    background: linear-gradient(135deg, #fffbfb 0%, #a6b1aa 100%);
     border-radius: 20px;
     margin: 2rem 0;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(254, 87, 87, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 

@@ -4,11 +4,11 @@
     --primary-color: #fe5757;
     --primary-light: #ff6b6b;
     --primary-dark: #e53e3e;
-    --secondary-color: #64748b;
+    --secondary-color: #ffffff;
     --background-color: #f4f6fb;
     --card-background: #ffffff;
     --text-primary: #1e293b;
-    --text-secondary: #64748b;
+    --text-secondary: #ffffff;
     --border-color: #e2e8f0;
     --success-color: #10b981;
     --warning-color: #f59e0b;
@@ -126,7 +126,7 @@ body {
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
     padding: 1rem;
     border-radius: 8px;
-    border-left: 4px solid #0ea5e9;
+    border-left: 4px solid #363e42;
     margin-bottom: 1rem;
 }
 
