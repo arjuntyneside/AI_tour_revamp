@@ -3,6 +3,10 @@
 
 {% block title %}{{ action }} Departure{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/departure_form.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="departure-form-container">
     <div class="form-header">

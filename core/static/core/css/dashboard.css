@@ -72,9 +72,9 @@
 }
 
 .metrics-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1rem !important;
 }
 
 .metric-card {
@@ -191,9 +191,9 @@
     }
     
     .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 1rem !important;
     }
 }
 

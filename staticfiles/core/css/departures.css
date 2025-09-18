@@ -1,25 +1,142 @@
-/* Departures-specific styles extracted from departures.html */ 
+/* Departures Page Styling - Dashboard Theme */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --color-sidebar-bg: #96ab9d;
+    --color-sidebar-link: #fff;
+    --color-sidebar-link-hover: rgba(255, 255, 255, 0.1);
+    --color-sidebar-link-active: rgba(255, 255, 255, 0.2);
+    --color-sidebar-toggle-bg: #fe5757;
+    --color-sidebar-toggle-hover: #e04a4a;
+    --color-main-bg: #f4f6fb;
+    --color-accent: #fe5757;
+    --color-success: #00a254;
+    --color-warning: #fe5757;
+    --color-text-main: #000000;
+    --color-text-muted: #64748b;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+    background-color: #f4f6fb;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fffbfb 0%, #fe5757 100%);
+    color: #000000;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(254, 87, 87, 0.15);
+}
+
+.header-content h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.subtitle {
+    margin: 0.5rem 0 0 0;
+    color: #64748b;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+.page-icon-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+/* Icon styling for dashboard icons */
+.ai-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: none; /* SVG icons display in original colors */
+}
+
+.send-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+.suggestion-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+    margin-right: 0.5rem;
+}
+
+.insights-icon-img {
+    width: 24px;
+    height: 24px;
+    color: #0b0b0b;
+    object-fit: contain;
+    filter: brightness(0); /* Makes icons black */
+}
+
+.btn-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+.insight-type-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
+
+.rec-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes PNG icons white */
+}
 
 /* Departures-specific styles extracted from departures.html */
 .financial-analysis-header {
     text-align: center;
     margin-bottom: 2rem;
     padding: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #fffbfb 0%, #fe5757 100%);
+    color: #000000;
     border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(254, 87, 87, 0.15);
 }
 
 .financial-analysis-header h1 {
     margin: 0;
     font-size: 2.5rem;
     font-weight: 700;
+    color: #000000;
 }
 
 .subtitle {
     margin: 0.5rem 0 0 0;
-    opacity: 0.9;
+    color: #64748b;
     font-size: 1.1rem;
+    font-weight: 400;
 }
 
 .financial-overview {
@@ -43,7 +160,7 @@
 
 .financial-breakdown h3 {
     margin: 0 0 1rem 0;
-    color: #333;
+    color: #000000;
     font-size: 1.25rem;
     font-weight: 600;
 }
@@ -61,17 +178,17 @@
     padding: 0.75rem;
     background: #f8f9fa;
     border-radius: 8px;
-    border-left: 3px solid #667eea;
+    border-left: 3px solid #fe5757;
 }
 
 .breakdown-item .label {
     font-weight: 500;
-    color: #666;
+    color: #64748b;
 }
 
 .breakdown-item .value {
     font-weight: 600;
-    color: #333;
+    color: #000000;
 }
 
 .overview-card {
@@ -80,12 +197,12 @@
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #fe5757;
 }
 
 .overview-card h3 {
     margin: 0 0 1rem 0;
-    color: #666;
+    color: #64748b;
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -94,12 +211,12 @@
 .overview-card .amount {
     font-size: 2rem;
     font-weight: 700;
-    color: #333;
+    color: #000000;
     margin-bottom: 0.5rem;
 }
 
 .overview-card small {
-    color: #888;
+    color: #64748b;
     font-size: 0.8rem;
 }
 
@@ -120,7 +237,7 @@
 
 .section-header h2 {
     margin: 0;
-    color: #333;
+    color: #000000;
 }
 
 .header-actions {
@@ -137,7 +254,7 @@
 
 .status-filter label {
     font-weight: 600;
-    color: #333;
+    color: #000000;
     font-size: 0.9rem;
 }
 
@@ -146,7 +263,7 @@
     border: 2px solid #e2e8f0;
     border-radius: 8px;
     background: white;
-    color: #333;
+    color: #000000;
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
@@ -159,8 +276,8 @@
 
 .status-filter select:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #fe5757;
+    box-shadow: 0 0 0 3px rgba(254, 87, 87, 0.1);
 }
 
 .departures-table {
@@ -178,7 +295,7 @@
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: #333;
+    color: #000000;
     border-bottom: 2px solid #dee2e6;
 }
 
@@ -511,9 +628,7 @@
         align-items: flex-start;
     }
     
-    .insights-grid {
-        grid-template-columns: 1fr;
-    }
+    /* .insights-grid responsive styles moved to dashboard.css to avoid conflicts */
 }
 
 /* Modal Styles */
@@ -560,24 +675,31 @@
 
 /* AI Chat Section Styles */
 .ai-chat-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #fffbfb 0%, #fe5757 100%);
     border-radius: 20px;
     margin: 2rem 0;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 20px 40px rgba(254, 87, 87, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .ai-chat-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     padding: 2rem;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
 }
 
 .ai-header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.ai-title-section {
     display: flex;
     align-items: center;
     gap: 1.5rem;
@@ -594,15 +716,14 @@
 }
 
 .ai-title h3 {
-    color: white;
+    color: #000000;
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .ai-title p {
-    color: rgba(255, 255, 255, 0.8);
+    color: #64748b;
     margin: 0.25rem 0 0 0;
     font-size: 0.9rem;
 }
@@ -620,7 +741,7 @@
 }
 
 .btn-ai {
-    background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+    background: linear-gradient(45deg, #fe5757, #e04a4a);
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -632,13 +753,15 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 8px 20px rgba(254, 87, 87, 0.4);
+    align-self: flex-start;
+    margin-top: 0.5rem;
 }
 
 .btn-ai:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(139, 92, 246, 0.6);
-    background: linear-gradient(45deg, #7c3aed, #6d28d9);
+    box-shadow: 0 12px 25px rgba(254, 87, 87, 0.6);
+    background: linear-gradient(45deg, #e04a4a, #d43d3d);
 }
 
 .btn-icon {
@@ -865,18 +988,18 @@
 
 /* Rule-Based Insights Section Styles */
 .rule-based-insights-section {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #fffbfb 0%, #96ab9d 100%);
     border-radius: 20px;
     margin: 2rem 0;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 20px 40px rgba(254, 87, 87, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Rule-Based Insights Header Styles */
 .insights-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     padding: 2rem;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -886,29 +1009,28 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .insights-icon {
     font-size: 2.5rem;
-    animation: pulse 2s infinite;
 }
 
 .insights-title h3 {
-    color: white;
+    color: #000000;
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .insights-title p {
-    color: rgba(255, 255, 255, 0.8);
+    color: #64748b;
     margin: 0.25rem 0 0 0;
     font-size: 0.9rem;
 }
 
 .btn-insights {
-    background: linear-gradient(45deg, #059669, #047857);
+    background: linear-gradient(45deg, #fe5757, #e04a4a);
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -920,13 +1042,15 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.4);
+    box-shadow: 0 8px 20px rgba(254, 87, 87, 0.4);
+    align-self: flex-start;
+    margin-top: 0.5rem;
 }
 
 .btn-insights:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(5, 150, 105, 0.6);
-    background: linear-gradient(45deg, #047857, #065f46);
+    box-shadow: 0 12px 25px rgba(254, 87, 87, 0.6);
+    background: linear-gradient(45deg, #e04a4a, #d43d3d);
 }
 
 .insights-content {
@@ -943,56 +1067,11 @@
     border: 1px solid #bbf7d0;
 }
 
-.insights-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
+/* .insights-list and .insight-card styles moved to dashboard.css to avoid conflicts */
 
-.insight-card {
-    background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e2e8f0;
-    transition: all 0.3s ease;
-}
+/* .insight-header and .insight-icon styles moved to dashboard.css to avoid conflicts */
 
-.insight-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-}
-
-.insight-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.insight-icon {
-    font-size: 2rem;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-    border-radius: 15px;
-    border: 2px solid #10b981;
-}
-
-.insight-info h4 {
-    margin: 0 0 0.5rem 0;
-    color: #1e293b;
-    font-size: 1.3rem;
-    font-weight: 700;
-}
-
-.insight-meta {
-    display: flex;
-    gap: 0.75rem;
-}
+/* .insight-info and .insight-meta styles moved to dashboard.css to avoid conflicts */
 
 .priority, .risk {
     padding: 0.25rem 0.75rem;
@@ -1124,25 +1203,9 @@
     color: white;
 }
 
-.insight-metrics {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 1.5rem;
-    border: 1px solid #e2e8f0;
-}
+/* .insight-metrics styles moved to dashboard.css to avoid conflicts */
 
-.insight-metrics h5 {
-    color: #1e293b;
-    margin: 0 0 1rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
+/* .metrics-grid styles moved to dashboard.css to avoid conflicts */
 
 .metric-item {
     display: flex;
@@ -1167,25 +1230,7 @@
 }
 
 @media (max-width: 768px) {
-    .insights-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-    
-    .header-content {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .insight-header {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .insight-meta {
-        justify-content: center;
-    }
+    /* Responsive insights styles moved to dashboard.css to avoid conflicts */
     
     .recommendation-item {
         flex-direction: column;
@@ -1196,7 +1241,5 @@
         justify-content: center;
     }
     
-    .metrics-grid {
-        grid-template-columns: 1fr;
-    }
+    /* .metrics-grid responsive styles moved to dashboard.css to avoid conflicts */
 }

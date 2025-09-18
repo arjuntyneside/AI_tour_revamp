@@ -88,8 +88,9 @@
 .insights-icon-img {
     width: 24px;
     height: 24px;
+    color: #0b0b0b;
     object-fit: contain;
-    filter: brightness(0) invert(1); /* Makes PNG icons white */
+    filter: brightness(0); /* Makes icons black */
 }
 
 .btn-icon-img {

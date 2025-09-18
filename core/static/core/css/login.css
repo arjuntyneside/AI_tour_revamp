@@ -41,6 +41,10 @@
 .login-header {
     text-align: center;
     margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fffbfb 0%, #fe5757 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(254, 87, 87, 0.15);
 }
 
 .login-logo {
