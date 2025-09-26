@@ -1,0 +1,189 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ booking.customer.full_name }} - Booking Details{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/booking_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><img src="{% static 'core/icons/dashboard/customers.png' %}" alt="Booking Details" class="page-icon-img"> Booking Details</h1>
+            <p class="subtitle">{{ booking.customer.full_name }} - {{ booking.tour.title }}</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'edit_booking' booking.id %}" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Edit Booking
+            </a>
+            <a href="{% url 'delete_booking' booking.id %}" class="btn btn-danger">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3,6 5,6 21,6"></polyline>
+                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                Delete Booking
+            </a>
+        </div>
+    </div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="booking-detail-container">
+        <!-- Booking Information -->
+        <div class="booking-info-section">
+            <h2>Booking Information</h2>
+            <div class="booking-card">
+                <div class="booking-header">
+                    <div class="booking-status status-{{ booking.status }}">
+                        {{ booking.get_status_display }}
+                    </div>
+                    <div class="booking-date">
+                        Booked: {{ booking.booking_date|date:"M d, Y H:i" }}
+                    </div>
+                </div>
+                
+                <div class="booking-details">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <strong>Customer:</strong>
+                            <a href="{% url 'customer_detail' booking.customer.id %}">{{ booking.customer.full_name }}</a>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Tour:</strong>
+                            <a href="{% url 'tour_detail' booking.tour.id %}">{{ booking.tour.title }}</a>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Departure Date:</strong>
+                            <a href="{% url 'departure_detail' booking.departure.id %}">{{ booking.departure.departure_date }}</a>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Number of People:</strong>
+                            {{ booking.number_of_people }}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Price per Person:</strong>
+                            £{{ booking.departure.current_price_per_person }}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Total Amount:</strong>
+                            £{{ booking.total_amount }}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if booking.notes %}
+                <div class="booking-notes">
+                    <h4>Notes</h4>
+                    <p>{{ booking.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="customer-info-section">
+            <h2>Customer Information</h2>
+            <div class="customer-card">
+                <div class="customer-header">
+                    <span class="customer-initials">{{ booking.customer.initials }}</span>
+                    <div class="customer-info">
+                        <h3>{{ booking.customer.full_name }}</h3>
+                        <p class="customer-email">{{ booking.customer.email }}</p>
+                        {% if booking.customer.phone_number %}
+                            <p class="customer-phone">{{ booking.customer.phone_number }}</p>
+                        {% endif %}
+                        {% if booking.customer.location %}
+                            <p class="customer-location">{{ booking.customer.location }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="customer-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Customer Segment:</span>
+                        <span class="stat-value">{{ booking.customer.get_ai_customer_segment_display }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Bookings:</span>
+                        <span class="stat-value">{{ booking.customer.bookings_count }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Spent:</span>
+                        <span class="stat-value">£{{ booking.customer.total_spent }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tour Information -->
+        <div class="tour-info-section">
+            <h2>Tour Information</h2>
+            <div class="tour-card">
+                <h3>{{ booking.tour.title }}</h3>
+                <div class="tour-details">
+                    <div class="detail-item">
+                        <strong>Destination:</strong> {{ booking.tour.destination }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Duration:</strong> {{ booking.tour.duration_days }} days
+                    </div>
+                    <div class="detail-item">
+                        <strong>Max Group Size:</strong> {{ booking.tour.max_group_size }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Difficulty Level:</strong> {{ booking.tour.get_difficulty_level_display }}
+                    </div>
+                </div>
+                {% if booking.tour.description %}
+                <div class="tour-description">
+                    <h4>Description</h4>
+                    <p>{{ booking.tour.description|truncatewords:50 }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Departure Information -->
+        <div class="departure-info-section">
+            <h2>Departure Information</h2>
+            <div class="departure-card">
+                <div class="departure-header">
+                    <h3>{{ booking.departure.tour.title }}</h3>
+                    <div class="departure-date">{{ booking.departure.departure_date }}</div>
+                </div>
+                <div class="departure-details">
+                    <div class="detail-item">
+                        <strong>Status:</strong> {{ booking.departure.get_status_display }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Total Bookings:</strong> {{ booking.departure.total_bookings }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Available Spots:</strong> {{ booking.departure.available_spots|add:"-"|add:booking.departure.total_bookings }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Current Price:</strong> £{{ booking.departure.current_price_per_person }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

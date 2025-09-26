@@ -1,0 +1,337 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Create Booking{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><img src="{% static 'core/icons/dashboard/customers.png' %}" alt="Create Booking" class="page-icon-img"> Create Booking</h1>
+            <p class="subtitle">Book a customer for {{ departure.tour.title }}</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'departure_detail' departure.id %}" class="btn btn-secondary">Back to Departure</a>
+        </div>
+    </div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Departure Information -->
+    <div class="departure-info-section">
+        <div class="departure-card">
+            <h3>{{ departure.tour.title }}</h3>
+            <div class="departure-details">
+                <div class="detail-item">
+                    <strong>Departure Date:</strong> {{ departure.departure_date }}
+                </div>
+                <div class="detail-item">
+                    <strong>Price per Person:</strong> £{{ departure.current_price_per_person }}
+                </div>
+                <div class="detail-item">
+                    <strong>Available Spots:</strong> {{ departure.available_spots|add:"-"|add:departure.total_bookings }}
+                </div>
+                <div class="detail-item">
+                    <strong>Status:</strong> {{ departure.get_status_display }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="form-section">
+        <div class="form-container">
+            <form method="post" novalidate id="booking-form">
+                {% csrf_token %}
+                
+                <!-- Hidden fields for tour and departure -->
+                {{ form.tour }}
+                {{ form.departure }}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.customer_search.id_for_label }}">Search Customer</label>
+                        {{ form.customer_search }}
+                        {% if form.customer_search.errors %}
+                            <div class="error-message">{{ form.customer_search.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-text">{{ form.customer_search.help_text }}</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.customer.id_for_label }}">{{ form.customer.label }}</label>
+                        {{ form.customer }}
+                        {% if form.customer.errors %}
+                            <div class="error-message">{{ form.customer.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-text">Select from the dropdown above or <a href="{% url 'customers' %}" target="_blank">add a new customer</a></small>
+                        <div id="customer-loading" style="display: none; color: #666; font-size: 0.875rem;">
+                            Loading customers...
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.number_of_people.id_for_label }}">{{ form.number_of_people.label }}</label>
+                        {{ form.number_of_people }}
+                        {% if form.number_of_people.errors %}
+                            <div class="error-message">{{ form.number_of_people.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.total_amount.id_for_label }}">{{ form.total_amount.label }}</label>
+                        {{ form.total_amount }}
+                        {% if form.total_amount.errors %}
+                            <div class="error-message">{{ form.total_amount.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-text">Calculated automatically based on number of people</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="error-message">{{ form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                        <div class="error-message">{{ form.notes.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Booking</button>
+                    <a href="{% url 'departure_detail' departure.id %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const numberOfPeopleField = document.getElementById('id_number_of_people');
+    const totalAmountField = document.getElementById('id_total_amount');
+    const customerField = document.getElementById('id_customer');
+    const customerLoading = document.getElementById('customer-loading');
+    const pricePerPerson = {{ departure.current_price_per_person }};
+    
+    function calculateTotal() {
+        const numberOfPeople = parseInt(numberOfPeopleField.value) || 0;
+        const total = numberOfPeople * pricePerPerson;
+        totalAmountField.value = total.toFixed(2);
+    }
+    
+    // Show loading indicator if customer field is empty (still loading)
+    if (customerField && customerField.options.length <= 1) {
+        customerLoading.style.display = 'block';
+    }
+    
+    // Hide loading indicator once customers are loaded
+    if (customerField && customerField.options.length > 1) {
+        customerLoading.style.display = 'none';
+    }
+    
+    // Check for customer validation errors and clear the field if needed
+    const customerError = document.querySelector('#id_customer + .error-message');
+    if (customerError && customerField) {
+        // Clear the customer selection if there's a validation error
+        customerField.value = '';
+    }
+    
+    // Customer search functionality
+    const customerSearchField = document.getElementById('id_customer_search');
+    if (customerSearchField && customerField) {
+        customerSearchField.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const options = customerField.options;
+            
+            // Show/hide options based on search term
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                const text = option.text.toLowerCase();
+                if (searchTerm === '' || text.includes(searchTerm)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+            
+            // If search term matches a customer name (before parentheses), select that option
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                const displayText = option.text.toLowerCase();
+                // Extract just the name part (before parentheses or dash)
+                const namePart = displayText.split(' (')[0].split(' -')[0];
+                if (namePart === searchTerm) {
+                    customerField.value = option.value;
+                    break;
+                }
+            }
+        });
+    }
+    
+    numberOfPeopleField.addEventListener('input', calculateTotal);
+    
+    // Calculate initial total
+    calculateTotal();
+    
+    // Set default number of people to 1
+    if (!numberOfPeopleField.value) {
+        numberOfPeopleField.value = 1;
+        calculateTotal();
+    }
+});
+</script>
+
+<style>
+.departure-info-section {
+    margin-bottom: 2rem;
+}
+
+.departure-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-left: 4px solid #007bff;
+}
+
+.departure-card h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.departure-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+}
+
+.detail-item {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.form-section {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-container {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .departure-details {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

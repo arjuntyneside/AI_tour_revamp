@@ -54,7 +54,16 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.PermissionsPolicyMiddleware",  # Custom middleware for permissions policy
 ]
+
+# Permissions Policy to fix browser console warnings
+PERMISSIONS_POLICY = {
+    "unload": "*",  # Allow unload events to fix console warning
+    "camera": [],
+    "microphone": [],
+    "geolocation": [],
+}
 
 ROOT_URLCONF = "undiscovered_destinations.urls"
 

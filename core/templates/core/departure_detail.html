@@ -18,6 +18,9 @@
                 <p class="departure-date">{{ departure.departure_date|date:"F j, Y" }}</p>
             </div>
             <div class="action-buttons">
+                <a href="{% url 'create_booking' departure.id %}" class="btn-success">
+                    Book This Departure
+                </a>
                 <a href="{% url 'edit_departure' departure.id %}" class="btn-primary">
                     Edit Departure
                 </a>

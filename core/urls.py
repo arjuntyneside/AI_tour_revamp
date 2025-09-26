@@ -37,6 +37,10 @@ urlpatterns = [
     
     # Booking Management
     path('bookings/', views.bookings, name='bookings'),
+    path('bookings/create/<uuid:departure_id>/', views.create_booking, name='create_booking'),
+    path('bookings/<uuid:booking_id>/', views.booking_detail, name='booking_detail'),
+    path('bookings/<uuid:booking_id>/edit/', views.edit_booking, name='edit_booking'),
+    path('bookings/<uuid:booking_id>/delete/', views.delete_booking, name='delete_booking'),
     
     # Analytics and AI Insights
     path('analytics/', views.analytics, name='analytics'),

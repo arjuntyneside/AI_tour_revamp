@@ -127,13 +127,85 @@ class TourDepartureFormWithTour(forms.ModelForm):
             self.fields['tour'].queryset = Tour.objects.filter(tour_operator=tour_operator)
 
 class BookingForm(forms.ModelForm):
+    # Add a search field for customers
+    customer_search = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Search customers by name...',
+            'id': 'customer-search'
+        }),
+        help_text="Type to search for customers"
+    )
+    
     class Meta:
         model = Booking
         fields = [
-            'tour', 'departure', 'customer', 'number_of_people', 
+            'tour', 'departure', 'customer', 'customer_search', 'number_of_people', 
             'total_amount', 'status', 'notes'
         ]
         widgets = {
-            'total_amount': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
-            'notes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Additional notes...'}),
-        } 
+            'tour': forms.HiddenInput(),
+            'departure': forms.HiddenInput(),
+            'customer': forms.Select(attrs={'class': 'form-control', 'id': 'customer-select'}),
+            'number_of_people': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '20'}),
+            'total_amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'readonly': True}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Additional notes, special requirements, dietary needs...'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        tour_operator = kwargs.pop('tour_operator', None)
+        super().__init__(*args, **kwargs)
+        
+        # Store tour_operator for validation
+        self._tour_operator = tour_operator
+        
+        if tour_operator:
+            # Load all customers - much simpler and more reliable
+            customers = Customer.objects.filter(
+                tour_operator=tour_operator
+            ).only('id', 'full_name', 'initials', 'email').distinct().order_by('full_name')
+            self.fields['customer'].queryset = customers
+        
+        # Make total_amount readonly as it will be calculated automatically
+        self.fields['total_amount'].widget.attrs['readonly'] = True
+        
+        # Override the customer field to show unique identifiers
+        if 'customer' in self.fields:
+            self.fields['customer'].label_from_instance = self._get_customer_display_name
+    
+    def _get_customer_display_name(self, customer):
+        """Create a unique display name for customers to avoid confusion with duplicates"""
+        # Use initials and email to make each customer unique
+        if customer.initials and customer.email:
+            return f"{customer.full_name} ({customer.initials}) - {customer.email}"
+        elif customer.initials:
+            return f"{customer.full_name} ({customer.initials})"
+        elif customer.email:
+            return f"{customer.full_name} - {customer.email}"
+        else:
+            return f"{customer.full_name} (ID: {customer.id})"
+    
+    def clean_customer(self):
+        """Custom validation for customer field"""
+        customer = self.cleaned_data.get('customer')
+        if customer:
+            # Check if customer exists and belongs to the tour operator
+            tour_operator = getattr(self, '_tour_operator', None)
+            if tour_operator:
+                try:
+                    # Verify the customer exists and belongs to the tour operator
+                    valid_customer = Customer.objects.get(id=customer.id, tour_operator=tour_operator)
+                    return valid_customer
+                except Customer.DoesNotExist:
+                    raise forms.ValidationError("Selected customer is not valid for this tour operator.")
+        return customer
+    
+    def refresh_customer_queryset(self):
+        """Refresh the customer queryset - useful after data changes"""
+        if hasattr(self, '_tour_operator') and self._tour_operator:
+            customers = Customer.objects.filter(
+                tour_operator=self._tour_operator
+            ).only('id', 'full_name', 'initials', 'email').distinct().order_by('full_name')
+            self.fields['customer'].queryset = customers 

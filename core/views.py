@@ -890,6 +890,152 @@ def bookings(request):
 
 @login_required
 @require_tour_operator
+def create_booking(request, departure_id):
+    """Create a new booking for a specific departure"""
+    tour_operator = request.tour_operator
+    departure = get_object_or_404(
+        TourDeparture.objects.select_related('tour'), 
+        id=departure_id, 
+        tour__tour_operator=tour_operator
+    )
+    
+    if request.method == 'POST':
+        form = BookingForm(request.POST, tour_operator=tour_operator)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.tour_operator = tour_operator
+            booking.tour = departure.tour
+            booking.departure = departure
+            
+            # Calculate total amount based on number of people and current price
+            booking.total_amount = booking.number_of_people * departure.current_price_per_person
+            
+            booking.save()
+            
+            # Update departure booking count
+            departure.total_bookings += booking.number_of_people
+            departure.save()
+            
+            # Update customer stats
+            customer = booking.customer
+            customer.bookings_count += 1
+            customer.total_spent += booking.total_amount
+            customer.last_interaction_date = timezone.now().date()
+            customer.save()
+            
+            messages.success(request, f"Booking created successfully for {booking.customer.full_name}!")
+            return redirect('booking_detail', booking_id=booking.id)
+        else:
+            messages.error(request, "Please correct the errors below.")
+            # Refresh the customer queryset in case of validation errors
+            form.refresh_customer_queryset()
+    else:
+        form = BookingForm(tour_operator=tour_operator)
+        # Pre-populate the form with departure info
+        form.fields['tour'].initial = departure.tour
+        form.fields['departure'].initial = departure
+        form.fields['tour'].widget = forms.HiddenInput()
+        form.fields['departure'].widget = forms.HiddenInput()
+    
+    context = {
+        'departure': departure,
+        'form': form,
+        'tour_operator': tour_operator,
+    }
+    
+    return render(request, 'core/create_booking.html', context)
+
+@login_required
+@require_tour_operator
+def booking_detail(request, booking_id):
+    """View booking details"""
+    tour_operator = request.tour_operator
+    booking = get_object_or_404(Booking, id=booking_id, tour_operator=tour_operator)
+    
+    context = {
+        'booking': booking,
+        'tour_operator': tour_operator,
+    }
+    
+    return render(request, 'core/booking_detail.html', context)
+
+@login_required
+@require_tour_operator
+def edit_booking(request, booking_id):
+    """Edit booking information"""
+    tour_operator = request.tour_operator
+    booking = get_object_or_404(Booking, id=booking_id, tour_operator=tour_operator)
+    
+    if request.method == 'POST':
+        form = BookingForm(request.POST, instance=booking)
+        if form.is_valid():
+            old_number_of_people = booking.number_of_people
+            old_total_amount = booking.total_amount
+            
+            booking = form.save(commit=False)
+            
+            # Recalculate total amount
+            booking.total_amount = booking.number_of_people * booking.departure.current_price_per_person
+            booking.save()
+            
+            # Update departure booking count
+            booking.departure.total_bookings = booking.departure.total_bookings - old_number_of_people + booking.number_of_people
+            booking.departure.save()
+            
+            # Update customer stats
+            customer = booking.customer
+            customer.total_spent = customer.total_spent - old_total_amount + booking.total_amount
+            customer.save()
+            
+            messages.success(request, f"Booking updated successfully!")
+            return redirect('booking_detail', booking_id=booking.id)
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = BookingForm(instance=booking)
+    
+    context = {
+        'booking': booking,
+        'form': form,
+        'tour_operator': tour_operator,
+    }
+    
+    return render(request, 'core/edit_booking.html', context)
+
+@login_required
+@require_tour_operator
+def delete_booking(request, booking_id):
+    """Delete booking"""
+    tour_operator = request.tour_operator
+    booking = get_object_or_404(Booking, id=booking_id, tour_operator=tour_operator)
+    
+    if request.method == 'POST':
+        customer_name = booking.customer.full_name
+        tour_title = booking.tour.title
+        
+        # Update departure booking count
+        booking.departure.total_bookings -= booking.number_of_people
+        booking.departure.save()
+        
+        # Update customer stats
+        customer = booking.customer
+        customer.bookings_count -= 1
+        customer.total_spent -= booking.total_amount
+        customer.save()
+        
+        booking.delete()
+        messages.success(request, f"Booking for {customer_name} on {tour_title} deleted successfully!")
+        return redirect('bookings')
+    
+    context = {
+        'booking': booking,
+        'tour_operator': tour_operator,
+    }
+    
+    return render(request, 'core/delete_booking_confirm.html', context)
+
+@login_required
+@require_tour_operator
 def departures(request):
     """View all departures with financial analysis"""
     tour_operator = request.tour_operator
@@ -1187,44 +1333,29 @@ def edit_departure(request, departure_id):
 @login_required
 @require_tour_operator
 def departure_detail(request, departure_id):
-    """View detailed financial analysis for a departure"""
+    """View detailed financial analysis for a departure - ULTRA FAST WITH FASTAPI"""
     tour_operator = request.tour_operator
-    departure = get_object_or_404(TourDeparture, id=departure_id, tour__tour_operator=tour_operator)
     
-    # Get bookings for this departure
-    bookings = Booking.objects.filter(departure=departure).order_by('booking_date')
-    
-    # Add calculated fields using breakeven analyzer
-    from .breakeven_analysis import BreakevenAnalyzer
-    
-    analyzer = BreakevenAnalyzer(
-        fixed_costs=departure.fixed_costs,
-        variable_costs_per_person=departure.variable_costs_per_person,
-        marketing_costs=departure.marketing_costs,
-        price_per_person=departure.current_price_per_person,
-        commission_rate=departure.commission_rate,
-        max_capacity=departure.available_spots
+    # Ultra-fast database query with minimal data
+    departure = get_object_or_404(
+        TourDeparture.objects.select_related('tour').only(
+            'id', 'departure_date', 'total_bookings', 'available_spots', 
+            'current_price_per_person', 'status', 'fixed_costs', 
+            'variable_costs_per_person', 'marketing_costs', 'commission_rate',
+            'tour__title', 'tour__destination', 'tour__duration_days'
+        ), 
+        id=departure_id, 
+        tour__tour_operator=tour_operator
     )
     
-    # Get analysis results
-    analysis = analyzer.get_breakeven_analysis(departure.slots_filled)
-    cost_breakdown = analyzer.get_cost_breakdown(departure.slots_filled)
+    # Get bookings with minimal data
+    bookings = Booking.objects.filter(departure=departure).select_related('customer').only(
+        'id', 'booking_date', 'number_of_people', 'total_amount', 'status', 'notes',
+        'customer__full_name', 'customer__initials'
+    ).order_by('booking_date')
     
-    # Update departure object with calculated fields
-    departure.variable_costs_total = cost_breakdown['variable_costs_total']
-    departure.total_costs = cost_breakdown['total_costs']
-    departure.commission_amount = analysis['commission_amount_per_person'] * departure.slots_filled
-    departure.net_revenue = departure.current_revenue - departure.commission_amount
-    departure.contribution_margin_per_person = analysis['contribution_margin_per_person']
-    departure.net_revenue_per_person = analysis['net_revenue_per_person']
-    
-    # Update breakeven fields if they're not set
-    if not departure.breakeven_passengers:
-        departure.breakeven_passengers = analysis['breakeven_passengers']
-    if not departure.profit_at_capacity:
-        departure.profit_at_capacity = analysis['profit_at_capacity']
-    if not departure.roi_percentage:
-        departure.roi_percentage = analysis['roi_percentage']
+    # Calculate financial metrics (simple and fast)
+    _apply_simple_calculations(departure)
     
     context = {
         'departure': departure,
@@ -1233,6 +1364,31 @@ def departure_detail(request, departure_id):
     }
     
     return render(request, 'core/departure_detail.html', context)
+
+def _apply_simple_calculations(departure):
+    """Apply simple financial calculations"""
+    # Calculate breakeven passengers
+    if departure.current_price_per_person > departure.variable_costs_per_person:
+        fixed_costs_total = departure.fixed_costs + departure.marketing_costs
+        contribution_margin = departure.current_price_per_person - departure.variable_costs_per_person
+        departure.breakeven_passengers = max(1, int(fixed_costs_total / contribution_margin) + 1)
+    else:
+        departure.breakeven_passengers = 0
+    
+    # Calculate profit at capacity
+    if departure.available_spots > 0:
+        revenue_at_capacity = departure.available_spots * departure.current_price_per_person
+        costs_at_capacity = departure.fixed_costs + (departure.available_spots * departure.variable_costs_per_person) + departure.marketing_costs
+        departure.profit_at_capacity = max(0, revenue_at_capacity - costs_at_capacity)
+    else:
+        departure.profit_at_capacity = 0
+    
+    # Calculate ROI percentage
+    if departure.fixed_costs > 0:
+        total_investment = departure.fixed_costs + departure.marketing_costs
+        departure.roi_percentage = (departure.profit_at_capacity / total_investment) * 100
+    else:
+        departure.roi_percentage = 0
 
 @login_required
 @require_tour_operator
