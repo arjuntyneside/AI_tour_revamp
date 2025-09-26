@@ -1,0 +1,132 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Edit Customer{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><img src="{% static 'core/icons/dashboard/customers.png' %}" alt="Edit Customer" class="page-icon-img"> Edit Customer</h1>
+            <p class="subtitle">Update customer information</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'customer_detail' customer.id %}" class="btn btn-secondary">Back to Customer</a>
+        </div>
+    </div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Edit Customer Form -->
+    <div class="form-section">
+        <div class="form-container">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.initials.id_for_label }}">{{ form.initials.label }}</label>
+                        {{ form.initials }}
+                        {% if form.initials.errors %}
+                            <div class="error-message">{{ form.initials.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.full_name.id_for_label }}">{{ form.full_name.label }}</label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                            <div class="error-message">{{ form.full_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="error-message">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.phone_number.id_for_label }}">{{ form.phone_number.label }}</label>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}
+                            <div class="error-message">{{ form.phone_number.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                        <div class="error-message">{{ form.location.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.ai_customer_segment.id_for_label }}">{{ form.ai_customer_segment.label }}</label>
+                        {{ form.ai_customer_segment }}
+                        {% if form.ai_customer_segment.errors %}
+                            <div class="error-message">{{ form.ai_customer_segment.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.last_interaction_date.id_for_label }}">{{ form.last_interaction_date.label }}</label>
+                        {{ form.last_interaction_date }}
+                        {% if form.last_interaction_date.errors %}
+                            <div class="error-message">{{ form.last_interaction_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.total_spent.id_for_label }}">{{ form.total_spent.label }}</label>
+                        {{ form.total_spent }}
+                        {% if form.total_spent.errors %}
+                            <div class="error-message">{{ form.total_spent.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.bookings_count.id_for_label }}">{{ form.bookings_count.label }}</label>
+                        {{ form.bookings_count }}
+                        {% if form.bookings_count.errors %}
+                            <div class="error-message">{{ form.bookings_count.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.cancellation_rate.id_for_label }}">{{ form.cancellation_rate.label }}</label>
+                    {{ form.cancellation_rate }}
+                    {% if form.cancellation_rate.errors %}
+                        <div class="error-message">{{ form.cancellation_rate.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update Customer</button>
+                    <a href="{% url 'customer_detail' customer.id %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

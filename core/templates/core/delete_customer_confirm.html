@@ -1,0 +1,237 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Delete Customer{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><img src="{% static 'core/icons/dashboard/customers.png' %}" alt="Delete Customer" class="page-icon-img"> Delete Customer</h1>
+            <p class="subtitle">Confirm customer deletion</p>
+        </div>
+    </div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Delete Confirmation -->
+    <div class="confirmation-section">
+        <div class="confirmation-container">
+            <div class="warning-message">
+                <h2>⚠️ Warning: This action cannot be undone!</h2>
+                <p>You are about to permanently delete the following customer and all associated data:</p>
+            </div>
+
+            <div class="customer-info">
+                <div class="customer-card">
+                    <div class="customer-header">
+                        <span class="customer-initials">{{ customer.initials }}</span>
+                        <span class="customer-name">{{ customer.full_name }}</span>
+                    </div>
+                    <div class="customer-details">
+                        <div class="detail-item">
+                            <strong>Email:</strong> {{ customer.email }}
+                        </div>
+                        {% if customer.phone_number %}
+                        <div class="detail-item">
+                            <strong>Phone:</strong> {{ customer.phone_number }}
+                        </div>
+                        {% endif %}
+                        {% if customer.location %}
+                        <div class="detail-item">
+                            <strong>Location:</strong> {{ customer.location }}
+                        </div>
+                        {% endif %}
+                        <div class="detail-item">
+                            <strong>Customer Segment:</strong> {{ customer.get_ai_customer_segment_display }}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Total Spent:</strong> £{{ customer.total_spent }}
+                        </div>
+                        <div class="detail-item">
+                            <strong>Bookings:</strong> {{ customer.bookings_count }}
+                        </div>
+                        {% if customer.last_interaction_date %}
+                        <div class="detail-item">
+                            <strong>Last Interaction:</strong> {{ customer.last_interaction_date }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="deletion-impact">
+                <h3>What will be deleted:</h3>
+                <ul>
+                    <li>Customer profile and all personal information</li>
+                    <li>All customer notes and comments</li>
+                    <li>Customer booking history</li>
+                    <li>All associated AI insights and analytics</li>
+                </ul>
+            </div>
+
+            <div class="confirmation-actions">
+                <form method="post" class="delete-form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Yes, Delete Customer</button>
+                </form>
+                <a href="{% url 'customer_detail' customer.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.confirmation-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.confirmation-container {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.warning-message {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.warning-message h2 {
+    color: #856404;
+    margin: 0 0 0.5rem 0;
+}
+
+.warning-message p {
+    color: #856404;
+    margin: 0;
+}
+
+.customer-info {
+    margin-bottom: 2rem;
+}
+
+.customer-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1.5rem;
+    background: #f8f9fa;
+}
+
+.customer-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.customer-initials {
+    background: #007bff;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 1rem;
+}
+
+.customer-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.customer-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+}
+
+.detail-item {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.deletion-impact {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.deletion-impact h3 {
+    color: #721c24;
+    margin: 0 0 0.5rem 0;
+}
+
+.deletion-impact ul {
+    color: #721c24;
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.delete-form {
+    display: inline;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    color: white;
+    text-decoration: none;
+}
+</style>
+{% endblock %}

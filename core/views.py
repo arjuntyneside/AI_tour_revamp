@@ -12,6 +12,9 @@ from django import forms
 import json
 import uuid
 import os
+import csv
+import pandas as pd
+from io import StringIO
 
 from .models import (
     TourOperator, TourOperatorUser, DocumentUpload, AIProcessingJob,
@@ -674,11 +677,111 @@ def customers(request):
             Q(initials__icontains=search_query)
         )
     
+    # Initialize form
+    form = CustomerForm()
+    
+    # Handle customer creation and import
+    if request.method == 'POST':
+        # Check if it's a file import
+        if 'import_file' in request.FILES:
+            import_file = request.FILES['import_file']
+            
+            try:
+                # Handle CSV files
+                if import_file.name.endswith('.csv'):
+                    # Read CSV file
+                    file_data = import_file.read().decode('utf-8')
+                    csv_reader = csv.DictReader(StringIO(file_data))
+                    
+                    imported_count = 0
+                    errors = []
+                    
+                    for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 because row 1 is header
+                        try:
+                            # Create customer from CSV row
+                            customer = Customer(
+                                tour_operator=tour_operator,
+                                initials=row.get('initials', ''),
+                                full_name=row.get('full_name', ''),
+                                email=row.get('email', ''),
+                                phone_number=row.get('phone_number', '') or None,
+                                location=row.get('location', '') or None,
+                                ai_customer_segment=row.get('ai_customer_segment', 'new'),
+                                total_spent=float(row.get('total_spent', 0)) if row.get('total_spent') else 0,
+                                bookings_count=int(row.get('bookings_count', 0)) if row.get('bookings_count') else 0,
+                                cancellation_rate=float(row.get('cancellation_rate', 0)) if row.get('cancellation_rate') else 0,
+                                last_interaction_date=row.get('last_interaction_date') if row.get('last_interaction_date') else None
+                            )
+                            customer.save()
+                            imported_count += 1
+                            
+                        except Exception as e:
+                            errors.append(f"Row {row_num}: {str(e)}")
+                    
+                    if imported_count > 0:
+                        messages.success(request, f"Successfully imported {imported_count} customers!")
+                    if errors:
+                        messages.warning(request, f"Some rows had errors: {'; '.join(errors[:5])}")
+                        
+                # Handle Excel files
+                elif import_file.name.endswith(('.xlsx', '.xls')):
+                    # Read Excel file
+                    df = pd.read_excel(import_file)
+                    
+                    imported_count = 0
+                    errors = []
+                    
+                    for index, row in df.iterrows():
+                        try:
+                            # Create customer from Excel row
+                            customer = Customer(
+                                tour_operator=tour_operator,
+                                initials=str(row.get('initials', '')),
+                                full_name=str(row.get('full_name', '')),
+                                email=str(row.get('email', '')),
+                                phone_number=str(row.get('phone_number', '')) if pd.notna(row.get('phone_number')) else None,
+                                location=str(row.get('location', '')) if pd.notna(row.get('location')) else None,
+                                ai_customer_segment=str(row.get('ai_customer_segment', 'new')),
+                                total_spent=float(row.get('total_spent', 0)) if pd.notna(row.get('total_spent')) else 0,
+                                bookings_count=int(row.get('bookings_count', 0)) if pd.notna(row.get('bookings_count')) else 0,
+                                cancellation_rate=float(row.get('cancellation_rate', 0)) if pd.notna(row.get('cancellation_rate')) else 0,
+                                last_interaction_date=row.get('last_interaction_date') if pd.notna(row.get('last_interaction_date')) else None
+                            )
+                            customer.save()
+                            imported_count += 1
+                            
+                        except Exception as e:
+                            errors.append(f"Row {index + 2}: {str(e)}")
+                    
+                    if imported_count > 0:
+                        messages.success(request, f"Successfully imported {imported_count} customers!")
+                    if errors:
+                        messages.warning(request, f"Some rows had errors: {'; '.join(errors[:5])}")
+                        
+                else:
+                    messages.error(request, "Please upload a CSV or Excel file (.csv, .xlsx, .xls)")
+                    
+            except Exception as e:
+                messages.error(request, f"Error processing file: {str(e)}")
+                
+        else:
+            # Handle individual customer creation
+            form = CustomerForm(request.POST)
+            if form.is_valid():
+                customer = form.save(commit=False)
+                customer.tour_operator = tour_operator
+                customer.save()
+                messages.success(request, f"Customer {customer.full_name} added successfully!")
+                return redirect('customers')
+            else:
+                messages.error(request, "Please correct the errors below.")
+    
     context = {
         'customers': customers,
         'tour_operator': tour_operator,
         'segment_filter': segment_filter,
         'search_query': search_query,
+        'form': form,
     }
     
     return render(request, 'core/customers.html', context)
@@ -717,6 +820,52 @@ def customer_detail(request, customer_id):
     }
     
     return render(request, 'core/customer_detail.html', context)
+
+@login_required
+@require_tour_operator
+def edit_customer(request, customer_id):
+    """Edit customer information"""
+    tour_operator = request.tour_operator
+    customer = get_object_or_404(Customer, id=customer_id, tour_operator=tour_operator)
+    
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Customer {customer.full_name} updated successfully!")
+            return redirect('customer_detail', customer_id=customer.id)
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = CustomerForm(instance=customer)
+    
+    context = {
+        'customer': customer,
+        'form': form,
+        'tour_operator': tour_operator,
+    }
+    
+    return render(request, 'core/edit_customer.html', context)
+
+@login_required
+@require_tour_operator
+def delete_customer(request, customer_id):
+    """Delete customer"""
+    tour_operator = request.tour_operator
+    customer = get_object_or_404(Customer, id=customer_id, tour_operator=tour_operator)
+    
+    if request.method == 'POST':
+        customer_name = customer.full_name
+        customer.delete()
+        messages.success(request, f"Customer {customer_name} deleted successfully!")
+        return redirect('customers')
+    
+    context = {
+        'customer': customer,
+        'tour_operator': tour_operator,
+    }
+    
+    return render(request, 'core/delete_customer_confirm.html', context)
 
 @login_required
 @require_tour_operator

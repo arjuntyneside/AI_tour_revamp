@@ -7,6 +7,10 @@
 <div class="customer-detail-header">
     <a href="{% url 'customers' %}" class="back-link">← Back to Customers</a>
     <h1>{{ customer.full_name }}</h1>
+    <div class="customer-actions">
+        <a href="{% url 'edit_customer' customer.id %}" class="btn btn-primary">Edit Customer</a>
+        <a href="{% url 'delete_customer' customer.id %}" class="btn btn-danger">Delete Customer</a>
+    </div>
 </div>
 
 <!-- Django Messages -->
